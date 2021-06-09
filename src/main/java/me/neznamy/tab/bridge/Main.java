@@ -92,6 +92,12 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 			ByteArrayDataOutput out = ByteStreams.newDataOutput();
 			out.writeUTF("Attribute");
 			out.writeUTF(attribute);
+			if (attribute.startsWith("hasPermission:")) {
+				String permission = attribute.substring(attribute.indexOf(":") + 1);
+				out.writeUTF(player.hasPermission(permission)+"");
+				player.sendPluginMessage(this, CHANNEL_NAME, out.toByteArray());
+				return;
+			}
 			if (attribute.equals("invisible")) {
 				out.writeUTF(player.hasPotionEffect(PotionEffectType.INVISIBILITY)+"");
 				player.sendPluginMessage(this, CHANNEL_NAME, out.toByteArray());
