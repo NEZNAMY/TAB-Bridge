@@ -1,12 +1,10 @@
 package me.neznamy.tab.bridge;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,6 +16,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import me.neznamy.tab.bridge.config.YamlConfigurationFile;
 import net.milkbowl.vault.permission.Permission;
 
 public class Main extends JavaPlugin implements PluginMessageListener {
@@ -26,7 +25,7 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 	private Set<String> ignored = new HashSet<String>();
 	private ExpansionDownloader downloader = new ExpansionDownloader(this);
 	
-	private YamlConfiguration config;
+	private YamlConfigurationFile config;
 	private boolean expansionDownloading;
 	private boolean exceptionThrowing;
 	
@@ -36,13 +35,7 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		Bukkit.getMessenger().registerOutgoingPluginChannel(this, CHANNEL_NAME);
 		
 		try {
-			getDataFolder().mkdirs();
-			File f = new File(getDataFolder(), "config.yml");
-			if (!f.exists()) {
-				Files.copy(getResource("config.yml"), f.toPath());
-			}
-			config = new YamlConfiguration();
-			config.load(f);
+			config = new YamlConfigurationFile(getClass().getResourceAsStream("config.yml"), new File(getDataFolder(), "config.yml"));
 			expansionDownloading = config.getBoolean("automatic-expansion-downloading", true);
 			exceptionThrowing = config.getBoolean("throw-placeholderapi-exceptions", false);
 			Bukkit.getConsoleSender().sendMessage("\u00a7a[TAB-BukkitBridge] Enabled in " + (System.currentTimeMillis()-time) + "ms");
