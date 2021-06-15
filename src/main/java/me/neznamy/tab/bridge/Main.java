@@ -28,6 +28,7 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 	
 	private YamlConfiguration config;
 	private boolean expansionDownloading;
+	private boolean exceptionThrowing;
 	
 	public void onEnable() {
 		long time = System.currentTimeMillis();
@@ -43,7 +44,8 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 			config = new YamlConfiguration();
 			config.load(f);
 			expansionDownloading = config.getBoolean("automatic-expansion-downloading", true);
-			Bukkit.getConsoleSender().sendMessage("§a[TAB-BukkitBridge] Enabled in " + (System.currentTimeMillis()-time) + "ms");
+			exceptionThrowing = config.getBoolean("throw-placeholderapi-exceptions", false);
+			Bukkit.getConsoleSender().sendMessage("\u00a7a[TAB-BukkitBridge] Enabled in " + (System.currentTimeMillis()-time) + "ms");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -70,6 +72,10 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 				}
 			} catch (Throwable e) {
 				output = "<PlaceholderAPI ERROR>";
+				if (exceptionThrowing) {
+					System.out.println("[TAB-BukkitBridge] Placeholder " + identifier + " threw an exception when parsing for player " + player.getName());
+					e.printStackTrace();
+				}
 			}
 			long time = System.nanoTime() - start;
 			if (identifier.equals(output)) {
