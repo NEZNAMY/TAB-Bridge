@@ -1,5 +1,5 @@
 name: TAB-BukkitBridge
-version: 1.5.0
+version: ${project.version}
 author: NEZNAMY
 main: me.neznamy.tab.bridge.Main
 api-version: 1.13
