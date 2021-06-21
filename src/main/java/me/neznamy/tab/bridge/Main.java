@@ -35,7 +35,7 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		Bukkit.getMessenger().registerOutgoingPluginChannel(this, CHANNEL_NAME);
 		
 		try {
-			config = new YamlConfigurationFile(getClass().getResourceAsStream("config.yml"), new File(getDataFolder(), "config.yml"));
+			config = new YamlConfigurationFile(getClass().getClassLoader().getResourceAsStream("config.yml"), new File(getDataFolder(), "config.yml"));
 			expansionDownloading = config.getBoolean("automatic-expansion-downloading", true);
 			exceptionThrowing = config.getBoolean("throw-placeholderapi-exceptions", false);
 			Bukkit.getConsoleSender().sendMessage("\u00a7a[TAB-BukkitBridge] Enabled in " + (System.currentTimeMillis()-time) + "ms");
