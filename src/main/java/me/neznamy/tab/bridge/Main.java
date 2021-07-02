@@ -1,8 +1,6 @@
 package me.neznamy.tab.bridge;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -22,11 +20,8 @@ import net.milkbowl.vault.permission.Permission;
 public class Main extends JavaPlugin implements PluginMessageListener {
 
 	private final String CHANNEL_NAME = "tab:placeholders";
-	private Set<String> ignored = new HashSet<String>();
-	private ExpansionDownloader downloader = new ExpansionDownloader(this);
 	
 	private YamlConfigurationFile config;
-	private boolean expansionDownloading;
 	private boolean exceptionThrowing;
 	
 	public void onEnable() {
@@ -36,7 +31,6 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		
 		try {
 			config = new YamlConfigurationFile(getClass().getClassLoader().getResourceAsStream("config.yml"), new File(getDataFolder(), "config.yml"));
-			expansionDownloading = config.getBoolean("automatic-expansion-downloading", true);
 			exceptionThrowing = config.getBoolean("throw-placeholderapi-exceptions", false);
 			Bukkit.getConsoleSender().sendMessage("\u00a7a[TAB-BukkitBridge] Enabled in " + (System.currentTimeMillis()-time) + "ms");
 		} catch (Exception e) {
@@ -71,14 +65,6 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 				}
 			}
 			long time = System.nanoTime() - start;
-			if (identifier.equals(output)) {
-				String expansion = identifier.split("_")[0].substring(1);
-				if (!ignored.contains(expansion)) {
-					ignored.add(expansion);
-					if (expansionDownloading) downloader.download(expansion);
-				}
-			}
-			
 			ByteArrayDataOutput out = ByteStreams.newDataOutput();
 			out.writeUTF("Placeholder");
 			out.writeUTF(identifier);
