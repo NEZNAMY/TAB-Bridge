@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.neznamy</groupId>
 	<artifactId>TAB-Bridge</artifactId>
-	<version>1.5.1</version>
+	<version>1.5.2</version>
 	<name>TAB-Bridge</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
