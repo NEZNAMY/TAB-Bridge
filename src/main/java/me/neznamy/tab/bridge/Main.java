@@ -98,6 +98,11 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 				player.sendPluginMessage(this, CHANNEL_NAME, out.toByteArray());
 				return;
 			}
+			if (attribute.equals("world")) {
+				out.writeUTF(player.getWorld().getName());
+				player.sendPluginMessage(this, CHANNEL_NAME, out.toByteArray());
+				return;
+			}
 		}
 		if (subChannel.equalsIgnoreCase("Group")) {
 			ByteArrayDataOutput out = ByteStreams.newDataOutput();
