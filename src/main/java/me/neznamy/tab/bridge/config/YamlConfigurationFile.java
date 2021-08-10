@@ -58,11 +58,10 @@ public class YamlConfigurationFile extends ConfigurationFile {
 			values = (Map<String, Object>) yaml.load(new InputStreamReader(input, StandardCharsets.UTF_8));
 			if (values == null) values = new HashMap<String, Object>();
 			input.close();
-			if (!hasHeader()) fixHeader();
 		} catch (YAMLException e) {
 			input.close();
-			System.out.println("[TAB-BukkitBridge] File " + destination + " has broken syntax.");
-			System.out.println("[TAB-BukkitBridge] Error message from yaml parser: " + e.getMessage());
+			System.out.println("[TAB-Bridge] File " + destination + " has broken syntax.");
+			System.out.println("[TAB-Bridge] Error message from yaml parser: " + e.getMessage());
 			throw e;
 		}
 	}
@@ -73,9 +72,9 @@ public class YamlConfigurationFile extends ConfigurationFile {
 			Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
 			yaml.dump(values, writer);
 			writer.close();
-			if (!hasHeader()) fixHeader();
+			fixHeader();
 		} catch (Throwable e) {
-			System.out.println("[TAB-BukkitBridge] Failed to save yaml file " + file.getPath() + " with content " + values.toString());
+			System.out.println("[TAB-Bridge] Failed to save yaml file " + file.getPath() + " with content " + values.toString());
 			e.printStackTrace();
 		}
 	}
