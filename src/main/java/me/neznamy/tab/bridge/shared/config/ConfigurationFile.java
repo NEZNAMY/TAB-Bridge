@@ -1,4 +1,4 @@
-package me.neznamy.tab.bridge.config;
+package me.neznamy.tab.bridge.shared.config;
 
 import java.io.File;
 import java.io.IOException;

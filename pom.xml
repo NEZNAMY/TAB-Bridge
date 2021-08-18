@@ -39,6 +39,12 @@
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
+		
+		<!-- Sponge -->
+		<repository>
+			<id>sponge</id>
+			<url>https://repo.spongepowered.org/maven</url>
+		</repository>
 
 	</repositories>
 
@@ -79,6 +85,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.github.rojo8399</groupId>
+			<artifactId>PlaceholderAPI</artifactId>
+			<version>master-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<!-- Vault -->
 		<dependency>
@@ -98,6 +111,64 @@
 				<exclusion>
 					<groupId>org.bukkit</groupId>
 					<artifactId>bukkit</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!-- Sponge API -->
+		<dependency>
+			<groupId>org.spongepowered</groupId>
+			<artifactId>spongeapi</artifactId>
+			<version>7.2.0</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.findbugs</groupId>
+					<artifactId>jsr305</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.errorprone</groupId>
+					<artifactId>error_prone_annotations</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.spongepowered</groupId>
+					<artifactId>configurate-hocon</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.spongepowered</groupId>
+					<artifactId>configurate-yaml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.spongepowered</groupId>
+					<artifactId>configurate-gson</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.ow2.asm</groupId>
+					<artifactId>asm</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.github.ben-manes.caffeine</groupId>
+					<artifactId>caffeine</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.flowpowered</groupId>
+					<artifactId>flow-noise</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-lang3</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.flowpowered</groupId>
+					<artifactId>flow-math</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.github.ben-manes.caffeine</groupId>
+					<artifactId>guava</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
