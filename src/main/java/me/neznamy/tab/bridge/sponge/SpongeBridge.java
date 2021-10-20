@@ -11,7 +11,7 @@ import org.spongepowered.api.plugin.Plugin;
 
 import me.neznamy.tab.bridge.shared.DataBridge;
 
-@Plugin(id = "tab-bridge", name = "TAB-Bridge", version = "1.5.2", description = "Bridge to extend features with TAB on bungeecord", authors = {"NEZNAMY"})
+@Plugin(id = "tab-bridge", name = "TAB-Bridge", version = "1.5.3", description = "Bridge to extend features with TAB on bungeecord", authors = {"NEZNAMY"})
 public class SpongeBridge {
 
 	private final String CHANNEL_NAME = "tab:placeholders";
