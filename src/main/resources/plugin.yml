@@ -4,4 +4,5 @@ author: NEZNAMY
 main: me.neznamy.tab.bridge.bukkit.BukkitBridge
 api-version: 1.13
 website: "https://www.spigotmc.org/resources/83966/"
+softdepend: [PlaceholderAPI, Vault]
 description: "Bukkit bridge for PlaceholderAPI support when TAB is on bungeecord"
