@@ -5,22 +5,48 @@ import java.io.File;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 
 import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.neznamy.tab.bridge.shared.DataBridge;
 import net.milkbowl.vault.permission.Permission;
 
-public class BukkitDataBridge extends DataBridge {
+public class BukkitDataBridge extends DataBridge implements Listener {
 
 	private Plugin plugin;
 	
 	public BukkitDataBridge(Plugin plugin) {
 		this.plugin = plugin;
 		loadConfig();
+		Bukkit.getPluginManager().registerEvents(this, plugin);
+	}
+	
+	@EventHandler
+	public void onJoin(PlayerJoinEvent e) {
+		Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeUTF("Attribute");
+			out.writeUTF("world");
+			out.writeUTF(e.getPlayer().getWorld().getName());
+			sendPluginMessage(e.getPlayer(), out);
+		}, 2);
+	}
+	
+	@EventHandler
+	public void onWorldChange(PlayerChangedWorldEvent e) {
+		ByteArrayDataOutput out = ByteStreams.newDataOutput();
+		out.writeUTF("Attribute");
+		out.writeUTF("world");
+		out.writeUTF(e.getPlayer().getWorld().getName());
+		sendPluginMessage(e.getPlayer(), out);
 	}
 	
 	@Override

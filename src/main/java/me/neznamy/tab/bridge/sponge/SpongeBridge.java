@@ -33,7 +33,7 @@ public class SpongeBridge {
 				data.processPluginMessage(((PlayerConnection) remoteConnection).getPlayer(), bytes);
 			}
 		});
-		data = new SpongeDataBridge(rawDataChannel);
+		data = new SpongeDataBridge(this, rawDataChannel);
 	}
 	
 	@Listener

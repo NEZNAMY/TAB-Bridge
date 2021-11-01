@@ -4,9 +4,12 @@ import java.io.File;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 
 import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 
 import me.neznamy.tab.bridge.shared.DataBridge;
 import me.rojo8399.placeholderapi.impl.PlaceholderServiceImpl;
@@ -15,9 +18,19 @@ public class SpongeDataBridge extends DataBridge {
 
 	private RawDataChannel channel;
 	
-	public SpongeDataBridge(RawDataChannel channel) {
+	public SpongeDataBridge(Object plugin, RawDataChannel channel) {
 		this.channel = channel;
 		loadConfig();
+		Sponge.getEventManager().registerListeners(plugin, this);
+	}
+	
+	@Listener
+	public void onWorldChange(TargetWorldEvent e) {
+		ByteArrayDataOutput out = ByteStreams.newDataOutput();
+		out.writeUTF("Attribute");
+		out.writeUTF("world");
+		out.writeUTF(getWorld(e.getSource()));
+		sendPluginMessage(e.getSource(), out);
 	}
 	
 	@Override
