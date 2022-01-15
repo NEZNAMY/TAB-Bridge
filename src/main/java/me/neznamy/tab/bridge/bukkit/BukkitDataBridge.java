@@ -31,7 +31,6 @@ public class BukkitDataBridge extends DataBridge implements Listener {
 	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
-		System.out.println(e.getEventName());
 		exe.submit(() -> {
 			try {
 				Thread.sleep(100);
