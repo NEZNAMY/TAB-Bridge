@@ -2,6 +2,7 @@ package me.neznamy.tab.bridge.bukkit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
@@ -21,11 +22,13 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener {
 	
 	public void onDisable() {
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
+		HandlerList.unregisterAll(this);
+		data.exe.shutdownNow();
 	}
 	
 	@Override
 	public void onPluginMessageReceived(String channel, Player player, byte[] bytes){
 		if (!channel.equalsIgnoreCase(CHANNEL_NAME)) return;
-		data.processPluginMessage(player, bytes);
+		data.exe.submit(() -> data.processPluginMessage(player, bytes, 0));
 	}
 }

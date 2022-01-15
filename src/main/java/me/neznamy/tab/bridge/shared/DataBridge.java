@@ -1,6 +1,8 @@
 package me.neznamy.tab.bridge.shared;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -10,12 +12,12 @@ import me.neznamy.tab.bridge.shared.config.YamlConfigurationFile;
 
 public abstract class DataBridge {
 
-	private YamlConfigurationFile config;
+	public final ExecutorService exe = Executors.newCachedThreadPool();
 	protected boolean exceptionThrowing;
 	
 	protected void loadConfig() {
 		try {
-			config = new YamlConfigurationFile(getClass().getClassLoader().getResourceAsStream("config.yml"), new File(getDataFolder(), "config.yml"));
+			YamlConfigurationFile config = new YamlConfigurationFile(getClass().getClassLoader().getResourceAsStream("config.yml"), new File(getDataFolder(), "config.yml"));
 			exceptionThrowing = config.getBoolean("throw-placeholderapi-exceptions", false);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -39,8 +41,21 @@ public abstract class DataBridge {
 	public abstract String getGroup(Object player);
 	
 	public abstract boolean hasInvisibilityPotion(Object player);
+
+	public abstract boolean isOnline(Object player);
 	
-	public void processPluginMessage(Object player, byte[] bytes) {
+	public void processPluginMessage(Object player, byte[] bytes, int retryLevel) {
+		if (retryLevel == 2) return;
+		if (!isOnline(player)) {
+			exe.submit(() -> {
+				try {
+					Thread.sleep(100);
+					processPluginMessage(player, bytes, retryLevel+1);
+				} catch (InterruptedException e) {
+				}
+			});
+			return;
+		}
 		ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
 		String subChannel = in.readUTF();
 		if (subChannel.equalsIgnoreCase("Placeholder")){

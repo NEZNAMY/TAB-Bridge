@@ -89,4 +89,9 @@ public class SpongeDataBridge extends DataBridge {
 	public boolean hasInvisibilityPotion(Object player) {
 		return false; //TODO
 	}
+
+	@Override
+	public boolean isOnline(Object player) {
+		return ((Player)player).isOnline();
+	}
 }

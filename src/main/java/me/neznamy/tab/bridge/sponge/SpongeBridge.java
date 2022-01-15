@@ -30,7 +30,7 @@ public class SpongeBridge {
 				for (int i=0; i<count; i++) {
 					bytes[i] = channelBuf.readByte();
 				}
-				data.processPluginMessage(((PlayerConnection) remoteConnection).getPlayer(), bytes);
+				data.processPluginMessage(((PlayerConnection) remoteConnection).getPlayer(), bytes, 0);
 			}
 		});
 		data = new SpongeDataBridge(this, rawDataChannel);

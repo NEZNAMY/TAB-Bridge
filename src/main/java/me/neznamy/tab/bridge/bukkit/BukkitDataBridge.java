@@ -21,7 +21,7 @@ import net.milkbowl.vault.permission.Permission;
 
 public class BukkitDataBridge extends DataBridge implements Listener {
 
-	private Plugin plugin;
+	private final Plugin plugin;
 	
 	public BukkitDataBridge(Plugin plugin) {
 		this.plugin = plugin;
@@ -31,22 +31,28 @@ public class BukkitDataBridge extends DataBridge implements Listener {
 	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
-		Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+		System.out.println(e.getEventName());
+		exe.submit(() -> {
+			try {
+				Thread.sleep(100);
+				ByteArrayDataOutput out = ByteStreams.newDataOutput();
+				out.writeUTF("Attribute");
+				out.writeUTF("world");
+				out.writeUTF(e.getPlayer().getWorld().getName());
+				sendPluginMessage(e.getPlayer(), out);
+			} catch (InterruptedException ignored) {}
+		});
+	}
+	
+	@EventHandler
+	public void onWorldChange(PlayerChangedWorldEvent e) {
+		exe.submit(() -> {
 			ByteArrayDataOutput out = ByteStreams.newDataOutput();
 			out.writeUTF("Attribute");
 			out.writeUTF("world");
 			out.writeUTF(e.getPlayer().getWorld().getName());
 			sendPluginMessage(e.getPlayer(), out);
-		}, 2);
-	}
-	
-	@EventHandler
-	public void onWorldChange(PlayerChangedWorldEvent e) {
-		ByteArrayDataOutput out = ByteStreams.newDataOutput();
-		out.writeUTF("Attribute");
-		out.writeUTF("world");
-		out.writeUTF(e.getPlayer().getWorld().getName());
-		sendPluginMessage(e.getPlayer(), out);
+		});
 	}
 	
 	@Override
@@ -135,5 +141,10 @@ public class BukkitDataBridge extends DataBridge implements Listener {
 	@Override
 	public boolean hasInvisibilityPotion(Object player) {
 		return ((Player)player).hasPotionEffect(PotionEffectType.INVISIBILITY);
+	}
+
+	@Override
+	public boolean isOnline(Object player) {
+		return ((Player)player).isOnline();
 	}
 }
