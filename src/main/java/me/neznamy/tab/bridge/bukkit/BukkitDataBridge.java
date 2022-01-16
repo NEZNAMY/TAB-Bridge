@@ -101,7 +101,7 @@ public class BukkitDataBridge extends DataBridge implements Listener {
 			}
 		} catch (Throwable e) {
 			if (exceptionThrowing) {
-				System.out.println("[TAB-Bridge] Placeholder " + placeholder + " threw an exception when parsing for player " + ((Player) player).getName());
+				Bukkit.getConsoleSender().sendMessage("[TAB-Bridge] Placeholder " + placeholder + " threw an exception when parsing for player " + ((Player) player).getName());
 				e.printStackTrace();
 			}
 			return "<PlaceholderAPI ERROR>";
