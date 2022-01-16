@@ -49,7 +49,7 @@ public abstract class DataBridge {
 		if (!isOnline(player)) {
 			exe.submit(() -> {
 				try {
-					Thread.sleep(100);
+					Thread.sleep(50);
 					processPluginMessage(player, bytes, retryLevel+1);
 				} catch (InterruptedException e) {
 				}
