@@ -7,10 +7,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import me.neznamy.tab.bridge.shared.DataBridge;
+import org.jetbrains.annotations.NotNull;
 
 public class BukkitBridge extends JavaPlugin implements PluginMessageListener {
 
-	public static final String CHANNEL_NAME = "tab:placeholders";
+	public static final String CHANNEL_NAME = "tab:bridge-1";
 
 	private DataBridge data;
 	
@@ -27,8 +28,14 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener {
 	}
 	
 	@Override
-	public void onPluginMessageReceived(String channel, Player player, byte[] bytes){
-		if (!channel.equalsIgnoreCase(CHANNEL_NAME)) return;
-		data.exe.submit(() -> data.processPluginMessage(player, bytes, 0));
+	public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] bytes){
+		if (!channel.equals(CHANNEL_NAME)) return;
+		data.exe.submit(() -> {
+			try {
+				data.processPluginMessage(player, bytes, 0);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 }
