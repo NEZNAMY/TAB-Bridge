@@ -45,6 +45,12 @@
 			<id>essentials</id>
 			<url>https://repo.essentialsx.net/releases/</url>
 		</repository>
+
+		<!-- AuthLib -->
+		<repository>
+			<id>aikar</id>
+			<url>https://repo.aikar.co/content/groups/aikar/</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -63,10 +69,6 @@
 				<exclusion>
 					<groupId>net.md-5</groupId>
 					<artifactId>bungeecord-chat</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.google.code.gson</groupId>
-					<artifactId>gson</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -114,6 +116,36 @@
 			<version>2.19.2</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- Netty -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.1.72.Final</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- AuthLib -->
+		<dependency>
+			<groupId>com.mojang</groupId>
+			<artifactId>authlib</artifactId>
+			<version>1.11</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- json-simple -->
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 		<dependency>
 			<groupId>org.jetbrains</groupId>
 			<artifactId>annotations</artifactId>
