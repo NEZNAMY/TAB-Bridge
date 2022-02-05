@@ -47,6 +47,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 	public void onDisable() {
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
 		HandlerList.unregisterAll((Plugin)this);
+		Bukkit.getScheduler().cancelTasks(this);
 		data.exe.shutdownNow();
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			uninject(p);

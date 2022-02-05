@@ -45,8 +45,8 @@ public class BukkitDataBridge extends DataBridge implements Listener {
 			e.printStackTrace();
 		}
 		Bukkit.getPluginManager().registerEvents(this, plugin);
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> updatePlaceholders(syncPlaceholders.values()), 0, 1);
-		Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> updatePlaceholders(asyncPlaceholders.values()), 0, 1);
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> updatePlaceholders(syncPlaceholders.values(), false), 0, 1);
+		Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> updatePlaceholders(asyncPlaceholders.values(), false), 0, 1);
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			updatePlaceholders(p, syncPlaceholders.values());
 			exe.submit(() -> {
@@ -56,9 +56,9 @@ public class BukkitDataBridge extends DataBridge implements Listener {
 		}
 	}
 
-	private void updatePlaceholders(Collection<Placeholder> placeholders) {
+	private void updatePlaceholders(Collection<Placeholder> placeholders, boolean force) {
 		for (Placeholder placeholder : placeholders) {
-			if (!placeholder.isInPeriod()) continue;
+			if (!placeholder.isInPeriod() && !force) continue;
 			if (placeholder instanceof ServerPlaceholder) {
 				ServerPlaceholder pl = (ServerPlaceholder) placeholder;
 				if (pl.update()) {
@@ -207,33 +207,32 @@ public class BukkitDataBridge extends DataBridge implements Listener {
 	public void registerPlaceholder(String identifier, int refresh) {
 		if (syncPlaceholders.containsKey(identifier)) {
 			syncPlaceholders.get(identifier).setRefresh(refresh);
-			return;
-		}
-		if (asyncPlaceholders.containsKey(identifier)) {
+		} else if (asyncPlaceholders.containsKey(identifier)) {
 			asyncPlaceholders.get(identifier).setRefresh(refresh);
-			return;
-		}
-		boolean sync = false;
-		String finalIdentifier; //forwarded identifier without sync: prefix
-		if (identifier.startsWith("%sync:")) {
-			finalIdentifier = "%" + identifier.substring(6);
-			sync = true;
 		} else {
-			finalIdentifier = identifier;
-		}
-		Placeholder placeholder;
-		if (identifier.startsWith("%server_")) {
-			placeholder = new ServerPlaceholder(identifier, refresh, () -> parsePlaceholder(null, finalIdentifier));
-		} else if (identifier.startsWith("%rel_")) {
-			placeholder = new RelationalPlaceholder(identifier, refresh, (viewer, target) ->
-					placeholderAPI ? PlaceholderAPI.setRelationalPlaceholders((Player) viewer, (Player) target, finalIdentifier) : finalIdentifier);
-		} else {
-			placeholder = new PlayerPlaceholder(identifier, refresh, p -> parsePlaceholder(p, finalIdentifier));
-		}
-		if (sync) {
-			syncPlaceholders.put(identifier, placeholder);
-		} else {
-			asyncPlaceholders.put(identifier, placeholder);
+			boolean sync = false;
+			String finalIdentifier; //forwarded identifier without sync: prefix
+			if (identifier.startsWith("%sync:")) {
+				finalIdentifier = "%" + identifier.substring(6);
+				sync = true;
+			} else {
+				finalIdentifier = identifier;
+			}
+			Placeholder placeholder;
+			if (identifier.startsWith("%server_")) {
+				placeholder = new ServerPlaceholder(identifier, refresh, () -> parsePlaceholder(null, finalIdentifier));
+			} else if (identifier.startsWith("%rel_")) {
+				placeholder = new RelationalPlaceholder(identifier, refresh, (viewer, target) ->
+						placeholderAPI ? PlaceholderAPI.setRelationalPlaceholders((Player) viewer, (Player) target, finalIdentifier) : finalIdentifier);
+			} else {
+				placeholder = new PlayerPlaceholder(identifier, refresh, p -> parsePlaceholder(p, finalIdentifier));
+			}
+			if (sync) {
+				syncPlaceholders.put(identifier, placeholder);
+			} else {
+				asyncPlaceholders.put(identifier, placeholder);
+			}
+			updatePlaceholders(Collections.singletonList(placeholder), true);
 		}
 	}
 
