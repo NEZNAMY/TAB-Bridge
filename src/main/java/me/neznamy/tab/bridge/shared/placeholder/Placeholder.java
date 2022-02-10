@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class Placeholder {
 
-    private final String identifier;
+    protected final String identifier;
     private int refresh;
     private final AtomicInteger atomicInteger = new AtomicInteger();
 

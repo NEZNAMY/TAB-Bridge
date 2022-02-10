@@ -56,22 +56,19 @@ public class DataWatcherHelper {
 		data.setValue(new DataWatcherObject(0, registry.getByte()), flags);
 	}
 	
-	/**
-	 * Writes entity custom name with position based on server version and value depending on client version (RGB or not)
-	 * @param customName - target custom name
-	 */
-	public void setCustomName(String customName) {
+
+	public void setCustomName(String text, String componentText) {
 		if (NMSStorage.getInstance().getMinorVersion() >= 13) {
 			try {
-				data.setValue(new DataWatcherObject(2, registry.getOptionalComponent()), Optional.ofNullable(NMSStorage.getInstance().DESERIALIZE.invoke(null, customName)));
+				data.setValue(new DataWatcherObject(2, registry.getOptionalComponent()), Optional.ofNullable(NMSStorage.getInstance().DESERIALIZE.invoke(null, componentText)));
 			} catch (ReflectiveOperationException e) {
 				e.printStackTrace();
 			}
 		} else if (NMSStorage.getInstance().getMinorVersion() >= 8){
-			data.setValue(new DataWatcherObject(2, registry.getString()), customName);
+			data.setValue(new DataWatcherObject(2, registry.getString()), text);
 		} else {
 			//name length is limited to 64 characters on <1.8
-			String cutName = (customName.length() > 64 ? customName.substring(0, 64) : customName);
+			String cutName = (text.length() > 64 ? text.substring(0, 64) : text);
 			if (NMSStorage.getInstance().getMinorVersion() >= 6){
 				data.setValue(new DataWatcherObject(10, registry.getString()), cutName);
 			} else {

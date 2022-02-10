@@ -1,25 +1,16 @@
 package me.neznamy.tab.bridge.bukkit.nms;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import com.mojang.authlib.GameProfile;
+import io.netty.channel.Channel;
+import me.neznamy.tab.bridge.bukkit.BukkitBridge;
+import org.bukkit.Bukkit;
+
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import me.neznamy.tab.bridge.bukkit.BukkitBridge;
-import org.bukkit.Bukkit;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.authlib.GameProfile;
-
-import io.netty.channel.Channel;
-
-@SuppressWarnings("rawtypes")
 public final class NMSStorage {
 
     //instance of this class
@@ -33,13 +24,11 @@ public final class NMSStorage {
 
     //base
     private final Class<?> Packet = getNMSClass("net.minecraft.network.protocol.Packet", "Packet");
-    public final Class<?> EnumChatFormat = getNMSClass("net.minecraft.EnumChatFormat", "EnumChatFormat");
     public final Class<?> EntityPlayer = getNMSClass("net.minecraft.server.level.EntityPlayer", "EntityPlayer");
     private final Class<?> Entity = getNMSClass("net.minecraft.world.entity.Entity", "Entity");
     private final Class<?> EntityLiving = getNMSClass("net.minecraft.world.entity.EntityLiving", "EntityLiving");
     private final Class<?> PlayerConnection = getNMSClass("net.minecraft.server.network.PlayerConnection", "PlayerConnection");
     public Constructor<?> newEntityArmorStand;
-    public final Field PING = getField(EntityPlayer, "ping", "latency", "field_71138_i", "field_13967", "e");
     public final Field PLAYER_CONNECTION = getFields(EntityPlayer, PlayerConnection).get(0);
     public Field NETWORK_MANAGER;
     public Field CHANNEL;
@@ -47,7 +36,6 @@ public final class NMSStorage {
     public final Method sendPacket = getMethods(PlayerConnection, void.class, Packet).get(0);
     public Method getProfile;
     public final Method World_getHandle = Class.forName("org.bukkit.craftbukkit." + serverPackage + ".CraftWorld").getMethod("getHandle");
-    public final Enum[] EnumChatFormat_values = getEnumValues(EnumChatFormat);
 
     //chat
     public Class<?> IChatBaseComponent;
@@ -336,44 +324,6 @@ public final class NMSStorage {
             }
         }
         return list;
-    }
-
-    /**
-     * Returns field with specified name and makes it accessible
-     * @param clazz - class to get field from
-     * @param name - field name
-     * @return accessible field with defined name
-     * @throws NoSuchFieldException if field was not found
-     */
-    private Field getField(Class<?> clazz, String name) throws NoSuchFieldException {
-        for (Field f : clazz.getDeclaredFields()) {
-            if (f.getName().equals(name) || (f.getName().split("_").length == 3 && f.getName().split("_")[2].equals(name))) {
-                return setAccessible(f);
-            }
-        }
-        throw new NoSuchFieldException("Field \"" + name + "\" was not found in class " + clazz.getName());
-    }
-
-    private Field getField(Class<?> clazz, String... potentialNames) throws NoSuchFieldException {
-        for (String name : potentialNames) {
-            try {
-                return getField(clazz, name);
-            } catch (NoSuchFieldException e) {
-                //not the first field name from array
-            }
-        }
-        throw new NoSuchFieldException("No field found in class " + clazz.getName() + " with potential names " + Arrays.toString(potentialNames));
-    }
-
-    private Enum[] getEnumValues(Class<?> enumClass) {
-        if (enumClass == null) throw new IllegalArgumentException("Class cannot be null");
-        if (!enumClass.isEnum()) throw new IllegalArgumentException(enumClass.getName() + " is not an enum class");
-        try {
-            return (Enum[]) enumClass.getMethod("values").invoke(null);
-        } catch (ReflectiveOperationException e) {
-            //this should never happen
-            return new Enum[0];
-        }
     }
 
     public int getMinorVersion() {

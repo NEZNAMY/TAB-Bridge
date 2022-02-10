@@ -1,2 +1,0 @@
-#throw placeholderapi errors into console instead of hiding them
-throw-placeholderapi-exceptions: false

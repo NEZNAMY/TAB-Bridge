@@ -47,66 +47,82 @@ public class BukkitPacketBuilder {
 		return instance;
 	}
 
-	public Object entityDestroy(int... entities) throws ReflectiveOperationException {
-		try {
-			return nms.newPacketPlayOutEntityDestroy.newInstance(new Object[]{entities});
-		} catch (IllegalArgumentException e) {
-			//1.17.0
-			return nms.newPacketPlayOutEntityDestroy.newInstance(entities[0]);
-		}
+	public Object entityDestroy(int... entities) {
+        try {
+            try {
+                return nms.newPacketPlayOutEntityDestroy.newInstance(new Object[]{entities});
+            } catch (IllegalArgumentException e) {
+                //1.17.0
+                return nms.newPacketPlayOutEntityDestroy.newInstance(entities[0]);
+            }
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
 	}
 
-	public Object entityMetadata(int entityId, DataWatcher dataWatcher) throws ReflectiveOperationException {
-		return nms.newPacketPlayOutEntityMetadata.newInstance(entityId, dataWatcher.toNMS(), true);
+	public Object entityMetadata(int entityId, DataWatcher dataWatcher) {
+        try {
+            return nms.newPacketPlayOutEntityMetadata.newInstance(entityId, dataWatcher.toNMS(), true);
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
 	}
 
-	public Object build(int entityId, UUID uniqueId, EntityType entityType, DataWatcher dataWatcher, Location location) throws ReflectiveOperationException {
-		Object nmsPacket;
-		if (nms.getMinorVersion() >= 17) {
-			nmsPacket = nms.newPacketPlayOutSpawnEntityLiving.newInstance(dummyEntity);
-		} else {
-			nmsPacket = nms.newPacketPlayOutSpawnEntityLiving.newInstance();
-		}
-		nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_ENTITYID, entityId);
-		nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_ENTITYTYPE, entityIds.get(entityType));
-		nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_YAW, (byte)(location.getYaw() * 256.0f / 360.0f));
-		nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_PITCH, (byte)(location.getPitch() * 256.0f / 360.0f));
-		if (nms.getMinorVersion() <= 14) {
-			nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_DATAWATCHER, dataWatcher.toNMS());
-		}
-		if (nms.getMinorVersion() >= 9) {
-			nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_UUID, uniqueId);
-			nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_X, location.getX());
-			nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_Y, location.getY());
-			nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_Z, location.getZ());
-		} else {
-			nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_X, floor(location.getX()*32));
-			nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_Y, floor(location.getY()*32));
-			nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_Z, floor(location.getZ()*32));
-		}
-		return nmsPacket;
+	public Object entitySpawn(int entityId, UUID uniqueId, EntityType entityType, Location location, DataWatcher dataWatcher) {
+        try {
+            Object nmsPacket;
+            if (nms.getMinorVersion() >= 17) {
+                nmsPacket = nms.newPacketPlayOutSpawnEntityLiving.newInstance(dummyEntity);
+            } else {
+                nmsPacket = nms.newPacketPlayOutSpawnEntityLiving.newInstance();
+            }
+            nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_ENTITYID, entityId);
+            nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_ENTITYTYPE, entityIds.get(entityType));
+            nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_YAW, (byte)(location.getYaw() * 256.0f / 360.0f));
+            nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_PITCH, (byte)(location.getPitch() * 256.0f / 360.0f));
+            if (nms.getMinorVersion() <= 14) {
+                nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_DATAWATCHER, dataWatcher.toNMS());
+            }
+            if (nms.getMinorVersion() >= 9) {
+                nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_UUID, uniqueId);
+                nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_X, location.getX());
+                nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_Y, location.getY());
+                nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_Z, location.getZ());
+            } else {
+                nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_X, floor(location.getX()*32));
+                nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_Y, floor(location.getY()*32));
+                nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_Z, floor(location.getZ()*32));
+            }
+            return nmsPacket;
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
 	}
 
-	public Object entityTeleport(int entityId, Location location) throws ReflectiveOperationException {
-		Object nmsPacket;
-		if (nms.getMinorVersion() >= 17) {
-			nmsPacket = nms.newPacketPlayOutEntityTeleport.newInstance(dummyEntity);
-		} else {
-			nmsPacket = nms.newPacketPlayOutEntityTeleport.newInstance();
-		}
-		nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_ENTITYID, entityId);
-		if (nms.getMinorVersion() >= 9) {
-			nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_X, location.getX());
-			nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_Y, location.getY());
-			nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_Z, location.getZ());
-		} else {
-			nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_X, floor(location.getX()*32));
-			nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_Y, floor(location.getY()*32));
-			nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_Z, floor(location.getZ()*32));
-		}
-		nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_YAW, (byte) (location.getYaw()/360*256));
-		nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_PITCH, (byte) (location.getPitch()/360*256));
-		return nmsPacket;
+	public Object entityTeleport(int entityId, Location location) {
+        try {
+            Object nmsPacket;
+            if (nms.getMinorVersion() >= 17) {
+                nmsPacket = nms.newPacketPlayOutEntityTeleport.newInstance(dummyEntity);
+            } else {
+                nmsPacket = nms.newPacketPlayOutEntityTeleport.newInstance();
+            }
+            nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_ENTITYID, entityId);
+            if (nms.getMinorVersion() >= 9) {
+                nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_X, location.getX());
+                nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_Y, location.getY());
+                nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_Z, location.getZ());
+            } else {
+                nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_X, floor(location.getX()*32));
+                nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_Y, floor(location.getY()*32));
+                nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_Z, floor(location.getZ()*32));
+            }
+            nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_YAW, (byte) (location.getYaw()/360*256));
+            nms.setField(nmsPacket, nms.PacketPlayOutEntityTeleport_PITCH, (byte) (location.getPitch()/360*256));
+            return nmsPacket;
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
 	}
 
 	private int floor(double paramDouble){
