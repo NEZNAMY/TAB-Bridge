@@ -161,7 +161,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		public void channelRead(ChannelHandlerContext context, Object packet) {
 			try {
 				if (data.isPetFixEnabled() && petFix != null && petFix.onPacketReceive(player, packet)) return;
-				if (players.containsKey(player)) {
+				if (players.containsKey(player) && nametagx.isEnabled()) {
 					nametagx.getPacketListener().onPacketReceive(players.get(player), packet);
 				}
 				super.channelRead(context, packet);
@@ -174,7 +174,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) {
 			try {
 				if (data.isPetFixEnabled() && petFix != null) petFix.onPacketSend(player, packet);
-				if (players.containsKey(player)) {
+				if (players.containsKey(player) && nametagx.isEnabled()) {
 					nametagx.getPacketListener().onPacketSend(players.get(player), packet);
 				}
 				super.write(context, packet, channelPromise);

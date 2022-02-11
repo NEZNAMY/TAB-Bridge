@@ -5,8 +5,6 @@ import com.google.common.io.ByteStreams;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-
 public class BridgePlayer {
 
     private final Player player;
@@ -33,10 +31,6 @@ public class BridgePlayer {
         if (this.vanished == vanished) return;
         this.vanished = vanished;
         sendMessage("Vanished", vanished);
-    }
-
-    public boolean isVanished() {
-        return vanished;
     }
 
     public void setDisguised(boolean disguised) {

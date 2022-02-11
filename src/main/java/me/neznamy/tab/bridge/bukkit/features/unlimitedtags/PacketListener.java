@@ -37,7 +37,7 @@ public class PacketListener {
 	}
 
 	public void onPacketReceive(BridgePlayer sender, Object packet) throws ReflectiveOperationException {
-		if (!nameTagX.isEnabled() || nms == null) return;
+		if (nms == null) return;
 		if (nms.PacketPlayInUseEntity.isInstance(packet)) {
 			int entityId = nms.PacketPlayInUseEntity_ENTITY.getInt(packet);
 			BridgePlayer attacked = null;
@@ -55,7 +55,7 @@ public class PacketListener {
 
 	@SuppressWarnings("unchecked")
 	public void onPacketSend(BridgePlayer receiver, Object packet) throws ReflectiveOperationException {
-		if (!nameTagX.isEnabled() || nms == null) return;
+		if (nms == null) return;
 		if (nameTagX.isPlayerDisabled(receiver) || nameTagX.getDisabledUnlimitedPlayers().contains(receiver)) return;
 		if (nms.PacketPlayOutEntity.isInstance(packet) && !nms.PacketPlayOutEntityLook.isInstance(packet)) {
 			onEntityMove(receiver, nms.PacketPlayOutEntity_ENTITYID.getInt(packet));

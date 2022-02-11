@@ -1,6 +1,5 @@
 package me.neznamy.tab.bridge.bukkit.nms;
 
-import com.mojang.authlib.GameProfile;
 import io.netty.channel.Channel;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import org.bukkit.Bukkit;
@@ -33,14 +32,12 @@ public final class NMSStorage {
     public Field NETWORK_MANAGER;
     public Field CHANNEL;
     public final Method getHandle = Class.forName("org.bukkit.craftbukkit." + serverPackage + ".entity.CraftPlayer").getMethod("getHandle");
-    public final Method sendPacket = getMethods(PlayerConnection, void.class, Packet).get(0);
-    public Method getProfile;
+    public final Method sendPacket = getMethods(PlayerConnection, Packet).get(0);
     public final Method World_getHandle = Class.forName("org.bukkit.craftbukkit." + serverPackage + ".CraftWorld").getMethod("getHandle");
 
     //chat
     public Class<?> IChatBaseComponent;
     public Method DESERIALIZE;
-    public Method SERIALIZE;
 
     //DataWatcher
     private final Class<?> DataWatcher = getNMSClass("net.minecraft.network.syncher.DataWatcher", "DataWatcher");
@@ -112,7 +109,6 @@ public final class NMSStorage {
         }
         if (minorVersion >= 8) {
             CHANNEL = getFields(NetworkManager, Channel.class).get(0);
-            getProfile = getMethods(getNMSClass("net.minecraft.world.entity.player.EntityHuman", "EntityHuman"), GameProfile.class).get(0);
             newEntityArmorStand = getNMSClass("net.minecraft.world.entity.decoration.EntityArmorStand", "EntityArmorStand")
                     .getConstructor(getNMSClass("net.minecraft.world.level.World", "World"), double.class, double.class, double.class);
         }
@@ -120,7 +116,6 @@ public final class NMSStorage {
         initializeEntityPackets();
         IChatBaseComponent = getNMSClass("net.minecraft.network.chat.IChatBaseComponent", "IChatBaseComponent");
         DESERIALIZE = getMethod(IChatBaseComponent.getDeclaredClasses()[0], "a", String.class);
-        SERIALIZE = getMethods(IChatBaseComponent.getDeclaredClasses()[0], String.class, IChatBaseComponent).get(0);
     }
 
     /**
@@ -292,10 +287,10 @@ public final class NMSStorage {
         throw new NoSuchMethodException("No method found with name " + name + " in class " + clazz.getName() + " with parameters " + Arrays.toString(parameterTypes));
     }
 
-    private List<Method> getMethods(Class<?> clazz, Class<?> returnType, Class<?>... parameterTypes){
+    private List<Method> getMethods(Class<?> clazz, Class<?>... parameterTypes){
         List<Method> list = new ArrayList<>();
         for (Method m : clazz.getDeclaredMethods()) {
-            if (m.getReturnType() != returnType || m.getParameterCount() != parameterTypes.length || !Modifier.isPublic(m.getModifiers())) continue;
+            if (m.getParameterCount() != parameterTypes.length || !Modifier.isPublic(m.getModifiers())) continue;
             Class<?>[] types = m.getParameterTypes();
             boolean valid = true;
             for (int i=0; i<types.length; i++) {

@@ -89,19 +89,7 @@ public class DataWatcherHelper {
 			data.setValue(new DataWatcherObject(3, registry.getByte()), (byte)(visible?1:0));
 		}
 	}
-	
-	/**
-	 * Writes entity health
-	 * @param health - health of entity
-	 */
-	public void setHealth(float health) {
-		if (NMSStorage.getInstance().getMinorVersion() >= 6) {
-			data.setValue(new DataWatcherObject(6, registry.getFloat()), health);
-		} else {
-			data.setValue(new DataWatcherObject(16, registry.getInteger()), (int)health);
-		}
-	}
-	
+
 	/**
 	 * Writes armor stand flags
 	 * @param flags - flags to write

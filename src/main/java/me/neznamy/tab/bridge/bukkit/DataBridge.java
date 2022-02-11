@@ -17,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
@@ -130,11 +131,11 @@ public class DataBridge implements Listener {
 
 	private String getGroup(BridgePlayer player) {
 		if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-			Permission perm = Bukkit.getServicesManager().getRegistration(Permission.class).getProvider();
-			if (perm.getName().equals("SuperPerms")) {
+			RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
+			if (rsp == null || rsp.getProvider().getName().equals("SuperPerms")) {
 				return "No permission plugin found";
 			} else {
-				return perm.getPrimaryGroup(player.getPlayer());
+				return rsp.getProvider().getPrimaryGroup(player.getPlayer());
 			}
 		} else {
 			return "Vault not found";
