@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import me.clip.placeholderapi.PlaceholderAPI;
+import me.neznamy.tab.bridge.bukkit.features.BridgeTabExpansion;
 import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
@@ -35,6 +36,7 @@ public class DataBridge implements Listener {
 	public final ExecutorService exe = Executors.newSingleThreadExecutor();
 	private boolean groupForwarding;
 	private boolean petFix;
+	private final BridgeTabExpansion expansion = placeholderAPI ? new BridgeTabExpansion() : null;
 	
 	public DataBridge(Plugin plugin) {
 		Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -73,6 +75,7 @@ public class DataBridge implements Listener {
 			int protocolVersion = in.readInt();
 			groupForwarding = in.readBoolean();
 			petFix = in.readBoolean();
+			if (in.readBoolean() && expansion != null && !expansion.isRegistered()) expansion.register();
 			int placeholderCount = in.readInt();
 			for (int i=0; i<placeholderCount; i++) {
 				registerPlaceholder(in.readUTF(), in.readInt());
@@ -112,6 +115,9 @@ public class DataBridge implements Listener {
 		}
 		if (subChannel.equals("Unload")) {
 			BukkitBridge.getInstance().removePlayer(player);
+		}
+		if (subChannel.equals("Expansion")) {
+			expansion.setValue(BukkitBridge.getInstance().getPlayer(player), in.readUTF(), in.readUTF());
 		}
 	}
 
