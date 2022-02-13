@@ -59,7 +59,7 @@ public class DataBridge implements Listener {
 		BukkitBridge.getInstance().getPlayer(e.getPlayer()).sendMessage("World", e.getPlayer().getWorld().getName());
 	}
 	
-	public void processPluginMessage(Player player, byte[] bytes, int retryLevel) {
+	public void processPluginMessage(Player player, byte[] bytes, int retryLevel) throws ReflectiveOperationException {
 		if (retryLevel == 4) return;
 		if (!player.isOnline()) {
 			try {
@@ -118,6 +118,60 @@ public class DataBridge implements Listener {
 		}
 		if (subChannel.equals("Expansion")) {
 			expansion.setValue(BukkitBridge.getInstance().getPlayer(player), in.readUTF(), in.readUTF());
+		}
+		if (subChannel.equals("PacketPlayOutScoreboardDisplayObjective")) {
+			BukkitBridge.getInstance().getPlayer(player).sendPacket(
+					BukkitPacketBuilder.getInstance().scoreboardDisplayObjective(
+							in.readInt(), in.readUTF()
+					));
+		}
+		if (subChannel.equals("PacketPlayOutScoreboardObjective")) {
+			String objective = in.readUTF();
+			int action = in.readInt();
+			String display = null;
+			String displayComponent = null;
+			int renderType = 0;
+			if (action == 0 || action == 2) {
+				display = in.readUTF();
+				displayComponent = in.readUTF();
+				renderType = in.readInt();
+			}
+			BukkitBridge.getInstance().getPlayer(player).sendPacket(
+					BukkitPacketBuilder.getInstance().scoreboardObjective(objective, action, display, displayComponent, renderType));
+		}
+		if (subChannel.equals("PacketPlayOutScoreboardScore")) {
+			BukkitBridge.getInstance().getPlayer(player).sendPacket(
+					BukkitPacketBuilder.getInstance().scoreboardScore(in.readUTF(), in.readInt(), in.readUTF(), in.readInt()));
+		}
+		if (subChannel.equals("PacketPlayOutScoreboardTeam")) {
+			String name = in.readUTF();
+			int action = in.readInt();
+			int playerCount = in.readInt();
+			List<String> players = new ArrayList<>();
+			for (int i=0; i<playerCount; i++) {
+				players.add(in.readUTF());
+			}
+			String prefix = null;
+			String prefixComponent = null;
+			String suffix = null;
+			String suffixComponent = null;
+			int options = 0;
+			String visibility = null;
+			String collision = null;
+			int color = 0;
+			if (action == 0 || action == 2) {
+				prefix = in.readUTF();
+				prefixComponent = in.readUTF();
+				suffix = in.readUTF();
+				suffixComponent = in.readUTF();
+				options = in.readInt();
+				visibility = in.readUTF();
+				collision = in.readUTF();
+				color = in.readInt();
+			}
+			BukkitBridge.getInstance().getPlayer(player).sendPacket(
+					BukkitPacketBuilder.getInstance().scoreboardTeam(name, action, players, prefix, prefixComponent,
+							suffix, suffixComponent, options, visibility, collision, color));
 		}
 	}
 
