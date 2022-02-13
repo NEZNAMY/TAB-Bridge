@@ -75,7 +75,9 @@ public class DataBridge implements Listener {
 			int protocolVersion = in.readInt();
 			groupForwarding = in.readBoolean();
 			petFix = in.readBoolean();
-			if (in.readBoolean() && expansion != null && !expansion.isRegistered()) expansion.register();
+			if (in.readBoolean() && expansion != null && !expansion.isRegistered()) {
+				Bukkit.getScheduler().runTask(BukkitBridge.getInstance(), expansion::register);
+			}
 			int placeholderCount = in.readInt();
 			for (int i=0; i<placeholderCount; i++) {
 				registerPlaceholder(in.readUTF(), in.readInt());
