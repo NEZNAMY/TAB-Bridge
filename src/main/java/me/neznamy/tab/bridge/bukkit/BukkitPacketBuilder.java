@@ -141,7 +141,8 @@ public class BukkitPacketBuilder {
                                       int renderType) throws ReflectiveOperationException {
         if (nms.getMinorVersion() >= 13) {
             return nms.newPacketPlayOutScoreboardObjective.newInstance(nms.newScoreboardObjective.newInstance(null, objective, null,
-                    nms.DESERIALIZE.invoke(null, displayComponent), nms.EnumScoreboardHealthDisplay_values[renderType]), action);
+                    displayComponent == null ? nms.newChatComponentText.newInstance("") : nms.DESERIALIZE.invoke(null, displayComponent),
+                    nms.EnumScoreboardHealthDisplay_values[renderType]), action);
         }
 
         Object nmsPacket = nms.newPacketPlayOutScoreboardObjective.newInstance();
@@ -202,8 +203,8 @@ public class BukkitPacketBuilder {
     }
 
     private void createTeamModern(Object team, String prefixComponent, String suffixComponent, int color, String visibility, String collision) throws ReflectiveOperationException {
-        nms.ScoreboardTeam_setPrefix.invoke(team, nms.DESERIALIZE.invoke(null, prefixComponent));
-        nms.ScoreboardTeam_setSuffix.invoke(team, nms.DESERIALIZE.invoke(null, suffixComponent));
+        if (prefixComponent != null) nms.ScoreboardTeam_setPrefix.invoke(team, nms.DESERIALIZE.invoke(null, prefixComponent));
+        if (suffixComponent != null) nms.ScoreboardTeam_setSuffix.invoke(team, nms.DESERIALIZE.invoke(null, suffixComponent));
         nms.ScoreboardTeam_setColor.invoke(team, nms.EnumChatFormat_values[color]);
         nms.ScoreboardTeam_setNameTagVisibility.invoke(team, String.valueOf(visibility).equals("always") ? nms.EnumNameTagVisibility_values[0] : nms.EnumNameTagVisibility_values[1]);
         nms.ScoreboardTeam_setCollisionRule.invoke(team, String.valueOf(collision).equals("always") ? nms.EnumTeamPush_values[0] : nms.EnumTeamPush_values[1]);
