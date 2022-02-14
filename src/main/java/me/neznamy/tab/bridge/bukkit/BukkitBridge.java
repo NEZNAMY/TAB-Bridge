@@ -75,6 +75,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
+		if (!players.containsKey(e.getPlayer())) return;
 		nametagx.onQuit(players.get(e.getPlayer()));
 		players.remove(e.getPlayer());
 	}
