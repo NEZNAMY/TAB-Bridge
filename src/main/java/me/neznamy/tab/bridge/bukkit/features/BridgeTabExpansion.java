@@ -40,7 +40,7 @@ public class BridgeTabExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return "2.0.0-SNAPSHOT";
+        return "2.0.0-pre1";
     }
 
     @Override
