@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
+import me.neznamy.tab.bridge.bukkit.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -48,10 +49,12 @@ public class EventListener implements Listener {
 	
 	@EventHandler
 	public void onWorldChange(PlayerChangedWorldEvent e) {
+		BridgePlayer player = BukkitBridge.getInstance().getPlayer(e.getPlayer());
+		if (player == null) return;
 		if (feature.isUnlimitedDisabled(e.getPlayer().getWorld().getName())) {
-			feature.getDisabledUnlimitedPlayers().add(BukkitBridge.getInstance().getPlayer(e.getPlayer()));
+			feature.getDisabledUnlimitedPlayers().add(player);
 		} else {
-			feature.getDisabledUnlimitedPlayers().remove(BukkitBridge.getInstance().getPlayer(e.getPlayer()));
+			feature.getDisabledUnlimitedPlayers().remove(player);
 		}
 	}
 }
