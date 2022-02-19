@@ -56,7 +56,9 @@ public class DataBridge implements Listener {
 
 	@EventHandler
 	public void onWorldChange(PlayerChangedWorldEvent e) {
-		BukkitBridge.getInstance().getPlayer(e.getPlayer()).sendMessage("World", e.getPlayer().getWorld().getName());
+		BridgePlayer p = BukkitBridge.getInstance().getPlayer(e.getPlayer());
+		if (p == null) return;
+		p.sendMessage("World", e.getPlayer().getWorld().getName());
 	}
 	
 	public void processPluginMessage(Player player, byte[] bytes, int retryLevel) throws ReflectiveOperationException {
