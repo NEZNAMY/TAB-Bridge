@@ -56,5 +56,8 @@ public class EventListener implements Listener {
 		} else {
 			feature.getDisabledUnlimitedPlayers().remove(player);
 		}
+		if (feature.getPlayersPreviewingNameTag().contains(player)) {
+			feature.getArmorStandManager(player).spawn(player);
+		}
 	}
 }
