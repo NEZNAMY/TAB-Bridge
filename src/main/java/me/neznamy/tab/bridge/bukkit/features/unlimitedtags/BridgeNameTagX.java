@@ -33,6 +33,7 @@ public class BridgeNameTagX implements Listener {
 
     private final Map<BridgePlayer, ArmorStandManager> armorStandManagerMap = new WeakHashMap<>();
     private final Set<BridgePlayer> playersPreviewingNameTag = Collections.newSetFromMap(new WeakHashMap<>());
+    private final Set<BridgePlayer> playersWithHiddenVisibilityView = Collections.newSetFromMap(new WeakHashMap<>());
 
     private BukkitTask visibilityRefreshTask;
 
@@ -228,6 +229,16 @@ public class BridgeNameTagX implements Listener {
             }
             playersDisabledWithAPI.remove(receiver);
         }
+        if (action.equals("VisibilityView")) {
+            if (playersWithHiddenVisibilityView.contains(receiver)) {
+                playersWithHiddenVisibilityView.remove(receiver);
+            } else {
+                playersWithHiddenVisibilityView.add(receiver);
+            }
+            for (BridgePlayer all : BukkitBridge.getInstance().getOnlinePlayers()) {
+                getArmorStandManager(all).updateVisibility(true);
+            }
+        }
     }
 
     /**
@@ -244,5 +255,9 @@ public class BridgeNameTagX implements Listener {
 
     public boolean hasHiddenNametag(BridgePlayer player) {
         return playersDisabledWithAPI.contains(player);
+    }
+
+    public boolean hasHiddenNameTagVisibilityView(BridgePlayer player) {
+        return playersWithHiddenVisibilityView.contains(player);
     }
 }

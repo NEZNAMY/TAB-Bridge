@@ -245,7 +245,8 @@ public class ArmorStand {
 		datawatcher.helper().setCustomName(text, componentText);
 
 		boolean visibility;
-		if (isNameVisiblyEmpty(text) || !viewer.getPlayer().canSee(player.getPlayer()) || manager.hasHiddenNametag(player)) {
+		if (isNameVisiblyEmpty(text) || !viewer.getPlayer().canSee(player.getPlayer()) ||
+				manager.hasHiddenNametag(player) || manager.hasHiddenNameTagVisibilityView(viewer)) {
 			visibility = false;
 		} else {
 			visibility = visible;
