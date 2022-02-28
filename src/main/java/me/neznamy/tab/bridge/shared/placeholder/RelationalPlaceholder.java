@@ -34,7 +34,7 @@ public class RelationalPlaceholder extends Placeholder {
             args.add("Relational placeholder " + identifier + " generated an error when setting for viewer " + viewer.getPlayer().getName() + " and target " + target.getPlayer().getName());
             args.add(t.getStackTrace().length+1);
             args.add(t.getClass().getName() + ": " + t.getMessage());
-            args.addAll(Arrays.stream(t.getStackTrace()).map(e -> "\t\tat " + e.toString()).collect(Collectors.toList()));
+            args.addAll(Arrays.stream(t.getStackTrace()).map(e -> "\tat " + e.toString()).collect(Collectors.toList()));
             viewer.sendMessage(args.toArray());
             return "<PlaceholderAPI Error>";
         }

@@ -41,7 +41,7 @@ public class ServerPlaceholder extends Placeholder {
                 args.add("Server placeholder " + identifier + " generated an error");
                 args.add(t.getStackTrace().length+1);
                 args.add(t.getClass().getName() + ": " + t.getMessage());
-                args.addAll(Arrays.stream(t.getStackTrace()).map(e -> "\t\tat " + e.toString()).collect(Collectors.toList()));
+                args.addAll(Arrays.stream(t.getStackTrace()).map(e -> "\tat " + e.toString()).collect(Collectors.toList()));
                 first.sendMessage(args.toArray());
             }
             return "<PlaceholderAPI Error>";
