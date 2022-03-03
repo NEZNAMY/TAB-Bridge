@@ -112,7 +112,9 @@ public class DataBridge implements Listener {
 		}
 		if (subChannel.equals("Permission")){
 			String permission = in.readUTF();
-			BukkitBridge.getInstance().getPlayer(player).sendMessage("Permission", permission, player.hasPermission(permission));
+			BridgePlayer bp = BukkitBridge.getInstance().getPlayer(player);
+			if (bp == null) return; //assigning by permissions, called in superclass before join message was sent
+			bp.sendMessage("Permission", permission, player.hasPermission(permission));
 		}
 		if (subChannel.equals("NameTagX")) {
 			BukkitBridge.getInstance().nametagx.readMessage(BukkitBridge.getInstance().getPlayer(player), in);
