@@ -37,11 +37,11 @@ public class DataBridge implements Listener {
 	private boolean groupForwarding;
 	private boolean petFix;
 	private final BridgeTabExpansion expansion = placeholderAPI ? new BridgeTabExpansion() : null;
-	
+
 	public DataBridge(Plugin plugin) {
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> updatePlaceholders(syncPlaceholders.values(), false), 0, 1);
-		Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> updatePlaceholders(asyncPlaceholders.values(), false), 0, 1);
+		Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> exe.submit(() -> updatePlaceholders(asyncPlaceholders.values(), false)), 0, 1);
 		Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
 			for (BridgePlayer player : BukkitBridge.getInstance().getOnlinePlayers()) {
 				player.setVanished(isVanished(player));
