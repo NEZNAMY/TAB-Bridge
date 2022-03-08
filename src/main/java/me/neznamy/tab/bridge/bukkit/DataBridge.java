@@ -37,6 +37,7 @@ public class DataBridge implements Listener {
 	private boolean groupForwarding;
 	private boolean petFix;
 	private final BridgeTabExpansion expansion = placeholderAPI ? new BridgeTabExpansion() : null;
+	private final WeakHashMap<Player, List<Object>> packetQueue = new WeakHashMap<>();
 
 	public DataBridge(Plugin plugin) {
 		Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -106,6 +107,8 @@ public class DataBridge implements Listener {
 				}
 			}
 			bp.sendMessage(args.toArray());
+			packetQueue.getOrDefault(player, Collections.emptyList()).forEach(bp::sendPacket);
+			packetQueue.remove(player);
 		}
 		if (subChannel.equals("Placeholder")){
 			registerPlaceholder(in.readUTF(), in.readInt());
@@ -128,10 +131,13 @@ public class DataBridge implements Listener {
 			expansion.setValue(BukkitBridge.getInstance().getPlayer(player), in.readUTF(), in.readUTF());
 		}
 		if (subChannel.equals("PacketPlayOutScoreboardDisplayObjective")) {
-			BukkitBridge.getInstance().getPlayer(player).sendPacket(
-					BukkitPacketBuilder.getInstance().scoreboardDisplayObjective(
-							in.readInt(), in.readUTF()
-					));
+			Object packet = BukkitPacketBuilder.getInstance().scoreboardDisplayObjective(in.readInt(), in.readUTF());
+			BridgePlayer pl = BukkitBridge.getInstance().getPlayer(player);
+			if (pl != null) {
+				pl.sendPacket(packet);
+			} else {
+				packetQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(packet);
+			}
 		}
 		if (subChannel.equals("PacketPlayOutScoreboardObjective")) {
 			String objective = in.readUTF();
@@ -144,12 +150,22 @@ public class DataBridge implements Listener {
 				displayComponent = in.readUTF();
 				renderType = in.readInt();
 			}
-			BukkitBridge.getInstance().getPlayer(player).sendPacket(
-					BukkitPacketBuilder.getInstance().scoreboardObjective(objective, action, display, displayComponent, renderType));
+			Object packet = BukkitPacketBuilder.getInstance().scoreboardObjective(objective, action, display, displayComponent, renderType);
+			BridgePlayer pl = BukkitBridge.getInstance().getPlayer(player);
+			if (pl != null) {
+				pl.sendPacket(packet);
+			} else {
+				packetQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(packet);
+			}
 		}
 		if (subChannel.equals("PacketPlayOutScoreboardScore")) {
-			BukkitBridge.getInstance().getPlayer(player).sendPacket(
-					BukkitPacketBuilder.getInstance().scoreboardScore(in.readUTF(), in.readInt(), in.readUTF(), in.readInt()));
+			Object packet = BukkitPacketBuilder.getInstance().scoreboardScore(in.readUTF(), in.readInt(), in.readUTF(), in.readInt());
+			BridgePlayer pl = BukkitBridge.getInstance().getPlayer(player);
+			if (pl != null) {
+				pl.sendPacket(packet);
+			} else {
+				packetQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(packet);
+			}
 		}
 		if (subChannel.equals("PacketPlayOutScoreboardTeam")) {
 			String name = in.readUTF();
@@ -177,9 +193,14 @@ public class DataBridge implements Listener {
 				collision = in.readUTF();
 				color = in.readInt();
 			}
-			BukkitBridge.getInstance().getPlayer(player).sendPacket(
-					BukkitPacketBuilder.getInstance().scoreboardTeam(name, action, players, prefix, prefixComponent,
-							suffix, suffixComponent, options, visibility, collision, color));
+			Object packet = BukkitPacketBuilder.getInstance().scoreboardTeam(name, action, players, prefix, prefixComponent,
+							suffix, suffixComponent, options, visibility, collision, color);
+			BridgePlayer pl = BukkitBridge.getInstance().getPlayer(player);
+			if (pl != null) {
+				pl.sendPacket(packet);
+			} else {
+				packetQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(packet);
+			}
 		}
 	}
 
