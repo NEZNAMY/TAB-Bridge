@@ -58,6 +58,9 @@ public class VehicleRefresher {
 
 	public void onQuit(BridgePlayer disconnectedPlayer) {
 		if (playersInVehicle.containsKey(disconnectedPlayer)) vehicles.remove(playersInVehicle.get(disconnectedPlayer).getEntityId());
+		for (List<Entity> entities : vehicles.values()) {
+			entities.remove(disconnectedPlayer.getPlayer());
+		}
 	}
 
 	public void refresh(BridgePlayer p) {
