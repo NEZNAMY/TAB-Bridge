@@ -103,7 +103,7 @@ public class BridgeNameTagX implements Listener {
         Bukkit.getPluginManager().registerEvents(eventListener, BukkitBridge.getInstance());
         visibilityRefreshTask = Bukkit.getScheduler().runTaskTimerAsynchronously(BukkitBridge.getInstance(), () -> {
             for (BridgePlayer p : BukkitBridge.getInstance().getOnlinePlayers()) {
-                if (isPlayerDisabled(p)) continue;
+                if (isPlayerDisabled(p) || !armorStandManagerMap.containsKey(p)) continue;
                 getArmorStandManager(p).updateVisibility(false);
             }
         }, 0, 10);
@@ -140,8 +140,7 @@ public class BridgeNameTagX implements Listener {
             if (getArmorStandManager(all) != null) getArmorStandManager(all).unregisterPlayer(player);
         }
         getArmorStandManager(player).destroy();
-        Bukkit.getScheduler().runTaskLaterAsynchronously(BukkitBridge.getInstance(), () -> getArmorStandManager(player).destroy(), 10);
-
+        armorStandManagerMap.remove(player);
     }
 
     public PacketListener getPacketListener() {
