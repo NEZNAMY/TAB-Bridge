@@ -49,6 +49,9 @@ public class ServerPlaceholder extends Placeholder {
     }
 
     public String getLastValue() {
-        return lastValue == null ? getIdentifier() : lastValue;
+        if (lastValue == null) {
+            update();
+        }
+        return lastValue;
     }
 }

@@ -41,6 +41,9 @@ public class PlayerPlaceholder extends Placeholder {
     }
 
     public String getLastValue(BridgePlayer player) {
+        if (lastValues.containsKey(player)) {
+            update(player);
+        }
         return lastValues.getOrDefault(player, getIdentifier());
     }
 }
