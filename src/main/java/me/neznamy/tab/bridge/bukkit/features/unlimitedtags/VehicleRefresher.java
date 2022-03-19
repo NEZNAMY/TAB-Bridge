@@ -29,7 +29,8 @@ public class VehicleRefresher {
 		this.feature = feature;
 		Bukkit.getScheduler().runTaskTimerAsynchronously(BukkitBridge.getInstance(), () -> {
 			for (BridgePlayer inVehicle : playersInVehicle.keySet()) {
-				feature.getArmorStandManager(inVehicle).teleport();
+				ArmorStandManager asm = feature.getArmorStandManager(inVehicle);
+				if (asm != null) asm.teleport();
 			}
 			for (BridgePlayer p : BukkitBridge.getInstance().getOnlinePlayers()) {
 				if (feature.getPlayersPreviewingNameTag().contains(p)) {
