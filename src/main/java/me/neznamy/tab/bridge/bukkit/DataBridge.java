@@ -62,14 +62,15 @@ public class DataBridge implements Listener {
 		p.sendMessage("World", e.getPlayer().getWorld().getName());
 	}
 	
-	public void processPluginMessage(Player player, byte[] bytes, int retryLevel) throws ReflectiveOperationException {
-		if (retryLevel == 4) return;
+	public void processPluginMessage(Player player, byte[] bytes) throws ReflectiveOperationException {
 		if (!player.isOnline()) {
-			try {
-				Thread.sleep(50);
-				processPluginMessage(player, bytes, retryLevel+1);
-			} catch (InterruptedException ignored) {
-			}
+			Bukkit.getScheduler().runTaskLaterAsynchronously(BukkitBridge.getInstance(), () -> {
+				try {
+					processPluginMessage(player, bytes);
+				} catch (ReflectiveOperationException e) {
+					e.printStackTrace();
+				}
+			}, 1);
 			return;
 		}
 		ByteArrayDataInput in = ByteStreams.newDataInput(bytes);

@@ -85,7 +85,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		if (!channel.equals(CHANNEL_NAME)) return;
 		data.submitTask(() -> {
 			try {
-				data.processPluginMessage(player, bytes, 0);
+				data.processPluginMessage(player, bytes);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
