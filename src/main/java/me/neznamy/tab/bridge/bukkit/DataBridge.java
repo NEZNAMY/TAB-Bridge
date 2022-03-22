@@ -123,7 +123,18 @@ public class DataBridge implements Listener {
 			bp.sendMessage("Permission", permission, player.hasPermission(permission));
 		}
 		if (subChannel.equals("NameTagX")) {
-			BukkitBridge.getInstance().nametagx.readMessage(BukkitBridge.getInstance().getPlayer(player), in);
+			BridgePlayer pl = BukkitBridge.getInstance().getPlayer(player);
+			if (pl == null) {
+				Bukkit.getScheduler().runTaskLaterAsynchronously(BukkitBridge.getInstance(), () -> {
+					try {
+						processPluginMessage(player, bytes);
+					} catch (ReflectiveOperationException e) {
+						e.printStackTrace();
+					}
+				}, 1);
+			} else {
+				BukkitBridge.getInstance().nametagx.readMessage(pl, in);
+			}
 		}
 		if (subChannel.equals("Unload")) {
 			BukkitBridge.getInstance().removePlayer(player);
