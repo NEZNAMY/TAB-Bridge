@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.neznamy.tab.bridge.bukkit.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.BukkitPacketBuilder;
@@ -242,6 +243,12 @@ public class ArmorStand {
 		byte flag = 32; //invisible
 		if (sneaking) flag += (byte)2;
 		datawatcher.helper().setEntityFlags(flag);
+		String text = this.text;
+		String componentText = this.componentText;
+		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") && this.text.contains("%rel_")) {
+			text = PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.text);
+			componentText = PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.componentText);
+		}
 		datawatcher.helper().setCustomName(text, componentText);
 
 		boolean visibility;
