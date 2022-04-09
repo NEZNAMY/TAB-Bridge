@@ -41,6 +41,9 @@ public class RelationalPlaceholder extends Placeholder {
     }
 
     public String getLastValue(BridgePlayer viewer, BridgePlayer target) {
-        return lastValues.computeIfAbsent(viewer, v -> new WeakHashMap<>()).getOrDefault(target, getIdentifier());
+        if (!lastValues.computeIfAbsent(viewer, v -> new WeakHashMap<>()).containsKey(target)) {
+            update(viewer, target);
+        }
+        return lastValues.get(viewer).getOrDefault(target, getIdentifier());
     }
 }

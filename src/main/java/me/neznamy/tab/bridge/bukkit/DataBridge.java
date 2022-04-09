@@ -110,6 +110,16 @@ public class DataBridge implements Listener {
 			bp.sendMessage(args.toArray());
 			packetQueue.getOrDefault(player, Collections.emptyList()).forEach(bp::sendPacket);
 			packetQueue.remove(player);
+			for (Placeholder placeholder : asyncPlaceholders.values()) {
+				if (placeholder instanceof RelationalPlaceholder) {
+					RelationalPlaceholder pl = (RelationalPlaceholder) placeholder;
+					for (BridgePlayer viewer : BukkitBridge.getInstance().getOnlinePlayers()) {
+						if (pl.update(viewer, bp)) {
+							viewer.sendMessage("Placeholder", pl.getIdentifier(), bp.getPlayer().getName(), pl.getLastValue(viewer, bp));
+						}
+					}
+				}
+			}
 		}
 		if (subChannel.equals("Placeholder")){
 			registerPlaceholder(in.readUTF(), in.readInt());
