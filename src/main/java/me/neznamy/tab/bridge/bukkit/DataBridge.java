@@ -88,8 +88,8 @@ public class DataBridge implements Listener {
 			}
 			BukkitBridge.getInstance().nametagx.readJoinInput(in);
 			BridgePlayer bp = new BridgePlayer(player, protocolVersion);
-			BukkitBridge.getInstance().addPlayer(bp);
 			BukkitBridge.getInstance().nametagx.onJoin(bp);
+			BukkitBridge.getInstance().addPlayer(bp);
 			List<Object> args = Lists.newArrayList("PlayerJoinResponse", player.getWorld().getName());
 			if (groupForwarding) args.add(getGroup(bp));
 			Map<String, Object> placeholders = parsePlaceholders(bp);

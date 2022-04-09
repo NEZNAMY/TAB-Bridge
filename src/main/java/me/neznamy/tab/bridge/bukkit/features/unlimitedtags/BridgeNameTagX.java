@@ -201,25 +201,27 @@ public class BridgeNameTagX implements Listener {
     }
 
     public void readMessage(BridgePlayer receiver, ByteArrayDataInput in) {
+        ArmorStandManager asm = getArmorStandManager(receiver);
+        if (asm == null) return;
         String action = in.readUTF();
         if (action.equals("Preview")) {
             if (in.readBoolean()) {
                 playersPreviewingNameTag.add(receiver);
-                getArmorStandManager(receiver).spawn(receiver);
+                asm.spawn(receiver);
             } else {
                 playersPreviewingNameTag.remove(receiver);
-                getArmorStandManager(receiver).destroy(receiver);
+                asm.destroy(receiver);
             }
         }
         if (action.equals("Destroy")) {
-            getArmorStandManager(receiver).destroy();
+            asm.destroy();
         }
         if (action.equals("SetText")) {
-            getArmorStandManager(receiver).getArmorStand(in.readUTF()).setText(in.readUTF(), in.readUTF());
+            asm.getArmorStand(in.readUTF()).setText(in.readUTF(), in.readUTF());
         }
         if (action.equals("Pause")) {
             playersDisabledWithAPI.add(receiver);
-            getArmorStandManager(receiver).destroy();
+            asm.destroy();
         }
         if (action.equals("Resume")) {
             for (BridgePlayer viewer : BukkitBridge.getInstance().getOnlinePlayers()) {
