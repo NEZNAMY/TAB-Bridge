@@ -89,7 +89,10 @@ public class PacketListener {
 		if (pl != null) {
 			//player moved
 			if (nameTagX.isPlayerDisabled(pl)) return;
-			BukkitBridge.getInstance().getDataBridge().submitTask(() -> nameTagX.getArmorStandManager(pl).teleport(receiver));
+			BukkitBridge.getInstance().getDataBridge().submitTask(() -> {
+				ArmorStandManager asm = nameTagX.getArmorStandManager(pl);
+				if (asm != null) asm.teleport(receiver);
+			});
 		} else if ((vehicleList = nameTagX.getVehicleManager().getVehicles().get(entityId)) != null){
 			//a vehicle carrying something moved
 			for (Entity entity : vehicleList) {
