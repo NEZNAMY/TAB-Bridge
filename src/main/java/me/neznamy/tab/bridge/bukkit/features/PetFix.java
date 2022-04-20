@@ -53,15 +53,13 @@ public class PetFix {
      */
     public boolean onPacketReceive(Player sender, Object packet) throws ReflectiveOperationException {
         if (nms == null) return false;
-        if (nms.PacketPlayInUseEntity.isInstance(packet)) {
-            if (lastInteractFix.containsKey(sender) && (System.currentTimeMillis() - lastInteractFix.get(sender) < 160)) {
+        if (nms.PacketPlayInUseEntity.isInstance(packet) && isInteract(nms.PacketPlayInUseEntity_ACTION.get(packet))) {
+            if (System.currentTimeMillis() - lastInteractFix.getOrDefault(sender, 0L) < 160) {
                 //last interact packet was sent right now, cancelling to prevent double-toggle due to this feature enabled
                 return true;
             }
-            if (isInteract(nms.PacketPlayInUseEntity_ACTION.get(packet))) {
-                //this is the first packet, saving player so the next packet can be cancelled
-                lastInteractFix.put(sender, System.currentTimeMillis());
-            }
+            //this is the first packet, saving player so the next packet can be cancelled
+            lastInteractFix.put(sender, System.currentTimeMillis());
         }
         return false;
     }
