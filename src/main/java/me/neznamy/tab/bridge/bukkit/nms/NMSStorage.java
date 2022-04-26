@@ -7,7 +7,8 @@ import org.bukkit.Bukkit;
 import java.lang.reflect.*;
 import java.util.*;
 
-public final class NMSStorage {
+@SuppressWarnings("rawtypes")
+public class NMSStorage {
 
     //instance of this class
     private static NMSStorage instance;
@@ -20,8 +21,8 @@ public final class NMSStorage {
 
     //base
     private final Class<?> Packet = getNMSClass("net.minecraft.network.protocol.Packet", "Packet");
-    public final Class<?> EnumChatFormat = getNMSClass("net.minecraft.EnumChatFormat", "EnumChatFormat");
-    public final Class<?> EntityPlayer = getNMSClass("net.minecraft.server.level.EntityPlayer", "EntityPlayer");
+    private final Class<?> EnumChatFormat = getNMSClass("net.minecraft.EnumChatFormat", "EnumChatFormat");
+    private final Class<?> EntityPlayer = getNMSClass("net.minecraft.server.level.EntityPlayer", "EntityPlayer");
     private final Class<?> Entity = getNMSClass("net.minecraft.world.entity.Entity", "Entity");
     private final Class<?> EntityLiving = getNMSClass("net.minecraft.world.entity.EntityLiving", "EntityLiving");
     private final Class<?> PlayerConnection = getNMSClass("net.minecraft.server.network.PlayerConnection", "PlayerConnection");
@@ -99,8 +100,8 @@ public final class NMSStorage {
     public final Field PacketPlayOutNamedEntitySpawn_ENTITYID = getFields(PacketPlayOutNamedEntitySpawn, int.class).get(0);
 
     //scoreboard objectives
-    public final Class<?> PacketPlayOutScoreboardDisplayObjective = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardDisplayObjective", "PacketPlayOutScoreboardDisplayObjective", "Packet208SetScoreboardDisplayObjective");
-    public final Class<?> PacketPlayOutScoreboardObjective = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardObjective", "PacketPlayOutScoreboardObjective", "Packet206SetScoreboardObjective");
+    private final Class<?> PacketPlayOutScoreboardDisplayObjective = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardDisplayObjective", "PacketPlayOutScoreboardDisplayObjective", "Packet208SetScoreboardDisplayObjective");
+    private final Class<?> PacketPlayOutScoreboardObjective = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardObjective", "PacketPlayOutScoreboardObjective", "Packet206SetScoreboardObjective");
     private final Class<?> Scoreboard = getNMSClass("net.minecraft.world.scores.Scoreboard", "Scoreboard");
     private final Class<?> PacketPlayOutScoreboardScore = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardScore", "PacketPlayOutScoreboardScore", "Packet207SetScoreboardScore");
     private final Class<?> ScoreboardObjective = getNMSClass("net.minecraft.world.scores.ScoreboardObjective", "ScoreboardObjective");
@@ -115,8 +116,6 @@ public final class NMSStorage {
     public Constructor<?> newPacketPlayOutScoreboardScore_1_13;
     public Constructor<?> newPacketPlayOutScoreboardScore_String;
     public Constructor<?> newPacketPlayOutScoreboardScore;
-    public final Field PacketPlayOutScoreboardDisplayObjective_POSITION = getFields(PacketPlayOutScoreboardDisplayObjective, int.class).get(0);
-    public final Field PacketPlayOutScoreboardDisplayObjective_OBJECTIVENAME = getFields(PacketPlayOutScoreboardDisplayObjective, String.class).get(0);
     public final Field PacketPlayOutScoreboardObjective_OBJECTIVENAME = getFields(PacketPlayOutScoreboardObjective, String.class).get(0);
     public Field PacketPlayOutScoreboardObjective_METHOD;
     public final Field IScoreboardCriteria_self = getFields(IScoreboardCriteria, IScoreboardCriteria).get(0);

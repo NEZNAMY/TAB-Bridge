@@ -28,6 +28,7 @@ public class BukkitPacketBuilder {
 	 * Constructs new instance
 	 */
 	public BukkitPacketBuilder() {
+        if (nms == null) return;
 		if (nms.getMinorVersion() >= 13) {
 			entityIds.put(EntityType.ARMOR_STAND, 1);
 			entityIds.put(EntityType.WITHER, 83);

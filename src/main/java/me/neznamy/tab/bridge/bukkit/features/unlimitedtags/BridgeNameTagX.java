@@ -3,6 +3,7 @@ package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 import com.google.common.io.ByteArrayDataInput;
 import me.neznamy.tab.bridge.bukkit.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
+import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.HandlerList;
@@ -164,6 +165,7 @@ public class BridgeNameTagX implements Listener {
     }
 
     public void readJoinInput(ByteArrayDataInput input) {
+        if (NMSStorage.getInstance() == null) return;
         boolean enabled = input.readBoolean();
         if (enabled) {
             markerFor18x = input.readBoolean();

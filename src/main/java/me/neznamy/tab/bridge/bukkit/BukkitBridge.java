@@ -39,6 +39,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		instance = this;
 		try {
 			NMSStorage.setInstance(new NMSStorage());
+			if (NMSStorage.getInstance().getMinorVersion() >= 9) petFix = new PetFix();
 		} catch (ReflectiveOperationException e) {
 			Bukkit.getConsoleSender().sendMessage("\u00a7c[TAB-Bridge] Server version is not compatible, disabling advanced features");
 		}
@@ -47,12 +48,6 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		Bukkit.getMessenger().registerOutgoingPluginChannel(this, CHANNEL_NAME);
 		Bukkit.getPluginManager().registerEvents(this, this);
 		data = new DataBridge(this);
-		try {
-			NMSStorage.setInstance(new NMSStorage());
-			if (NMSStorage.getInstance().getMinorVersion() >= 9) petFix = new PetFix();
-		} catch (ReflectiveOperationException e) {
-			e.printStackTrace();
-		}
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			inject(p);
 		}
@@ -76,7 +71,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
 		if (!players.containsKey(e.getPlayer())) return;
-		nametagx.onQuit(players.get(e.getPlayer()));
+		if (NMSStorage.getInstance() != null) nametagx.onQuit(players.get(e.getPlayer()));
 		players.remove(e.getPlayer());
 	}
 	
@@ -140,6 +135,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 	}
 
 	private Channel getChannel(Player player) {
+		if (NMSStorage.getInstance() == null) return null;
 		try {
 			Object handle = NMSStorage.getInstance().getHandle.invoke(player);
 			Object playerConnection = NMSStorage.getInstance().PLAYER_CONNECTION.get(handle);
