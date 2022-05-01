@@ -308,12 +308,6 @@ public class ArmorStand {
 
 	public void respawn(BridgePlayer viewer) {
 		viewer.sendPacket(BukkitPacketBuilder.getInstance().entityDestroy(entityId));
-		Runnable spawn = () -> spawn(viewer);
-		if (viewer.getProtocolVersion() == 47) {
-			//1.8.0 client sided bug
-			Bukkit.getScheduler().runTaskLaterAsynchronously(BukkitBridge.getInstance(), spawn, 1);
-		} else {
-			spawn.run();
-		}
+		spawn(viewer);
 	}
 }
