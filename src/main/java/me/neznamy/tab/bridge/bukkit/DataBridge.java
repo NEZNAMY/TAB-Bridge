@@ -30,14 +30,13 @@ import java.util.concurrent.Executors;
 public class DataBridge implements Listener {
 
 	private final boolean placeholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
-	private final Essentials essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+	private final Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
 	private final Map<String, Placeholder> asyncPlaceholders = new ConcurrentHashMap<>();
 	private final Map<String, Placeholder> syncPlaceholders = new ConcurrentHashMap<>();
 	public final ExecutorService exe = Executors.newSingleThreadExecutor();
 	private boolean groupForwarding;
 	private boolean petFix;
 	private final BridgeTabExpansion expansion = placeholderAPI ? new BridgeTabExpansion() : null;
-	private final WeakHashMap<Player, List<Object>> packetQueue = new WeakHashMap<>();
 
 	public DataBridge(Plugin plugin) {
 		Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -107,9 +106,8 @@ public class DataBridge implements Listener {
 					args.add(placeholder.getValue());
 				}
 			}
+//			System.out.println(args);
 			bp.sendMessage(args.toArray());
-			packetQueue.getOrDefault(player, Collections.emptyList()).forEach(bp::sendPacket);
-			packetQueue.remove(player);
 			for (Placeholder placeholder : asyncPlaceholders.values()) {
 				if (placeholder instanceof RelationalPlaceholder) {
 					RelationalPlaceholder pl = (RelationalPlaceholder) placeholder;
@@ -152,78 +150,6 @@ public class DataBridge implements Listener {
 		if (subChannel.equals("Expansion")) {
 			expansion.setValue(BukkitBridge.getInstance().getPlayer(player), in.readUTF(), in.readUTF());
 		}
-		if (subChannel.equals("PacketPlayOutScoreboardDisplayObjective")) {
-			Object packet = BukkitPacketBuilder.getInstance().scoreboardDisplayObjective(in.readInt(), in.readUTF());
-			BridgePlayer pl = BukkitBridge.getInstance().getPlayer(player);
-			if (pl != null) {
-				pl.sendPacket(packet);
-			} else {
-				packetQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(packet);
-			}
-		}
-		if (subChannel.equals("PacketPlayOutScoreboardObjective")) {
-			String objective = in.readUTF();
-			int action = in.readInt();
-			String display = null;
-			String displayComponent = null;
-			int renderType = 0;
-			if (action == 0 || action == 2) {
-				display = in.readUTF();
-				displayComponent = in.readUTF();
-				renderType = in.readInt();
-			}
-			Object packet = BukkitPacketBuilder.getInstance().scoreboardObjective(objective, action, display, displayComponent, renderType);
-			BridgePlayer pl = BukkitBridge.getInstance().getPlayer(player);
-			if (pl != null) {
-				pl.sendPacket(packet);
-			} else {
-				packetQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(packet);
-			}
-		}
-		if (subChannel.equals("PacketPlayOutScoreboardScore")) {
-			Object packet = BukkitPacketBuilder.getInstance().scoreboardScore(in.readUTF(), in.readInt(), in.readUTF(), in.readInt());
-			BridgePlayer pl = BukkitBridge.getInstance().getPlayer(player);
-			if (pl != null) {
-				pl.sendPacket(packet);
-			} else {
-				packetQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(packet);
-			}
-		}
-		if (subChannel.equals("PacketPlayOutScoreboardTeam")) {
-			String name = in.readUTF();
-			int action = in.readInt();
-			int playerCount = in.readInt();
-			List<String> players = new ArrayList<>();
-			for (int i=0; i<playerCount; i++) {
-				players.add(in.readUTF());
-			}
-			String prefix = null;
-			String prefixComponent = null;
-			String suffix = null;
-			String suffixComponent = null;
-			int options = 0;
-			String visibility = null;
-			String collision = null;
-			int color = 0;
-			if (action == 0 || action == 2) {
-				prefix = in.readUTF();
-				prefixComponent = in.readUTF();
-				suffix = in.readUTF();
-				suffixComponent = in.readUTF();
-				options = in.readInt();
-				visibility = in.readUTF();
-				collision = in.readUTF();
-				color = in.readInt();
-			}
-			Object packet = BukkitPacketBuilder.getInstance().scoreboardTeam(name, action, players, prefix, prefixComponent,
-							suffix, suffixComponent, options, visibility, collision, color);
-			BridgePlayer pl = BukkitBridge.getInstance().getPlayer(player);
-			if (pl != null) {
-				pl.sendPacket(packet);
-			} else {
-				packetQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(packet);
-			}
-		}
 	}
 
 	public boolean isPetFixEnabled() {
@@ -254,7 +180,7 @@ public class DataBridge implements Listener {
 	}
 
 	private boolean isVanished(BridgePlayer player) {
-		if (essentials != null && essentials.getUser(player.getPlayer()).isVanished()) return true;
+		if (essentials != null && ((Essentials)essentials).getUser(player.getPlayer()).isVanished()) return true;
 		return !player.getPlayer().getMetadata("vanished").isEmpty() && player.getPlayer().getMetadata("vanished").get(0).asBoolean();
 	}
 
@@ -271,6 +197,7 @@ public class DataBridge implements Listener {
 	}
 
 	public void registerPlaceholder(String identifier, int refresh) {
+//		System.out.println("register placeholder " + identifier);
 		if (syncPlaceholders.containsKey(identifier)) {
 			syncPlaceholders.get(identifier).setRefresh(refresh);
 		} else if (asyncPlaceholders.containsKey(identifier)) {
