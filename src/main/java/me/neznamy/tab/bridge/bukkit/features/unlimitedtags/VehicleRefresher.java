@@ -5,7 +5,6 @@ import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +49,7 @@ public class VehicleRefresher {
 		if (vehicle != null) {
 			vehicles.put(vehicle.getEntityId(), getPassengers(vehicle));
 			playersInVehicle.put(connectedPlayer, vehicle);
-			if (feature.isDisableOnBoats() && vehicle.getType() == EntityType.BOAT) {
+			if (feature.isDisableOnBoats() && vehicle.getType().toString().contains("BOAT")) {
 				playersOnBoats.add(connectedPlayer);
 			}
 		}
@@ -81,7 +80,7 @@ public class VehicleRefresher {
 			vehicles.put(vehicle.getEntityId(), getPassengers(vehicle));
 			feature.getArmorStandManager(p).respawn(); //making teleport instant instead of showing teleport animation
 			playersInVehicle.put(p, vehicle);
-			if (feature.isDisableOnBoats() && vehicle.getType() == EntityType.BOAT) {
+			if (feature.isDisableOnBoats() && vehicle.getType().toString().contains("BOAT")) {
 				playersOnBoats.add(p);
 				p.sendMessage("Boat", true);
 			}
