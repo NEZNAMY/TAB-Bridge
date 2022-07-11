@@ -1,8 +1,8 @@
 package me.neznamy.tab.bridge.shared.placeholder;
 
 import com.google.common.collect.Iterables;
-import me.neznamy.tab.bridge.bukkit.BridgePlayer;
-import me.neznamy.tab.bridge.bukkit.BukkitBridge;
+import me.neznamy.tab.bridge.shared.BridgePlayer;
+import me.neznamy.tab.bridge.shared.TABBridge;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ public class ServerPlaceholder extends Placeholder {
         try {
             return function.get();
         } catch (Throwable t) {
-            BridgePlayer first = Iterables.getFirst(BukkitBridge.getInstance().getOnlinePlayers(), null);
+            BridgePlayer first = Iterables.getFirst(TABBridge.getInstance().getOnlinePlayers(), null);
             if (first != null) {
                 List<Object> args = new ArrayList<>();
                 args.add("PlaceholderError");

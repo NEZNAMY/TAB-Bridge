@@ -1,6 +1,6 @@
 package me.neznamy.tab.bridge.shared.placeholder;
 
-import me.neznamy.tab.bridge.bukkit.BridgePlayer;
+import me.neznamy.tab.bridge.shared.BridgePlayer;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -31,7 +31,7 @@ public class RelationalPlaceholder extends Placeholder {
         } catch (Throwable t) {
             List<Object> args = new ArrayList<>();
             args.add("PlaceholderError");
-            args.add("Relational placeholder " + identifier + " generated an error when setting for viewer " + viewer.getPlayer().getName() + " and target " + target.getPlayer().getName());
+            args.add("Relational placeholder " + identifier + " generated an error when setting for viewer " + viewer.getName() + " and target " + target.getName());
             args.add(t.getStackTrace().length+1);
             args.add(t.getClass().getName() + ": " + t.getMessage());
             args.addAll(Arrays.stream(t.getStackTrace()).map(e -> "\tat " + e.toString()).collect(Collectors.toList()));

@@ -1,26 +1,32 @@
-package me.neznamy.tab.bridge.bukkit;
+package me.neznamy.tab.bridge.shared;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
-import org.bukkit.entity.Player;
 
-public class BridgePlayer {
+import java.util.UUID;
 
-    private final Player player;
+public abstract class BridgePlayer {
+
+    private final String name;
+    private final UUID uuid;
     private final int protocolVersion;
     private boolean vanished;
     private boolean disguised;
     private boolean invisible;
     private String group = "NONE";
 
-    public BridgePlayer(Player player, int protocolVersion) {
-        this.player = player;
+    public BridgePlayer(String name, UUID uuid, int protocolVersion) {
+        this.name = name;
+        this.uuid = uuid;
         this.protocolVersion = protocolVersion;
     }
 
-    public Player getPlayer() {
-        return player;
+    public String getName() {
+        return name;
+    }
+
+    public UUID getUniqueId() {
+        return uuid;
     }
 
     public int getProtocolVersion() {
@@ -60,12 +66,11 @@ public class BridgePlayer {
     }
 
     public void sendMessage(Object... args) {
-//        System.out.println("Sending message to " + player.getName() + ": " + Arrays.toString(args));
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         for (Object arg : args) {
             writeObject(out, arg);
         }
-        player.sendPluginMessage(BukkitBridge.getInstance(), BukkitBridge.CHANNEL_NAME, out.toByteArray());
+        sendPluginMessage(out.toByteArray());
     }
 
     private void writeObject(ByteArrayDataOutput out, Object value) {
@@ -79,14 +84,7 @@ public class BridgePlayer {
         } else throw new IllegalArgumentException("Unhandled message data type " + value.getClass().getName());
     }
 
-    public void sendPacket(Object packet) {
-        if (packet == null) return;
-        try {
-            Object handle = NMSStorage.getInstance().getHandle.invoke(player);
-            Object playerConnection = NMSStorage.getInstance().PLAYER_CONNECTION.get(handle);
-            NMSStorage.getInstance().sendPacket.invoke(playerConnection, packet);
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
-    }
+    public abstract void sendPluginMessage(byte[] message);
+
+    public abstract void sendPacket(Object packet);
 }

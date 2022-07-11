@@ -1,7 +1,8 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.neznamy.tab.bridge.bukkit.BridgePlayer;
+import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
+import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.BukkitPacketBuilder;
 import me.neznamy.tab.bridge.bukkit.nms.DataWatcher;
@@ -30,7 +31,7 @@ public class ArmorStand {
 	private static int idCounter = 2000000000;
 
 	//armor stand owner
-	private final BridgePlayer player;
+	private final BukkitBridgePlayer player;
 
 	//offset in blocks, 0 for original height
 	private double yOffset;
@@ -53,7 +54,7 @@ public class ArmorStand {
 	//if offset is static or dynamic based on other armor stands
 	private final boolean staticOffset;
 
-	public ArmorStand(BridgePlayer player, double yOffset, boolean staticOffset) {
+	public ArmorStand(BukkitBridgePlayer player, double yOffset, boolean staticOffset) {
 		this.player = player;
 		this.staticOffset = staticOffset;
 		this.yOffset = yOffset;
@@ -89,7 +90,7 @@ public class ArmorStand {
 		}
 	}
 	
-	public void spawn(BridgePlayer viewer) {
+	public void spawn(BukkitBridgePlayer viewer) {
 		for (Object packet : getSpawnPackets(viewer)) {
 			viewer.sendPacket(packet);
 		}
@@ -111,7 +112,7 @@ public class ArmorStand {
 		}
 	}
 
-	public void teleport(BridgePlayer viewer) {
+	public void teleport(BukkitBridgePlayer viewer) {
 		if (!manager.getArmorStandManager(player).isNearby(viewer) && viewer != player) {
 			manager.getArmorStandManager(player).spawn(viewer);
 		} else {
@@ -122,7 +123,7 @@ public class ArmorStand {
 	public void sneak(boolean sneaking) {
 		if (this.sneaking == sneaking) return; //idk
 		this.sneaking = sneaking;
-		for (BridgePlayer viewer : manager.getArmorStandManager(player).getNearbyPlayers()) {
+		for (BukkitBridgePlayer viewer : manager.getArmorStandManager(player).getNearbyPlayers()) {
 			if (viewer.getProtocolVersion() >= 480 && viewer.getProtocolVersion() <= 498 && !alwaysVisible) {
 				//1.14.x client sided bug, de-spawning completely
 				if (sneaking) {
@@ -163,7 +164,7 @@ public class ArmorStand {
 	 * Updates armor stand's metadata
 	 */
 	public void updateMetadata() {
-		for (BridgePlayer viewer : manager.getArmorStandManager(player).getNearbyPlayers()) {
+		for (BukkitBridgePlayer viewer : manager.getArmorStandManager(player).getNearbyPlayers()) {
 			viewer.sendPacket(BukkitPacketBuilder.getInstance().entityMetadata(entityId, createDataWatcher(viewer)));
 		}
 	}
@@ -237,7 +238,7 @@ public class ArmorStand {
 	 * @param viewer - player to apply checks against
 	 * @return DataWatcher for viewer
 	 */
-	public DataWatcher createDataWatcher(BridgePlayer viewer) {
+	public DataWatcher createDataWatcher(BukkitBridgePlayer viewer) {
 		DataWatcher datawatcher = new DataWatcher();
 
 		byte flag = 32; //invisible
@@ -282,7 +283,7 @@ public class ArmorStand {
 	 * @param viewer - viewer to apply relational placeholders for
 	 * @return List of packets that spawn the armor stand
 	 */
-	public Object[] getSpawnPackets(BridgePlayer viewer) {
+	public Object[] getSpawnPackets(BukkitBridgePlayer viewer) {
 		visible = getVisibility();
 		DataWatcher dataWatcher = createDataWatcher(viewer);
 		if (NMSStorage.getInstance().getMinorVersion() >= 15) {
@@ -306,7 +307,7 @@ public class ArmorStand {
 		return viewer.getProtocolVersion() == 47 && !manager.isMarkerFor18x() ? getLocation().clone().add(0,-2,0) : getLocation();
 	}
 
-	public void respawn(BridgePlayer viewer) {
+	public void respawn(BukkitBridgePlayer viewer) {
 		viewer.sendPacket(BukkitPacketBuilder.getInstance().entityDestroy(entityId));
 		spawn(viewer);
 	}

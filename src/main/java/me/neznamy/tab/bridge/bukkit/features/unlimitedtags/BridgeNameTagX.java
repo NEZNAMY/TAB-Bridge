@@ -1,19 +1,22 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
 import com.google.common.io.ByteArrayDataInput;
-import me.neznamy.tab.bridge.bukkit.BridgePlayer;
-import me.neznamy.tab.bridge.bukkit.BukkitBridge;
+import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
+import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
+import me.neznamy.tab.bridge.shared.TABBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
 public class BridgeNameTagX implements Listener {
 
+    private final JavaPlugin plugin;
     private boolean enabled;
 
     private boolean markerFor18x;
@@ -38,8 +41,9 @@ public class BridgeNameTagX implements Listener {
 
     private BukkitTask visibilityRefreshTask;
 
-    public BridgeNameTagX() {
-        Bukkit.getPluginManager().registerEvents(this, BukkitBridge.getInstance());
+    public BridgeNameTagX(JavaPlugin plugin) {
+        this.plugin = plugin;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     public ArmorStandManager getArmorStandManager(BridgePlayer player) {
@@ -92,7 +96,7 @@ public class BridgeNameTagX implements Listener {
         return disabledUnlimitedPlayers;
     }
 
-    private void spawnArmorStands(BridgePlayer viewer, BridgePlayer target) {
+    private void spawnArmorStands(BukkitBridgePlayer viewer, BukkitBridgePlayer target) {
         if (target == viewer || isPlayerDisabled(target)) return;
         if (viewer.getPlayer().getWorld() != target.getPlayer().getWorld()) return;
         if (getDistance(viewer, target) <= 48) {
@@ -101,9 +105,9 @@ public class BridgeNameTagX implements Listener {
     }
 
     public void load() {
-        Bukkit.getPluginManager().registerEvents(eventListener, BukkitBridge.getInstance());
-        visibilityRefreshTask = Bukkit.getScheduler().runTaskTimerAsynchronously(BukkitBridge.getInstance(), () -> {
-            for (BridgePlayer p : BukkitBridge.getInstance().getOnlinePlayers()) {
+        Bukkit.getPluginManager().registerEvents(eventListener, plugin);
+        visibilityRefreshTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
                 if (isPlayerDisabled(p) || !armorStandManagerMap.containsKey(p)) continue;
                 getArmorStandManager(p).updateVisibility(false);
             }
@@ -111,60 +115,15 @@ public class BridgeNameTagX implements Listener {
     }
 
     public void unload() {
+        if (!enabled) return;
         HandlerList.unregisterAll(eventListener);
         visibilityRefreshTask.cancel();
-        for (BridgePlayer p : BukkitBridge.getInstance().getOnlinePlayers()) {
+        for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
             getArmorStandManager(p).destroy();
         }
     }
 
-    public void onJoin(BridgePlayer player) {
-        if (!enabled) return;
-        packetListener.onJoin(player);
-        vehicleManager.onJoin(player);
-        if (isUnlimitedDisabled(player.getPlayer().getWorld().getName()))
-            disabledUnlimitedPlayers.add(player);
-        armorStandManagerMap.put(player, new ArmorStandManager(this, player));
-        if (isPlayerDisabled(player)) return;
-        for (BridgePlayer viewer : BukkitBridge.getInstance().getOnlinePlayers()) {
-            if (viewer == player) continue;
-            spawnArmorStands(viewer, player);
-            spawnArmorStands(player, viewer);
-        }
-    }
-
-    public void onQuit(BridgePlayer player) {
-        if (!enabled) return;
-        packetListener.onQuit(player);
-        vehicleManager.onQuit(player);
-        for (BridgePlayer all : BukkitBridge.getInstance().getOnlinePlayers()) {
-            if (getArmorStandManager(all) != null) getArmorStandManager(all).unregisterPlayer(player);
-        }
-        getArmorStandManager(player).destroy();
-        armorStandManagerMap.remove(player);
-    }
-
-    public PacketListener getPacketListener() {
-        return packetListener;
-    }
-
-    public boolean isDisableOnBoats() {
-        return disableOnBoats;
-    }
-
-    public VehicleRefresher getVehicleManager() {
-        return vehicleManager;
-    }
-
-    public boolean isMarkerFor18x() {
-        return markerFor18x;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void readJoinInput(ByteArrayDataInput input) {
+    public void onJoin(BukkitBridgePlayer player, ByteArrayDataInput input) {
         if (NMSStorage.getInstance() == null) return;
         boolean enabled = input.readBoolean();
         if (enabled) {
@@ -200,9 +159,52 @@ public class BridgeNameTagX implements Listener {
                 unload();
             }
         }
+        if (!enabled) return;
+        packetListener.onJoin(player);
+        vehicleManager.onJoin(player);
+        if (isUnlimitedDisabled(player.getPlayer().getWorld().getName()))
+            disabledUnlimitedPlayers.add(player);
+        armorStandManagerMap.put(player, new ArmorStandManager(this, player));
+        if (isPlayerDisabled(player)) return;
+        for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
+            if (viewer == player) continue;
+            spawnArmorStands((BukkitBridgePlayer) viewer, player);
+            spawnArmorStands(player, (BukkitBridgePlayer) viewer);
+        }
     }
 
-    public void readMessage(BridgePlayer receiver, ByteArrayDataInput in) {
+    public void onQuit(BukkitBridgePlayer player) {
+        if (!enabled) return;
+        packetListener.onQuit(player);
+        vehicleManager.onQuit(player);
+        for (BridgePlayer all : TABBridge.getInstance().getOnlinePlayers()) {
+            if (getArmorStandManager(all) != null) getArmorStandManager(all).unregisterPlayer(player);
+        }
+        getArmorStandManager(player).destroy();
+        armorStandManagerMap.remove(player);
+    }
+
+    public PacketListener getPacketListener() {
+        return packetListener;
+    }
+
+    public boolean isDisableOnBoats() {
+        return disableOnBoats;
+    }
+
+    public VehicleRefresher getVehicleManager() {
+        return vehicleManager;
+    }
+
+    public boolean isMarkerFor18x() {
+        return markerFor18x;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void readMessage(BukkitBridgePlayer receiver, ByteArrayDataInput in) {
         ArmorStandManager asm = getArmorStandManager(receiver);
         if (asm == null) return;
         String action = in.readUTF();
@@ -226,9 +228,9 @@ public class BridgeNameTagX implements Listener {
             asm.destroy();
         }
         if (action.equals("Resume")) {
-            for (BridgePlayer viewer : BukkitBridge.getInstance().getOnlinePlayers()) {
+            for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
                 if (viewer == receiver) continue;
-                spawnArmorStands(viewer, receiver);
+                spawnArmorStands((BukkitBridgePlayer) viewer, receiver);
             }
             playersDisabledWithAPI.remove(receiver);
         }
@@ -238,7 +240,7 @@ public class BridgeNameTagX implements Listener {
             } else {
                 playersWithHiddenVisibilityView.add(receiver);
             }
-            for (BridgePlayer all : BukkitBridge.getInstance().getOnlinePlayers()) {
+            for (BridgePlayer all : TABBridge.getInstance().getOnlinePlayers()) {
                 getArmorStandManager(all).updateVisibility(true);
             }
         }
@@ -250,7 +252,7 @@ public class BridgeNameTagX implements Listener {
      * @param player2 - second player
      * @return flat distance in blocks
      */
-    private double getDistance(BridgePlayer player1, BridgePlayer player2) {
+    private double getDistance(BukkitBridgePlayer player1, BukkitBridgePlayer player2) {
         Location loc1 = player1.getPlayer().getLocation();
         Location loc2 = player2.getPlayer().getLocation();
         return Math.sqrt(Math.pow(loc1.getX()-loc2.getX(), 2) + Math.pow(loc1.getZ()-loc2.getZ(), 2));

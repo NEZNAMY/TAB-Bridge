@@ -78,7 +78,7 @@ public class PetFix {
      * 			if thrown by reflective operation
      */
     @SuppressWarnings("unchecked")
-    public void onPacketSend(Player receiver, Object packet) throws ReflectiveOperationException {
+    public void onPacketSend(Object packet) throws ReflectiveOperationException {
         if (nms == null) return;
         if (nms.PacketPlayOutEntityMetadata.isInstance(packet)) {
             Object removedEntry = null;
@@ -96,7 +96,7 @@ public class PetFix {
                 }
             } catch (ConcurrentModificationException e) {
                 //no idea how can this list change in another thread since it's created for the packet but whatever, try again
-                onPacketSend(receiver, packet);
+                onPacketSend(packet);
             }
             if (removedEntry != null) items.remove(removedEntry);
         } else if (nms.PacketPlayOutSpawnEntityLiving.isInstance(packet) && nms.PacketPlayOutSpawnEntityLiving_DATAWATCHER != null) {

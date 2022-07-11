@@ -1,7 +1,7 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
-import me.neznamy.tab.bridge.bukkit.BridgePlayer;
-import me.neznamy.tab.bridge.bukkit.BukkitBridge;
+import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
+import me.neznamy.tab.bridge.shared.TABBridge;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -31,7 +31,7 @@ public class EventListener implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onSneak(PlayerToggleSneakEvent e) {
-		ArmorStandManager asm = feature.getArmorStandManager(BukkitBridge.getInstance().getPlayer(e.getPlayer()));
+		ArmorStandManager asm = feature.getArmorStandManager(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId()));
 		if (asm != null) asm.sneak(e.isSneaking());
 	}
 	
@@ -41,15 +41,15 @@ public class EventListener implements Listener {
 	 */
 	@EventHandler
 	public void onRespawn(PlayerRespawnEvent e) {
-		ArmorStandManager asm = feature.getArmorStandManager(BukkitBridge.getInstance().getPlayer(e.getPlayer()));
-		if (asm != null && !feature.isPlayerDisabled(BukkitBridge.getInstance().getPlayer(e.getPlayer()))) {
+		ArmorStandManager asm = feature.getArmorStandManager(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId()));
+		if (asm != null && !feature.isPlayerDisabled(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId()))) {
 			asm.teleport();
 		}
 	}
 	
 	@EventHandler
 	public void onWorldChange(PlayerChangedWorldEvent e) {
-		BridgePlayer player = BukkitBridge.getInstance().getPlayer(e.getPlayer());
+		BukkitBridgePlayer player = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
 		if (player == null) return;
 		if (feature.isUnlimitedDisabled(e.getPlayer().getWorld().getName())) {
 			feature.getDisabledUnlimitedPlayers().add(player);

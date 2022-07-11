@@ -1,6 +1,6 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
-import me.neznamy.tab.bridge.bukkit.BridgePlayer;
+import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 
 import java.util.*;
 
@@ -14,14 +14,14 @@ public class ArmorStandManager {
 	private final Map<String, ArmorStand> ArmorStands = new LinkedHashMap<>();
 
 	//players in entity tracking range
-	private final List<BridgePlayer> nearbyPlayers = new ArrayList<>();
+	private final List<BukkitBridgePlayer> nearbyPlayers = new ArrayList<>();
 
 	//array to iterate over to avoid concurrent modification and slightly boost performance & memory
 	private final ArmorStand[] ArmorStandArray;
 
-	private BridgePlayer[] nearbyPlayerArray = new BridgePlayer[0];
+	private BukkitBridgePlayer[] nearbyPlayerArray = new BukkitBridgePlayer[0];
 
-	public ArmorStandManager(BridgeNameTagX nameTagX, BridgePlayer owner) {
+	public ArmorStandManager(BridgeNameTagX nameTagX, BukkitBridgePlayer owner) {
 		this.nameTagX = nameTagX;
 		double height = 0;
 		for (String line : nameTagX.getDynamicLines()) {
@@ -38,10 +38,10 @@ public class ArmorStandManager {
         return ArmorStands.get(name);
     }
 	
-	public void spawn(BridgePlayer viewer) {
+	public void spawn(BukkitBridgePlayer viewer) {
 		if (nearbyPlayers.contains(viewer)) return;
 		nearbyPlayers.add(viewer);
-		nearbyPlayerArray = nearbyPlayers.toArray(new BridgePlayer[0]);
+		nearbyPlayerArray = nearbyPlayers.toArray(new BukkitBridgePlayer[0]);
 		for (ArmorStand a : ArmorStandArray) a.spawn(viewer);
 	}
 	
@@ -53,7 +53,7 @@ public class ArmorStandManager {
 		for (ArmorStand a : ArmorStandArray) a.teleport();
 	}
 	
-	public void teleport(BridgePlayer viewer) {
+	public void teleport(BukkitBridgePlayer viewer) {
 		for (ArmorStand a : ArmorStandArray) a.teleport(viewer);
 	}
 
@@ -61,17 +61,17 @@ public class ArmorStandManager {
 		for (ArmorStand a : ArmorStandArray) a.updateVisibility(force);
 	}
 	
-	public void unregisterPlayer(BridgePlayer viewer) {
-		if (nearbyPlayers.remove(viewer)) nearbyPlayerArray = nearbyPlayers.toArray(new BridgePlayer[0]);
+	public void unregisterPlayer(BukkitBridgePlayer viewer) {
+		if (nearbyPlayers.remove(viewer)) nearbyPlayerArray = nearbyPlayers.toArray(new BukkitBridgePlayer[0]);
 	}
 	
 	public void destroy() {
 		for (ArmorStand a : ArmorStandArray) a.destroy();
 		nearbyPlayers.clear();
-		nearbyPlayerArray = new BridgePlayer[0];
+		nearbyPlayerArray = new BukkitBridgePlayer[0];
 	}
 	
-	public void destroy(BridgePlayer viewer) {
+	public void destroy(BukkitBridgePlayer viewer) {
 		for (ArmorStand a : ArmorStandArray) a.destroy(viewer);
 		unregisterPlayer(viewer);
 	}
@@ -85,17 +85,17 @@ public class ArmorStandManager {
 		return false;
 	}
 
-	public BridgePlayer[] getNearbyPlayers(){
+	public BukkitBridgePlayer[] getNearbyPlayers(){
 		return nearbyPlayerArray;
 	}
 	
-	public boolean isNearby(BridgePlayer viewer) {
+	public boolean isNearby(BukkitBridgePlayer viewer) {
 		return nearbyPlayers.contains(viewer);
 	}
 	
 	public void respawn() {
 		for (ArmorStand a : ArmorStandArray) {
-			for (BridgePlayer viewer : nearbyPlayerArray) {
+			for (BukkitBridgePlayer viewer : nearbyPlayerArray) {
 				a.respawn(viewer);
 			}
 		}

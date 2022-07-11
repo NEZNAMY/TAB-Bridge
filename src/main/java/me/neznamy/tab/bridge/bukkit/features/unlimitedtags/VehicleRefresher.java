@@ -1,8 +1,10 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
-import me.neznamy.tab.bridge.bukkit.BridgePlayer;
+import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
+import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
+import me.neznamy.tab.bridge.shared.TABBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 
@@ -31,20 +33,20 @@ public class VehicleRefresher {
 				ArmorStandManager asm = feature.getArmorStandManager(inVehicle);
 				if (asm != null) asm.teleport();
 			}
-			for (BridgePlayer p : BukkitBridge.getInstance().getOnlinePlayers()) {
+			for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
 				if (feature.getPlayersPreviewingNameTag().contains(p)) {
-					feature.getArmorStandManager(p).teleport(p);
+					feature.getArmorStandManager(p).teleport((BukkitBridgePlayer) p);
 				}
-				String vehicle = String.valueOf(p.getPlayer().getVehicle());
+				String vehicle = String.valueOf(((BukkitBridgePlayer)p).getPlayer().getVehicle());
 				if (playerVehicles.getOrDefault(p, "null").equals(vehicle)) {
 					playerVehicles.put(p, vehicle);
-					refresh(p);
+					refresh((BukkitBridgePlayer) p);
 				}
 			}
 		}, 0, 1);
 	}
 
-	public void onJoin(BridgePlayer connectedPlayer) {
+	public void onJoin(BukkitBridgePlayer connectedPlayer) {
 		Entity vehicle = connectedPlayer.getPlayer().getVehicle();
 		if (vehicle != null) {
 			vehicles.put(vehicle.getEntityId(), getPassengers(vehicle));
@@ -55,14 +57,14 @@ public class VehicleRefresher {
 		}
 	}
 
-	public void onQuit(BridgePlayer disconnectedPlayer) {
+	public void onQuit(BukkitBridgePlayer disconnectedPlayer) {
 		if (playersInVehicle.containsKey(disconnectedPlayer)) vehicles.remove(playersInVehicle.get(disconnectedPlayer).getEntityId());
 		for (List<Entity> entities : vehicles.values()) {
 			entities.remove(disconnectedPlayer.getPlayer());
 		}
 	}
 
-	public void refresh(BridgePlayer p) {
+	public void refresh(BukkitBridgePlayer p) {
 		if (feature.isPlayerDisabled(p)) return;
 		Entity vehicle = p.getPlayer().getVehicle();
 		if (playersInVehicle.containsKey(p) && vehicle == null) {

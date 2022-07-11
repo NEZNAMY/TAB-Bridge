@@ -1,8 +1,9 @@
 package me.neznamy.tab.bridge.bukkit.features;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.neznamy.tab.bridge.bukkit.BridgePlayer;
-import me.neznamy.tab.bridge.bukkit.BukkitBridge;
+import me.neznamy.tab.bridge.shared.BridgePlayer;
+import me.neznamy.tab.bridge.shared.TABBridge;
+import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,20 +12,15 @@ import java.util.*;
 /**
  * TAB's expansion for PlaceholderAPI
  */
-public class BridgeTabExpansion extends PlaceholderExpansion {
+public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpansion {
 
     /** Map holding all placeholder values for all players */
-    private final Map<BridgePlayer, Map<String, String>> values = new WeakHashMap<>();
+    private final Map<Player, Map<String, String>> values = new WeakHashMap<>();
 
-    private final Map<BridgePlayer, Set<String>> sentRequests = new WeakHashMap<>();
+    private final Map<Player, Set<String>> sentRequests = new WeakHashMap<>();
 
     @Override
     public boolean persist(){
-        return true;
-    }
-
-    @Override
-    public boolean canRegister(){
         return true;
     }
 
@@ -40,20 +36,22 @@ public class BridgeTabExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return "2.0.0-pre1";
+        return TABBridge.PLUGIN_VERSION;
     }
 
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String identifier){
         if (player == null) return "";
-        BridgePlayer p = BukkitBridge.getInstance().getPlayer(player);
-        String value = values.computeIfAbsent(p, pl -> new HashMap<>()).get(identifier);
+        String value = values.computeIfAbsent(player, pl -> new HashMap<>()).get(identifier);
         if (value == null) {
             if (identifier.startsWith("placeholder_")) {
                 String placeholder = "%" + identifier.substring(12) + "%";
-                if (!sentRequests.computeIfAbsent(p, pl -> new HashSet<>()).contains(placeholder)){
-                    sentRequests.get(p).add(placeholder);
-                    p.sendMessage("RegisterPlaceholder", placeholder);
+                if (!sentRequests.computeIfAbsent(player, pl -> new HashSet<>()).contains(placeholder)){
+                    BridgePlayer pl = TABBridge.getInstance().getPlayer(player.getUniqueId());
+                    if (pl != null) {
+                        sentRequests.get(player).add(placeholder);
+                        pl.sendMessage("RegisterPlaceholder", placeholder);
+                    }
                 }
             }
         }
@@ -61,7 +59,8 @@ public class BridgeTabExpansion extends PlaceholderExpansion {
         return value;
     }
 
-    public void setValue(BridgePlayer player, String identifier, String value) {
-        values.computeIfAbsent(player, p -> new HashMap<>()).put(identifier, value);
+    @Override
+    public void setValue(Object player, String identifier, String value) {
+        values.computeIfAbsent((Player) player, p -> new HashMap<>()).put(identifier, value);
     }
 }

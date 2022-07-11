@@ -1,8 +1,9 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
-import me.neznamy.tab.bridge.bukkit.BridgePlayer;
-import me.neznamy.tab.bridge.bukkit.BukkitBridge;
+import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
+import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
+import me.neznamy.tab.bridge.shared.TABBridge;
 import org.bukkit.entity.Entity;
 
 import java.util.List;
@@ -28,11 +29,11 @@ public class PacketListener {
 		this.nameTagX = nameTagX;
 	}
 
-	public void onJoin(BridgePlayer connectedPlayer) {
+	public void onJoin(BukkitBridgePlayer connectedPlayer) {
 		entityIdMap.put(connectedPlayer.getPlayer().getEntityId(), connectedPlayer);
 	}
 
-	public void onQuit(BridgePlayer disconnectedPlayer) {
+	public void onQuit(BukkitBridgePlayer disconnectedPlayer) {
 		entityIdMap.remove(disconnectedPlayer.getPlayer().getEntityId());
 	}
 
@@ -40,10 +41,10 @@ public class PacketListener {
 		if (nms == null) return;
 		if (nms.PacketPlayInUseEntity.isInstance(packet)) {
 			int entityId = nms.PacketPlayInUseEntity_ENTITY.getInt(packet);
-			BridgePlayer attacked = null;
-			for (BridgePlayer all : BukkitBridge.getInstance().getOnlinePlayers()) {
+			BukkitBridgePlayer attacked = null;
+			for (BridgePlayer all : TABBridge.getInstance().getOnlinePlayers()) {
 				if (nameTagX.getArmorStandManager(sender).hasArmorStandWithID(entityId)) {
-					attacked = all;
+					attacked = (BukkitBridgePlayer) all;
 					break;
 				}
 			}
@@ -54,7 +55,7 @@ public class PacketListener {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void onPacketSend(BridgePlayer receiver, Object packet) throws ReflectiveOperationException {
+	public void onPacketSend(BukkitBridgePlayer receiver, Object packet) throws ReflectiveOperationException {
 		if (nms == null) return;
 		if (nameTagX.isPlayerDisabled(receiver) || nameTagX.getDisabledUnlimitedPlayers().contains(receiver)) return;
 		if (nms.PacketPlayOutEntity.isInstance(packet) && !nms.PacketPlayOutEntityLook.isInstance(packet)) {
@@ -83,13 +84,13 @@ public class PacketListener {
 	 * @param receiver - packet receiver
 	 * @param entityId - entity that moved
 	 */
-	private void onEntityMove(BridgePlayer receiver, int entityId) {
+	private void onEntityMove(BukkitBridgePlayer receiver, int entityId) {
 		BridgePlayer pl = entityIdMap.get(entityId);
 		List<Entity> vehicleList;
 		if (pl != null) {
 			//player moved
 			if (nameTagX.isPlayerDisabled(pl)) return;
-			BukkitBridge.getInstance().getDataBridge().submitTask(() -> {
+			TABBridge.getInstance().submitTask(() -> {
 				ArmorStandManager asm = nameTagX.getArmorStandManager(pl);
 				if (asm != null) asm.teleport(receiver);
 			});
@@ -98,34 +99,34 @@ public class PacketListener {
 			for (Entity entity : vehicleList) {
 				BridgePlayer passenger = entityIdMap.get(entity.getEntityId());
 				if (passenger != null && nameTagX.getArmorStandManager(passenger) != null) {
-					BukkitBridge.getInstance().getDataBridge().submitTask(() -> nameTagX.getArmorStandManager(passenger).teleport(receiver));
+					TABBridge.getInstance().submitTask(() -> nameTagX.getArmorStandManager(passenger).teleport(receiver));
 				}
 			}
 		}
 	}
 	
-	private void onEntitySpawn(BridgePlayer receiver, int entityId) {
+	private void onEntitySpawn(BukkitBridgePlayer receiver, int entityId) {
 		BridgePlayer spawnedPlayer = entityIdMap.get(entityId);
 		if (spawnedPlayer != null && !nameTagX.isPlayerDisabled(spawnedPlayer)) {
-			BukkitBridge.getInstance().getDataBridge().submitTask(() -> nameTagX.getArmorStandManager(spawnedPlayer).spawn(receiver));
+			TABBridge.getInstance().submitTask(() -> nameTagX.getArmorStandManager(spawnedPlayer).spawn(receiver));
 		}
 	}
 
-	private void onEntityDestroy(BridgePlayer receiver, List<Integer> entities) {
+	private void onEntityDestroy(BukkitBridgePlayer receiver, List<Integer> entities) {
 		for (int entity : entities) {
 			onEntityDestroy(receiver, entity);
 		}
 	}
 	
-	private void onEntityDestroy(BridgePlayer receiver, int... entities) {
+	private void onEntityDestroy(BukkitBridgePlayer receiver, int... entities) {
 		for (int entity : entities) {
 			onEntityDestroy(receiver, entity);
 		}
 	}
 	
-	private void onEntityDestroy(BridgePlayer receiver, int entity) {
+	private void onEntityDestroy(BukkitBridgePlayer receiver, int entity) {
 		BridgePlayer deSpawnedPlayer = entityIdMap.get(entity);
 		if (deSpawnedPlayer != null && !nameTagX.isPlayerDisabled(deSpawnedPlayer))
-			BukkitBridge.getInstance().getDataBridge().submitTask(() -> nameTagX.getArmorStandManager(deSpawnedPlayer).destroy(receiver));
+			TABBridge.getInstance().submitTask(() -> nameTagX.getArmorStandManager(deSpawnedPlayer).destroy(receiver));
 	}
 }
