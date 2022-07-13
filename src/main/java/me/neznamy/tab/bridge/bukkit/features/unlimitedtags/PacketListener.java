@@ -57,6 +57,7 @@ public class PacketListener {
 	@SuppressWarnings("unchecked")
 	public void onPacketSend(BukkitBridgePlayer receiver, Object packet) throws ReflectiveOperationException {
 		if (nms == null) return;
+		if (receiver.getProtocolVersion() < 47) return;
 		if (nameTagX.isPlayerDisabled(receiver) || nameTagX.getDisabledUnlimitedPlayers().contains(receiver)) return;
 		if (nms.PacketPlayOutEntity.isInstance(packet) && !nms.PacketPlayOutEntityLook.isInstance(packet)) {
 			onEntityMove(receiver, nms.PacketPlayOutEntity_ENTITYID.getInt(packet));

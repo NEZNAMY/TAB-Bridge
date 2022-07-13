@@ -97,6 +97,7 @@ public class BridgeNameTagX implements Listener {
     }
 
     private void spawnArmorStands(BukkitBridgePlayer viewer, BukkitBridgePlayer target) {
+        if (viewer.getProtocolVersion() < 47) return;
         if (target == viewer || isPlayerDisabled(target)) return;
         if (viewer.getPlayer().getWorld() != target.getPlayer().getWorld()) return;
         if (getDistance(viewer, target) <= 48) {
