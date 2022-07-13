@@ -38,7 +38,7 @@ public class VehicleRefresher {
 					feature.getArmorStandManager(p).teleport((BukkitBridgePlayer) p);
 				}
 				String vehicle = String.valueOf(((BukkitBridgePlayer)p).getPlayer().getVehicle());
-				if (playerVehicles.getOrDefault(p, "null").equals(vehicle)) {
+				if (!playerVehicles.getOrDefault(p, "null").equals(vehicle)) {
 					playerVehicles.put(p, vehicle);
 					refresh((BukkitBridgePlayer) p);
 				}
