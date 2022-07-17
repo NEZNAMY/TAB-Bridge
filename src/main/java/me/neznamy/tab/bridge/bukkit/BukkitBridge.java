@@ -88,7 +88,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 	public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] bytes){
 		if (!channel.equals(TABBridge.CHANNEL_NAME)) return;
 		TABBridge.getInstance().submitTask(
-				() -> TABBridge.getInstance().getDataBridge().processPluginMessage(player, bytes));
+				() -> TABBridge.getInstance().getDataBridge().processPluginMessage(player, bytes, false));
 	}
 
 	public class CustomChannelDuplexHandler extends ChannelDuplexHandler {

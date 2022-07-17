@@ -35,7 +35,7 @@ public class DataBridge {
 		}, 20);
 	}
 	
-	public void processPluginMessage(Object player, byte[] bytes) {
+	public void processPluginMessage(Object player, byte[] bytes, boolean retry) {
 		if (!TABBridge.getInstance().getPlatform().isOnline(player)) {
 			messageQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(bytes);
 			return;
@@ -105,7 +105,7 @@ public class DataBridge {
 		if (subChannel.equals("NameTagX")) {
 			TABBridge.getInstance().getPlatform().readUnlimitedNametagMessage(pl, in);
 		}
-		if (subChannel.equals("Unload")) {
+		if (subChannel.equals("Unload") && !retry) {
 			TABBridge.getInstance().removePlayer(TABBridge.getInstance().getPlayer(TABBridge.getInstance().getPlatform().getUniqueId(player)));
 		}
 		if (subChannel.equals("Expansion")) {
@@ -164,7 +164,7 @@ public class DataBridge {
 	public void processQueue(Object player) {
 		List<byte[]> list = new ArrayList<>(messageQueue.computeIfAbsent(player, p -> new ArrayList<>()));
 		messageQueue.remove(player);
-		list.forEach(msg -> processPluginMessage(player, msg));
+		list.forEach(msg -> processPluginMessage(player, msg, true));
 	}
 
 	public boolean isPetFixEnabled() {
