@@ -29,6 +29,7 @@ public class VehicleRefresher {
 	public VehicleRefresher(BridgeNameTagX feature) {
 		this.feature = feature;
 		Bukkit.getScheduler().runTaskTimerAsynchronously(BukkitBridge.getInstance(), () -> {
+			if (!feature.isEnabled()) return;
 			for (BridgePlayer inVehicle : playersInVehicle.keySet()) {
 				ArmorStandManager asm = feature.getArmorStandManager(inVehicle);
 				if (asm != null) asm.teleport();
