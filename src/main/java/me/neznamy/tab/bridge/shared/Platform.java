@@ -56,7 +56,7 @@ public interface Platform {
 
     BridgePlayer newPlayer(Object player, int protocolVersion);
 
-    Placeholder createPlaceholder(String identifier, int refresh);
+    Placeholder createPlaceholder(String publicIdentifier, String privateIdentifier, int refresh);
 
     default void inject(Object player, ChannelDuplexHandler handler) {
         Channel channel = getChannel(player);

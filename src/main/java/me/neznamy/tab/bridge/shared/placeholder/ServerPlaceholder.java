@@ -12,13 +12,12 @@ import java.util.stream.Collectors;
 
 public class ServerPlaceholder extends Placeholder {
 
-    private String lastValue;
+    private String lastValue = "<Not initialized yet>";
     private final Supplier<String> function;
 
     public ServerPlaceholder(String identifier, int refresh, Supplier<String> function) {
         super(identifier, refresh);
         this.function = function;
-        update();
     }
 
     public boolean update() {

@@ -186,18 +186,18 @@ public class BukkitPlatform implements Platform {
     }
 
     @Override
-    public Placeholder createPlaceholder(String identifier, int refresh) {
+    public Placeholder createPlaceholder(String publicIdentifier, String privateIdentifier, int refresh) {
         Placeholder placeholder;
-        if (identifier.startsWith("%server_")) {
-            placeholder = new ServerPlaceholder(identifier, refresh, () ->
-                    placeholderAPI ? PlaceholderAPI.setPlaceholders(null, identifier) : "<PlaceholderAPI is not installed>");
-        } else if (identifier.startsWith("%rel_")) {
-            placeholder = new RelationalPlaceholder(identifier, refresh, (viewer, target) ->
+        if (privateIdentifier.startsWith("%server_")) {
+            placeholder = new ServerPlaceholder(publicIdentifier, refresh, () ->
+                    placeholderAPI ? PlaceholderAPI.setPlaceholders(null, privateIdentifier) : "<PlaceholderAPI is not installed>");
+        } else if (privateIdentifier.startsWith("%rel_")) {
+            placeholder = new RelationalPlaceholder(publicIdentifier, refresh, (viewer, target) ->
                     placeholderAPI ? PlaceholderAPI.setRelationalPlaceholders(((BukkitBridgePlayer)viewer).getPlayer(),
-                            ((BukkitBridgePlayer)target).getPlayer(), identifier) : "<PlaceholderAPI is not installed>");
+                            ((BukkitBridgePlayer)target).getPlayer(), privateIdentifier) : "<PlaceholderAPI is not installed>");
         } else {
-            placeholder = new PlayerPlaceholder(identifier, refresh, p ->
-                    placeholderAPI ? PlaceholderAPI.setPlaceholders(((BukkitBridgePlayer)p).getPlayer(), identifier) : "<PlaceholderAPI is not installed>");
+            placeholder = new PlayerPlaceholder(publicIdentifier, refresh, p ->
+                    placeholderAPI ? PlaceholderAPI.setPlaceholders(((BukkitBridgePlayer)p).getPlayer(), privateIdentifier) : "<PlaceholderAPI is not installed>");
         }
         return placeholder;
     }

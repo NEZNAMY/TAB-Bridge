@@ -185,7 +185,7 @@ public class DataBridge {
 			} else {
 				finalIdentifier = identifier;
 			}
-			Placeholder placeholder = TABBridge.getInstance().getPlatform().createPlaceholder(finalIdentifier, refresh);
+			Placeholder placeholder = TABBridge.getInstance().getPlatform().createPlaceholder(identifier, finalIdentifier, refresh);
 			if (sync) {
 				syncPlaceholders.put(identifier, placeholder);
 			} else {
