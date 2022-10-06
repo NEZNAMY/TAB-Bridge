@@ -100,7 +100,7 @@ public class BridgeNameTagX implements Listener {
         if (viewer.getProtocolVersion() < 47) return;
         if (target == viewer || isPlayerDisabled(target)) return;
         if (viewer.getPlayer().getWorld() != target.getPlayer().getWorld()) return;
-        if (getDistance(viewer, target) <= 48) {
+        if (getDistance(viewer, target) <= 48 && viewer.getPlayer().canSee(target.getPlayer()) && !target.isVanished()) {
             if (viewer.getPlayer().canSee(target.getPlayer())) getArmorStandManager(target).spawn(viewer);
         }
     }

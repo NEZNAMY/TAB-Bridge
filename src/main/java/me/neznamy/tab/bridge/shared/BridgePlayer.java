@@ -39,6 +39,10 @@ public abstract class BridgePlayer {
         sendMessage("Vanished", vanished);
     }
 
+    public boolean isVanished() {
+        return vanished;
+    }
+
     public void setDisguised(boolean disguised) {
         if (this.disguised == disguised) return;
         this.disguised = disguised;
