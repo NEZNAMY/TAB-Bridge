@@ -1,6 +1,5 @@
 package me.neznamy.tab.bridge.bukkit;
 
-import com.earth2me.essentials.Essentials;
 import com.google.common.io.ByteArrayDataInput;
 import io.netty.channel.Channel;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -16,7 +15,7 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
@@ -26,7 +25,6 @@ import java.util.UUID;
 
 public class BukkitPlatform implements Platform {
 
-    private final Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
     private final boolean vault = Bukkit.getPluginManager().isPluginEnabled("Vault");
     private final boolean placeholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
     private final JavaPlugin plugin;
@@ -42,9 +40,7 @@ public class BukkitPlatform implements Platform {
 
     @Override
     public boolean isVanished(BridgePlayer player) {
-        Player p = ((BukkitBridgePlayer)player).getPlayer();
-        if (essentials != null && ((Essentials)essentials).getUser(p).isVanished()) return true;
-        return !p.getMetadata("vanished").isEmpty() && p.getMetadata("vanished").get(0).asBoolean();
+        return ((BukkitBridgePlayer)player).getPlayer().getMetadata("vanished").stream().anyMatch(MetadataValue::asBoolean);
     }
 
     @Override

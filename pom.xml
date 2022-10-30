@@ -39,12 +39,6 @@
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
-
-		<!-- Essentials -->
-		<repository>
-			<id>essentials</id>
-			<url>https://repo.essentialsx.net/releases/</url>
-		</repository>
 	</repositories>
 
 	<dependencies>
@@ -101,14 +95,6 @@
 					<artifactId>bukkit</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-
-		<!-- Essentials -->
-		<dependency>
-			<groupId>net.essentialsx</groupId>
-			<artifactId>EssentialsX</artifactId>
-			<version>2.19.4</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- Netty -->
