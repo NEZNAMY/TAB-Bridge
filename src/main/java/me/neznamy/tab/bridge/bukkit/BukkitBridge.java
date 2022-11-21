@@ -100,7 +100,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		}
 
 		@Override
-		public void channelRead(ChannelHandlerContext context, Object packet) {
+		public void channelRead(@NotNull ChannelHandlerContext context, @NotNull Object packet) {
 			try {
 				if (TABBridge.getInstance().getDataBridge().isPetFixEnabled() && petFix != null && petFix.onPacketReceive(player, packet)) return;
 				BukkitBridgePlayer p = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(player.getUniqueId());
