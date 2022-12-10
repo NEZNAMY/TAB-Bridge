@@ -1,41 +1,24 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
+    id("com.github.johnrengelman.shadow") version "7.1.2"
     java
     `maven-publish`
-    idea
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven {
-        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-    }
-
-    maven {
-        url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-    }
-
-    maven {
-        url = uri("https://jitpack.io")
-    }
-
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2/")
-    }
-}
-
-dependencies {
-    implementation("org.jetbrains:annotations:23.0.0")
-    compileOnly("org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT")
-    compileOnly("me.clip:placeholderapi:2.11.2")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("io.netty:netty-all:4.1.85.Final")
 }
 
 group = "me.neznamy"
 version = "2.0.7"
-description = "TAB-Bridge"
+
 java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.targetCompatibility = JavaVersion.VERSION_1_8
+
+dependencies {
+    implementation(libs.annotations)
+    compileOnly(libs.bukkit)
+    compileOnly(libs.papi)
+    compileOnly(libs.vault)
+    compileOnly(libs.netty)
+}
 
 publishing {
     publications.create<MavenPublication>("maven") {
@@ -43,6 +26,16 @@ publishing {
     }
 }
 
-tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
+tasks {
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+    shadowJar {
+        archiveFileName.set("TAB-Bridge-${project.version}.jar")
+    }
+    processResources {
+        filesMatching("plugin.yml") {
+            filter<ReplaceTokens>(mapOf("tokens" to mapOf("version" to project.version)))
+        }
+    }
 }
