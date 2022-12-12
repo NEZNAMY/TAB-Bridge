@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "me.neznamy"
-version = "2.0.7"
+version = "2.0.8"
 
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 java.targetCompatibility = JavaVersion.VERSION_1_8
