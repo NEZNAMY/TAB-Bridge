@@ -74,7 +74,11 @@ public class BukkitPacketBuilder {
 
 	public Object entityMetadata(int entityId, DataWatcher dataWatcher) {
         try {
-            return nms.newPacketPlayOutEntityMetadata.newInstance(entityId, dataWatcher.toNMS(), true);
+            if (nms.is1_19_3Plus()) {
+                return nms.newPacketPlayOutEntityMetadata.newInstance(entityId, nms.DataWatcher_b.invoke(dataWatcher.toNMS()));
+            } else {
+                return nms.newPacketPlayOutEntityMetadata.newInstance(entityId, dataWatcher.toNMS(), true);
+            }
         } catch (ReflectiveOperationException e) {
             return null;
         }
@@ -106,7 +110,7 @@ public class BukkitPacketBuilder {
             }
             int id = entityIds.get(entityType);
             if (nms.getMinorVersion() >= 19) {
-                nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_ENTITYTYPE, nms.Registry_a.invoke(nms.IRegistry_X, id));
+                nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_ENTITYTYPE, nms.EntityTypes_ARMOR_STAND); // :(
             } else {
                 nms.setField(nmsPacket, nms.PacketPlayOutSpawnEntityLiving_ENTITYTYPE, id);
             }

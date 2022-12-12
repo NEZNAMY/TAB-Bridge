@@ -50,7 +50,13 @@ public class NMSStorage {
     public Field DataWatcherObject_SLOT;
     public Field DataWatcherObject_SERIALIZER;
     public Method DataWatcher_REGISTER;
+    public Method DataWatcher_b;
     private DataWatcherRegistry registry;
+    //1.19.3+
+    protected Class<?> DataWatcher$DataValue;
+    public Field DataWatcher$DataValue_POSITION;
+    public Field DataWatcher$DataValue_VALUE;
+    public Method DataWatcher_markDirty;
 
     //PacketPlayOutSpawnEntityLiving
     public final Class<?> PacketPlayOutSpawnEntityLiving = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutSpawnEntityLiving",
@@ -65,8 +71,6 @@ public class NMSStorage {
     public Field PacketPlayOutSpawnEntityLiving_Y;
     public Field PacketPlayOutSpawnEntityLiving_Z;
     public Field PacketPlayOutSpawnEntityLiving_DATAWATCHER;
-    public Method Registry_a;
-    public Object IRegistry_X;
 
     //PacketPlayOutEntityTeleport
     public final Class<?> PacketPlayOutEntityTeleport = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport", "PacketPlayOutEntityTeleport", "Packet34EntityTeleport");
@@ -83,6 +87,7 @@ public class NMSStorage {
     public Class<?> PacketPlayInUseEntity$d;
     public Field PacketPlayInUseEntity_ENTITY;
     public Field PacketPlayInUseEntity_ACTION;
+    public Object EntityTypes_ARMOR_STAND;
 
     public final Class<?> PacketPlayOutEntity = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutEntity", "PacketPlayOutEntity", "Packet30Entity");
     public final Field PacketPlayOutEntity_ENTITYID = getFields(PacketPlayOutEntity, int.class).get(0);
@@ -94,7 +99,7 @@ public class NMSStorage {
     public final Class<?> PacketPlayOutEntityLook = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutEntity$PacketPlayOutEntityLook", "PacketPlayOutEntity$PacketPlayOutEntityLook", "PacketPlayOutEntityLook", "Packet32EntityLook");
 
     public final Class<?> PacketPlayOutEntityMetadata = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata", "PacketPlayOutEntityMetadata", "Packet40EntityMetadata");
-    public final Constructor<?> newPacketPlayOutEntityMetadata = PacketPlayOutEntityMetadata.getConstructor(int.class, DataWatcher, boolean.class);
+    public Constructor<?> newPacketPlayOutEntityMetadata;
     public final Field PacketPlayOutEntityMetadata_LIST = getFields(PacketPlayOutEntityMetadata, List.class).get(0);
 
     public final Class<?> PacketPlayOutNamedEntitySpawn = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutNamedEntitySpawn", "PacketPlayOutNamedEntitySpawn", "Packet20NamedEntitySpawn");
@@ -164,11 +169,7 @@ public class NMSStorage {
         initializeDataWatcher();
         initializeEntityPackets();
         initializeScoreboardPackets();
-        try {
-            initializeTeamPackets();
-        } catch (ClassNotFoundException e) {
-            //fabric with missing team packet
-        }
+        initializeTeamPackets();
     }
 
     /**
@@ -197,6 +198,13 @@ public class NMSStorage {
             DataWatcherObject_SLOT = getFields(DataWatcherObject, int.class).get(0);
             DataWatcherObject_SERIALIZER = getFields(DataWatcherObject, DataWatcherSerializer).get(0);
             DataWatcher_REGISTER = getMethod(DataWatcher, new String[]{"register", "method_12784", "a"}, DataWatcherObject, Object.class);
+            if (is1_19_3Plus()) {
+                DataWatcher$DataValue = Class.forName("net.minecraft.network.syncher.DataWatcher$b");
+                DataWatcher$DataValue_POSITION = getFields(DataWatcher$DataValue, int.class).get(0);
+                DataWatcher$DataValue_VALUE = getFields(DataWatcher$DataValue, Object.class).get(0);
+                DataWatcher_b = getMethods(DataWatcher, List.class).get(0);
+                DataWatcher_markDirty = getMethods(DataWatcher, void.class, DataWatcherObject).get(0);
+            }
         } else {
             DataWatcherItem_TYPE = getFields(DataWatcherItem, int.class).get(1);
             DataWatcher_REGISTER = getMethod(DataWatcher, new String[]{"a", "func_75682_a"}, int.class, Object.class);
@@ -205,8 +213,17 @@ public class NMSStorage {
     }
 
     private void initializeEntityPackets() throws ReflectiveOperationException {
+        if (is1_19_3Plus()) {
+            newPacketPlayOutEntityMetadata = PacketPlayOutEntityMetadata.getConstructor(int.class, List.class);
+        } else {
+            newPacketPlayOutEntityMetadata = PacketPlayOutEntityMetadata.getConstructor(int.class, DataWatcher, boolean.class);
+        }
         if (minorVersion >= 17) {
-            newPacketPlayOutSpawnEntityLiving = PacketPlayOutSpawnEntityLiving.getConstructor(EntityLiving);
+            if (is1_19_3Plus()) {
+                newPacketPlayOutSpawnEntityLiving = PacketPlayOutSpawnEntityLiving.getConstructor(Entity);
+            } else {
+                newPacketPlayOutSpawnEntityLiving = PacketPlayOutSpawnEntityLiving.getConstructor(EntityLiving);
+            }
             newPacketPlayOutEntityTeleport = PacketPlayOutEntityTeleport.getConstructor(Entity);
         } else {
             newPacketPlayOutSpawnEntityLiving = PacketPlayOutSpawnEntityLiving.getConstructor();
@@ -235,8 +252,6 @@ public class NMSStorage {
                 PacketPlayOutSpawnEntityLiving_X = getFields(PacketPlayOutSpawnEntityLiving, double.class).get(2);
                 PacketPlayOutSpawnEntityLiving_Y = getFields(PacketPlayOutSpawnEntityLiving, double.class).get(3);
                 PacketPlayOutSpawnEntityLiving_Z = getFields(PacketPlayOutSpawnEntityLiving, double.class).get(4);
-                Registry_a = Class.forName("net.minecraft.core.Registry").getMethod("a", int.class);
-                IRegistry_X = Class.forName("net.minecraft.core.IRegistry").getDeclaredField("X").get(null);
             } else {
                 PacketPlayOutSpawnEntityLiving_X = getFields(PacketPlayOutSpawnEntityLiving, double.class).get(0);
                 PacketPlayOutSpawnEntityLiving_Y = getFields(PacketPlayOutSpawnEntityLiving, double.class).get(1);
@@ -252,6 +267,7 @@ public class NMSStorage {
         }
         if (minorVersion >= 19) {
             PacketPlayOutSpawnEntityLiving_ENTITYTYPE = getField(PacketPlayOutSpawnEntityLiving, "e");
+            EntityTypes_ARMOR_STAND = Class.forName("net.minecraft.world.entity.EntityTypes").getDeclaredField("d").get(null);
         } else {
             PacketPlayOutSpawnEntityLiving_ENTITYTYPE = getFields(PacketPlayOutSpawnEntityLiving, int.class).get(1);
         }
@@ -481,6 +497,15 @@ public class NMSStorage {
         } catch (ReflectiveOperationException e) {
             //this should never happen
             return new Enum[0];
+        }
+    }
+
+    public boolean is1_19_3Plus() {
+        try {
+            Class.forName("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
 }

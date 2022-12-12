@@ -87,8 +87,16 @@ public class PetFix {
             try {
                 for (Object item : items) {
                     if (item == null) continue;
-                    if (nms.DataWatcherObject_SLOT.getInt(nms.DataWatcherItem_TYPE.get(item)) == petOwnerPosition) {
-                        Object value = nms.DataWatcherItem_VALUE.get(item);
+                    int slot;
+                    Object value;
+                    if (nms.is1_19_3Plus()) {
+                        slot = nms.DataWatcher$DataValue_POSITION.getInt(item);
+                        value = nms.DataWatcher$DataValue_VALUE.get(item);
+                    } else {
+                        slot = nms.DataWatcherObject_SLOT.getInt(nms.DataWatcherItem_TYPE.get(item));
+                        value = nms.DataWatcherItem_VALUE.get(item);
+                    }
+                    if (slot == petOwnerPosition) {
                         if (value instanceof java.util.Optional || value instanceof com.google.common.base.Optional) {
                             removedEntry = item;
                         }
