@@ -19,6 +19,8 @@ public class NMSStorage {
     //server minor version such as "16"
     private final int minorVersion = Integer.parseInt(serverPackage.split("_")[1]);
 
+    private boolean is1_19_3Plus;
+
     //base
     private final Class<?> Packet = getNMSClass("net.minecraft.network.protocol.Packet", "Packet");
     private final Class<?> EnumChatFormat = getNMSClass("net.minecraft.EnumChatFormat", "EnumChatFormat");
@@ -149,12 +151,17 @@ public class NMSStorage {
     public Enum[] EnumNameTagVisibility_values;
     public Enum[] EnumTeamPush_values;
     public Enum[] PacketPlayOutScoreboardTeam_PlayerAction_values;
+
     /**
      * Creates new instance, initializes required NMS classes and fields
      * @throws	ReflectiveOperationException
      * 			If any class, field or method fails to load
      */
     public NMSStorage() throws ReflectiveOperationException {
+        try {
+            Class.forName("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket");
+            is1_19_3Plus = true;
+        } catch (ClassNotFoundException ignored) {}
         Class<?> NetworkManager = getNMSClass("net.minecraft.network.NetworkManager", "NetworkManager");
         if (minorVersion >= 7) {
             NETWORK_MANAGER = getFields(PlayerConnection, NetworkManager).get(0);
@@ -501,11 +508,6 @@ public class NMSStorage {
     }
 
     public boolean is1_19_3Plus() {
-        try {
-            Class.forName("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
+        return is1_19_3Plus;
     }
 }
