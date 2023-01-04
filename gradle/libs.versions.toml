@@ -1,11 +1,11 @@
 metadata.format.version = "1.1"
 
 [versions]
-annotations = "23.0.0"
+annotations = "23.1.0"
 bukkit = "1.18.2-R0.1-SNAPSHOT"
 papi = "2.11.2"
 vault = "1.7"
-netty = "4.1.85.Final"
+netty = "4.1.86.Final"
 
 [libraries]
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
