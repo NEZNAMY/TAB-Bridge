@@ -247,8 +247,8 @@ public class ArmorStand {
 		String text = this.text;
 		String componentText = this.componentText;
 		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") && this.text.contains("%rel_")) {
-			text = PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.text);
-			componentText = PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.componentText);
+			text = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.text));
+			componentText = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.componentText));
 		}
 		datawatcher.helper().setCustomName(text, componentText);
 
