@@ -209,7 +209,7 @@ public class NMSStorage {
                 DataWatcher$DataValue = Class.forName("net.minecraft.network.syncher.DataWatcher$b");
                 DataWatcher$DataValue_POSITION = getFields(DataWatcher$DataValue, int.class).get(0);
                 DataWatcher$DataValue_VALUE = getFields(DataWatcher$DataValue, Object.class).get(0);
-                DataWatcher_b = getMethods(DataWatcher, List.class).get(0);
+                DataWatcher_b = DataWatcher.getMethod("b");
                 DataWatcher_markDirty = getMethods(DataWatcher, void.class, DataWatcherObject).get(0);
             }
         } else {
