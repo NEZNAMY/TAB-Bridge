@@ -281,7 +281,7 @@ public class ArmorStand {
 	/**
 	 * Returns list of packets to send to make armor stand spawn with metadata
 	 * @param viewer - viewer to apply relational placeholders for
-	 * @return List of packets that spawn the armor stand
+	 * @return array of packets that spawn the armor stand
 	 */
 	public Object[] getSpawnPackets(BukkitBridgePlayer viewer) {
 		visible = getVisibility();
