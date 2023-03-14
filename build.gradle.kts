@@ -9,9 +9,6 @@ plugins {
 group = "me.neznamy"
 version = "2.0.12"
 
-java.sourceCompatibility = JavaVersion.VERSION_1_8
-java.targetCompatibility = JavaVersion.VERSION_1_8
-
 dependencies {
     implementation(libs.annotations)
     compileOnly(libs.bukkit)
@@ -36,6 +33,12 @@ tasks {
     processResources {
         filesMatching("plugin.yml") {
             filter<ReplaceTokens>(mapOf("tokens" to mapOf("version" to project.version)))
+        }
+    }
+
+    java{
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(8))
         }
     }
 }
