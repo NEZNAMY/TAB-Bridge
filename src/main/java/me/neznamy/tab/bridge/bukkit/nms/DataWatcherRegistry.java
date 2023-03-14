@@ -26,7 +26,11 @@ public class DataWatcherRegistry {
 			if (nms.getMinorVersion() >= 13) {
 				if (nms.is1_19_3Plus()) {
 					registryOptionalIChatBaseComponent = fields.get("g");
-					registryBoolean = fields.get("j");
+					if (nms.is1_19_4Plus()) {
+						registryBoolean = fields.get("k");
+					} else {
+						registryBoolean = fields.get("j");
+					}
 				} else {
 					registryOptionalIChatBaseComponent = fields.get("f");
 					registryBoolean = fields.get("i");

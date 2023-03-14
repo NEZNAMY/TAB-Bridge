@@ -20,6 +20,7 @@ public class NMSStorage {
     private final int minorVersion = Integer.parseInt(serverPackage.split("_")[1]);
 
     private boolean is1_19_3Plus;
+    private final boolean is1_19_4Plus;
 
     //base
     private final Class<?> Packet = getNMSClass("net.minecraft.network.protocol.Packet", "Packet");
@@ -162,6 +163,7 @@ public class NMSStorage {
             Class.forName("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket");
             is1_19_3Plus = true;
         } catch (ClassNotFoundException ignored) {}
+        is1_19_4Plus = is1_19_3Plus && !serverPackage.equals("v1_19_R2");
         Class<?> NetworkManager = getNMSClass("net.minecraft.network.NetworkManager", "NetworkManager");
         if (minorVersion >= 7) {
             NETWORK_MANAGER = getFields(PlayerConnection, NetworkManager).get(0);
@@ -509,5 +511,9 @@ public class NMSStorage {
 
     public boolean is1_19_3Plus() {
         return is1_19_3Plus;
+    }
+
+    public boolean is1_19_4Plus() {
+        return is1_19_4Plus;
     }
 }
