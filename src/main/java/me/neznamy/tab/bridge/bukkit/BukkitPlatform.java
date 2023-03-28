@@ -186,15 +186,25 @@ public class BukkitPlatform implements Platform {
         Placeholder placeholder;
         if (privateIdentifier.startsWith("%server_")) {
             placeholder = new ServerPlaceholder(publicIdentifier, refresh, () ->
-                    placeholderAPI ? PlaceholderAPI.setPlaceholders(null, privateIdentifier) : "<PlaceholderAPI is not installed>");
+                    placeholderAPI ? parseWithNestedPlaceholders(null, privateIdentifier) : "<PlaceholderAPI is not installed>");
         } else if (privateIdentifier.startsWith("%rel_")) {
             placeholder = new RelationalPlaceholder(publicIdentifier, refresh, (viewer, target) ->
                     placeholderAPI ? PlaceholderAPI.setRelationalPlaceholders(((BukkitBridgePlayer)viewer).getPlayer(),
                             ((BukkitBridgePlayer)target).getPlayer(), privateIdentifier) : "<PlaceholderAPI is not installed>");
         } else {
             placeholder = new PlayerPlaceholder(publicIdentifier, refresh, p ->
-                    placeholderAPI ? PlaceholderAPI.setPlaceholders(((BukkitBridgePlayer)p).getPlayer(), privateIdentifier) : "<PlaceholderAPI is not installed>");
+                    placeholderAPI ? parseWithNestedPlaceholders(((BukkitBridgePlayer)p).getPlayer(), privateIdentifier) : "<PlaceholderAPI is not installed>");
         }
         return placeholder;
+    }
+
+    private String parseWithNestedPlaceholders(Player player, String identifier) {
+        String text = identifier;
+        String textBefore;
+        do {
+            textBefore = text;
+            text = PlaceholderAPI.setPlaceholders(player, text);
+        } while (!textBefore.equals(text));
+        return text;
     }
 }
