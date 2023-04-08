@@ -18,7 +18,6 @@ public class DataBridge {
 	private final Map<String, Placeholder> asyncPlaceholders = new ConcurrentHashMap<>();
 	private final Map<String, Placeholder> syncPlaceholders = new ConcurrentHashMap<>();
 	private boolean groupForwarding;
-	private boolean petFix;
 
 	public void startTasks() {
 		TABBridge.getInstance().getPlatform().scheduleSyncRepeatingTask(() -> updatePlaceholders(syncPlaceholders.values(), false), 1);
@@ -34,7 +33,7 @@ public class DataBridge {
 			}
 		}, 20);
 	}
-	
+	@SuppressWarnings("UnstableApiUsage")
 	public void processPluginMessage(Object player, byte[] bytes, boolean retry) {
 		if (!TABBridge.getInstance().getPlatform().isOnline(player)) {
 			messageQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(bytes);
@@ -46,7 +45,7 @@ public class DataBridge {
 			// Read join input
 			int protocolVersion = in.readInt();
 			groupForwarding = in.readBoolean();
-			petFix = in.readBoolean();
+			in.readBoolean(); // Removed pet fix feature
 			if (in.readBoolean() && TABBridge.getInstance().getExpansion() != null && !TABBridge.getInstance().getExpansion().isRegistered()) {
 				TABBridge.getInstance().getPlatform().registerExpansion();
 			}
@@ -106,7 +105,7 @@ public class DataBridge {
 			TABBridge.getInstance().getPlatform().readUnlimitedNametagMessage(pl, in);
 		}
 		if (subChannel.equals("Unload") && !retry) {
-			TABBridge.getInstance().removePlayer(TABBridge.getInstance().getPlayer(TABBridge.getInstance().getPlatform().getUniqueId(player)));
+			TABBridge.getInstance().removePlayer(pl);
 		}
 		if (subChannel.equals("Expansion")) {
 			TABBridge.getInstance().getPlatform().setExpansionValue(player, in.readUTF(), in.readUTF());
@@ -165,10 +164,6 @@ public class DataBridge {
 		List<byte[]> list = new ArrayList<>(messageQueue.computeIfAbsent(player, p -> new ArrayList<>()));
 		messageQueue.remove(player);
 		list.forEach(msg -> processPluginMessage(player, msg, true));
-	}
-
-	public boolean isPetFixEnabled() {
-		return petFix;
 	}
 
 	public void registerPlaceholder(String identifier, int refresh) {

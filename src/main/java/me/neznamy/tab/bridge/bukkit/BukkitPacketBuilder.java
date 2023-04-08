@@ -1,6 +1,7 @@
 package me.neznamy.tab.bridge.bukkit;
 
 import com.google.common.collect.Iterables;
+import lombok.Getter;
 import me.neznamy.tab.bridge.bukkit.nms.DataWatcher;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import org.bukkit.Bukkit;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @SuppressWarnings("unchecked")
 public class BukkitPacketBuilder {
 
-	private static final BukkitPacketBuilder instance = new BukkitPacketBuilder();
+	@Getter private static final BukkitPacketBuilder instance = new BukkitPacketBuilder();
 
 	//nms storage
 	private final NMSStorage nms = NMSStorage.getInstance();
@@ -53,10 +54,6 @@ public class BukkitPacketBuilder {
         } catch (ReflectiveOperationException e) {
             Bukkit.getConsoleSender().sendMessage("\u00a7c[TAB] Failed to create instance of \"Scoreboard\"");
         }
-	}
-
-	public static BukkitPacketBuilder getInstance() {
-		return instance;
 	}
 
 	public Object entityDestroy(int... entities) {

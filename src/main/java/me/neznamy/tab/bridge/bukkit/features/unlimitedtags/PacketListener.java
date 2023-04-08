@@ -37,23 +37,6 @@ public class PacketListener {
 		entityIdMap.remove(disconnectedPlayer.getPlayer().getEntityId());
 	}
 
-	public void onPacketReceive(BridgePlayer sender, Object packet) throws ReflectiveOperationException {
-		if (nms == null) return;
-		if (nms.PacketPlayInUseEntity.isInstance(packet)) {
-			int entityId = nms.PacketPlayInUseEntity_ENTITY.getInt(packet);
-			BukkitBridgePlayer attacked = null;
-			for (BridgePlayer all : TABBridge.getInstance().getOnlinePlayers()) {
-				if (nameTagX.getArmorStandManager(sender).hasArmorStandWithID(entityId)) {
-					attacked = (BukkitBridgePlayer) all;
-					break;
-				}
-			}
-			if (attacked != null && attacked != sender) {
-				nms.setField(packet, nms.PacketPlayInUseEntity_ENTITY, attacked.getPlayer().getEntityId());
-			}
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	public void onPacketSend(BukkitBridgePlayer receiver, Object packet) throws ReflectiveOperationException {
 		if (nms == null) return;

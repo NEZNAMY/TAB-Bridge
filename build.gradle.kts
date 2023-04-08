@@ -2,6 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("io.freefair.lombok") version "6.6.1"
     java
     `maven-publish`
 }
@@ -15,6 +16,7 @@ dependencies {
     compileOnly(libs.papi)
     compileOnly(libs.vault)
     compileOnly(libs.netty)
+    implementation(libs.plugin.lombok)
 }
 
 publishing {

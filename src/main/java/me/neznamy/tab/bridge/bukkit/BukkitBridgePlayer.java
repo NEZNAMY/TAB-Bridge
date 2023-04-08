@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.bukkit;
 
+import lombok.Getter;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
@@ -7,15 +8,11 @@ import org.bukkit.entity.Player;
 
 public class BukkitBridgePlayer extends BridgePlayer {
 
-    private final Player player;
+    @Getter private final Player player;
 
     public BukkitBridgePlayer(Player player, int protocolVersion) {
         super(player.getName(), player.getUniqueId(), protocolVersion);
         this.player = player;
-    }
-
-    public Player getPlayer() {
-        return player;
     }
 
     @Override

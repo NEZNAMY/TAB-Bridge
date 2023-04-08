@@ -2,45 +2,26 @@ package me.neznamy.tab.bridge.shared;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
+@RequiredArgsConstructor
 public abstract class BridgePlayer {
 
-    private final String name;
-    private final UUID uuid;
-    private final int protocolVersion;
-    private boolean vanished;
-    private boolean disguised;
-    private boolean invisible;
+    @Getter private final String name;
+    @Getter private final UUID uniqueId;
+    @Getter private final int protocolVersion;
+    @Getter private boolean vanished;
+    @Getter private boolean disguised;
+    @Getter private boolean invisible;
     private String group = "NONE";
-
-    public BridgePlayer(String name, UUID uuid, int protocolVersion) {
-        this.name = name;
-        this.uuid = uuid;
-        this.protocolVersion = protocolVersion;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public UUID getUniqueId() {
-        return uuid;
-    }
-
-    public int getProtocolVersion() {
-        return protocolVersion;
-    }
 
     public void setVanished(boolean vanished) {
         if (this.vanished == vanished) return;
         this.vanished = vanished;
         sendMessage("Vanished", vanished);
-    }
-
-    public boolean isVanished() {
-        return vanished;
     }
 
     public void setDisguised(boolean disguised) {
@@ -49,18 +30,10 @@ public abstract class BridgePlayer {
         sendMessage("Disguised", disguised);
     }
 
-    public boolean isDisguised() {
-        return disguised;
-    }
-
     public void setInvisible(boolean invisible) {
         if (this.invisible == invisible) return;
         this.invisible = invisible;
         sendMessage("Invisible", invisible);
-    }
-
-    public boolean isInvisible() {
-        return invisible;
     }
 
     public void setGroup(String group) {

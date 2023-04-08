@@ -2,6 +2,7 @@ package me.neznamy.tab.bridge.bukkit;
 
 import com.google.common.io.ByteArrayDataInput;
 import io.netty.channel.Channel;
+import lombok.RequiredArgsConstructor;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
@@ -23,15 +24,12 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Collection;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 public class BukkitPlatform implements Platform {
 
     private final boolean vault = Bukkit.getPluginManager().isPluginEnabled("Vault");
     private final boolean placeholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
     private final JavaPlugin plugin;
-
-    public BukkitPlatform(JavaPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     @Override
     public boolean isInvisible(BridgePlayer player) {

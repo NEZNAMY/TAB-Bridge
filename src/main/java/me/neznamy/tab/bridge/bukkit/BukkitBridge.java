@@ -4,7 +4,6 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import me.neznamy.tab.bridge.bukkit.features.BridgeTabExpansion;
-import me.neznamy.tab.bridge.bukkit.features.PetFix;
 import me.neznamy.tab.bridge.bukkit.features.unlimitedtags.BridgeNameTagX;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
@@ -26,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 public class BukkitBridge extends JavaPlugin implements PluginMessageListener, Listener {
 
 	private static BukkitBridge instance;
-	private PetFix petFix;
 	public BridgeNameTagX nametagx;
 	
 	public void onEnable() {
@@ -34,7 +32,6 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		TABBridge.setInstance(new TABBridge(new BukkitPlatform(this), new DataBridge(), Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") ? new BridgeTabExpansion() : null));
 		try {
 			NMSStorage.setInstance(new NMSStorage());
-			if (NMSStorage.getInstance().getMinorVersion() >= 9) petFix = new PetFix();
 		} catch (ReflectiveOperationException e) {
 			Bukkit.getConsoleSender().sendMessage("\u00a7c[TAB-Bridge] Server version is not compatible, disabling advanced features");
 		}
@@ -100,23 +97,8 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		}
 
 		@Override
-		public void channelRead(@NotNull ChannelHandlerContext context, @NotNull Object packet) {
-			try {
-				if (TABBridge.getInstance().getDataBridge().isPetFixEnabled() && petFix != null && petFix.onPacketReceive(player, packet)) return;
-				BukkitBridgePlayer p = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(player.getUniqueId());
-				if (p != null && nametagx.isEnabled()) {
-					nametagx.getPacketListener().onPacketReceive(p, packet);
-				}
-				super.channelRead(context, packet);
-			} catch (Exception e){
-				e.printStackTrace();
-			}
-		}
-
-		@Override
 		public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) {
 			try {
-				if (TABBridge.getInstance().getDataBridge().isPetFixEnabled() && petFix != null) petFix.onPacketSend(packet);
 				BukkitBridgePlayer p = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(player.getUniqueId());
 				if (p != null && nametagx.isEnabled()) {
 					nametagx.getPacketListener().onPacketSend(p, packet);
