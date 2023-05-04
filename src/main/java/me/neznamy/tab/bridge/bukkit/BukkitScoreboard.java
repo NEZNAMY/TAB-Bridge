@@ -38,10 +38,11 @@ public class BukkitScoreboard implements Scoreboard {
             if (nms.getMinorVersion() >= 13) {
                 player.sendPacket(nms.newPacketPlayOutScoreboardScore_1_13.newInstance(
                         Enum.valueOf(nms.EnumScoreboardAction, "CHANGE"), objective, playerName, score));
+            } else {
+                Object scoreboardScore = nms.newScoreboardScore.newInstance(nms.emptyScoreboard, newScoreboardObjective(objective), playerName);
+                nms.ScoreboardScore_setScore.invoke(scoreboardScore, score);
+                player.sendPacket(nms.newPacketPlayOutScoreboardScore.newInstance(scoreboardScore));
             }
-            Object scoreboardScore = nms.newScoreboardScore.newInstance(nms.emptyScoreboard, newScoreboardObjective(objective), playerName);
-            nms.ScoreboardScore_setScore.invoke(scoreboardScore, score);
-            player.sendPacket(nms.newPacketPlayOutScoreboardScore.newInstance(scoreboardScore));
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
@@ -54,8 +55,9 @@ public class BukkitScoreboard implements Scoreboard {
             if (nms.getMinorVersion() >= 13) {
                 player.sendPacket(nms.newPacketPlayOutScoreboardScore_1_13.newInstance(
                         Enum.valueOf(nms.EnumScoreboardAction, "REMOVE"), objective, playerName, 0));
+            } else {
+                player.sendPacket(nms.newPacketPlayOutScoreboardScore_String.newInstance(playerName));
             }
-            player.sendPacket(nms.newPacketPlayOutScoreboardScore_String.newInstance(playerName));
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
@@ -90,13 +92,14 @@ public class BukkitScoreboard implements Scoreboard {
                                 display
                         ), action
                 ));
+            } else {
+                Object nmsPacket = nms.newPacketPlayOutScoreboardObjective.newInstance();
+                nms.PacketPlayOutScoreboardObjective_OBJECTIVENAME.set(nmsPacket, objectiveName);
+                nms.PacketPlayOutScoreboardObjective_DISPLAYNAME.set(nmsPacket, title);
+                nms.PacketPlayOutScoreboardObjective_RENDERTYPE.set(nmsPacket, display);
+                nms.PacketPlayOutScoreboardObjective_METHOD.set(nmsPacket, action);
+                player.sendPacket(nmsPacket);
             }
-            Object nmsPacket = nms.newPacketPlayOutScoreboardObjective.newInstance();
-            nms.PacketPlayOutScoreboardObjective_OBJECTIVENAME.set(nmsPacket, objectiveName);
-            nms.PacketPlayOutScoreboardObjective_DISPLAYNAME.set(nmsPacket, title);
-            nms.PacketPlayOutScoreboardObjective_RENDERTYPE.set(nmsPacket, display);
-            nms.PacketPlayOutScoreboardObjective_METHOD.set(nmsPacket, action);
-            player.sendPacket(nmsPacket);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
