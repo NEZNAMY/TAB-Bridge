@@ -58,7 +58,7 @@ public class DataBridge {
 			TABBridge.getInstance().addPlayer(bp);
 
 			// Send response
-			List<Object> args = Lists.newArrayList("PlayerJoinResponse", TABBridge.getInstance().getPlatform().getWorld(player));
+			List<Object> args = Lists.newArrayList("PlayerJoinResponse", bp.getWorld());
 			if (groupForwarding) args.add(TABBridge.getInstance().getPlatform().getGroup(bp));
 			Map<String, Object> placeholders = parsePlaceholders(bp);
 			args.add(placeholders.size());
@@ -99,7 +99,7 @@ public class DataBridge {
 		}
 		if (subChannel.equals("Permission")){
 			String permission = in.readUTF();
-			pl.sendMessage("Permission", permission, TABBridge.getInstance().getPlatform().hasPermission(player, permission));
+			pl.sendMessage("Permission", permission, pl.hasPermission(permission));
 		}
 		if (subChannel.equals("NameTagX")) {
 			TABBridge.getInstance().getPlatform().readUnlimitedNametagMessage(pl, in);
@@ -111,7 +111,7 @@ public class DataBridge {
 			TABBridge.getInstance().getPlatform().setExpansionValue(player, in.readUTF(), in.readUTF());
 		}
 		if (subChannel.equals("PacketPlayOutScoreboardDisplayObjective")) {
-			TABBridge.getInstance().getPlatform().sendScoreboardDisplayObjective(pl, in.readInt(), in.readUTF());
+			pl.getScoreboard().setDisplaySlot(Scoreboard.DisplaySlot.values()[in.readInt()], in.readUTF());
 		}
 		if (subChannel.equals("PacketPlayOutScoreboardObjective")) {
 			String objective = in.readUTF();
@@ -124,10 +124,24 @@ public class DataBridge {
 				displayComponent = in.readUTF();
 				renderType = in.readInt();
 			}
-			TABBridge.getInstance().getPlatform().sendScoreboardObjective(pl, objective, action, display, displayComponent, renderType);
+			if (action == 0) {
+				pl.getScoreboard().registerObjective(objective, display, displayComponent, renderType == 1);
+			} else if (action == 1) {
+				pl.getScoreboard().unregisterObjective(objective);
+			} else if (action == 2) {
+				pl.getScoreboard().updateObjective(objective, display, displayComponent, renderType == 1);
+			}
 		}
 		if (subChannel.equals("PacketPlayOutScoreboardScore")) {
-			TABBridge.getInstance().getPlatform().sendScoreboardScore(pl, in.readUTF(), in.readInt(), in.readUTF(), in.readInt());
+			String objective = in.readUTF();
+			int action = in.readInt();
+			String playerName = in.readUTF();
+			int score = in.readInt();
+			if (action == 0) {
+				pl.getScoreboard().setScore(objective, playerName, score);
+			} else {
+				pl.getScoreboard().removeScore(objective, playerName);
+			}
 		}
 		if (subChannel.equals("PacketPlayOutScoreboardTeam")) {
 			String name = in.readUTF();
@@ -155,8 +169,13 @@ public class DataBridge {
 				collision = in.readUTF();
 				color = in.readInt();
 			}
-			TABBridge.getInstance().getPlatform().sendScoreboardTeam(pl, name, action, players, prefix, prefixComponent,
-					suffix, suffixComponent, options, visibility, collision, color);
+			if (action == 0) {
+				pl.getScoreboard().registerTeam(name, prefix, prefixComponent, suffix, suffixComponent, visibility, collision, players, options, color);
+			} else if (action == 1) {
+				pl.getScoreboard().unregisterTeam(name);
+			} else if (action == 2) {
+				pl.getScoreboard().updateTeam(name, prefix, prefixComponent, suffix, suffixComponent, visibility, collision, options, color);
+			}
 		}
 	}
 

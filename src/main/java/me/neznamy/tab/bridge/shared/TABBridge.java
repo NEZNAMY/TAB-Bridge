@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.neznamy.tab.bridge.shared.features.TabExpansion;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -37,12 +38,19 @@ public class TABBridge {
         return players.values();
     }
 
-    public BridgePlayer getPlayer(UUID uuid) {
+    @Nullable public BridgePlayer getPlayer(UUID uuid) {
         return players.get(uuid);
     }
 
     public void submitTask(Runnable task) {
-        executorThread.submit(task);
+        // Executor service swallows exceptions
+        executorThread.submit(() -> {
+            try {
+                task.run();
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 
     public void shutdownExecutor() {

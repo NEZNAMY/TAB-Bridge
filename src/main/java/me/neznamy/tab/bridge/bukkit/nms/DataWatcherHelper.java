@@ -22,7 +22,7 @@ public class DataWatcherHelper {
 	 */
 	public DataWatcherHelper(DataWatcher data) {
 		this.data = data;
-		this.registry = NMSStorage.getInstance().getDataWatcherRegistry();
+		this.registry = NMSStorage.getInstance().getRegistry();
 	}
 	
 	/**

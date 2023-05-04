@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.bukkit.features;
 
+import lombok.Getter;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
@@ -19,24 +20,13 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
 
     private final Map<Player, Set<String>> sentRequests = new WeakHashMap<>();
 
+    @Getter private final String author = "NEZNAMY";
+    @Getter private final String identifier = "tab";
+    @Getter private final String version = TABBridge.PLUGIN_VERSION;
+
     @Override
     public boolean persist(){
         return true;
-    }
-
-    @Override
-    public @NotNull String getAuthor(){
-        return "NEZNAMY";
-    }
-
-    @Override
-    public @NotNull String getIdentifier(){
-        return "tab";
-    }
-
-    @Override
-    public @NotNull String getVersion() {
-        return TABBridge.PLUGIN_VERSION;
     }
 
     @Override

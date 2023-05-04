@@ -21,7 +21,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Collection;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -117,61 +116,14 @@ public class BukkitPlatform implements Platform {
     }
 
     @Override
-    public void sendScoreboardDisplayObjective(BridgePlayer player, int slot, String objective) {
-        try {
-            player.sendPacket(BukkitPacketBuilder.getInstance().scoreboardDisplayObjective(slot, objective));
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void sendScoreboardObjective(BridgePlayer player, String objective, int action, String displayName, String displayComponent, int renderType) {
-        try {
-            player.sendPacket(BukkitPacketBuilder.getInstance().scoreboardObjective(objective, action, displayName, displayComponent, renderType));
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void sendScoreboardScore(BridgePlayer player, String objective, int action, String playerName, int score) {
-        try {
-            player.sendPacket(BukkitPacketBuilder.getInstance().scoreboardScore(objective, action, playerName, score));
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void sendScoreboardTeam(BridgePlayer player, String name, int action, Collection<String> players, String prefix, String prefixComponent,
-                                   String suffix, String suffixComponent, int options, String visibility, String collision, int color) {
-        try {
-            player.sendPacket(BukkitPacketBuilder.getInstance().scoreboardTeam(name, action, players, prefix, prefixComponent,
-                    suffix, suffixComponent, options, visibility, collision, color));
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     public void setExpansionValue(Object player, String identifier, String value) {
         TABBridge.getInstance().getExpansion().setValue(player, identifier, value);
     }
 
     @Override
-    public boolean hasPermission(Object player, String permission) {
-        return ((Player)player).hasPermission(permission);
-    }
-
-    @Override
     public void registerExpansion() {
+        if (TABBridge.getInstance().getExpansion().isRegistered()) return;
         Bukkit.getScheduler().runTask(BukkitBridge.getInstance(), TABBridge.getInstance().getExpansion()::register);
-    }
-
-    @Override
-    public String getWorld(Object player) {
-        return ((Player)player).getWorld().getName();
     }
 
     @Override

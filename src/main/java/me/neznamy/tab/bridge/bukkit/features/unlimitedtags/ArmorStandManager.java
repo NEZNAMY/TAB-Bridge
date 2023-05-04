@@ -75,15 +75,6 @@ public class ArmorStandManager {
 		for (ArmorStand a : ArmorStandArray) a.destroy(viewer);
 		unregisterPlayer(viewer);
 	}
-	
-	public boolean hasArmorStandWithID(int entityId) {
-		for (ArmorStand a : ArmorStandArray) {
-			if (a.getEntityId() == entityId) {
-				return true;
-			}
-		}
-		return false;
-	}
 
 	public BukkitBridgePlayer[] getNearbyPlayers(){
 		return nearbyPlayerArray;

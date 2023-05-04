@@ -146,11 +146,6 @@ public class ArmorStand {
 		}
 	}
 
-	
-	public int getEntityId() {
-		return entityId;
-	}
-
 	/**
 	 * Returns teleport packet for specified viewer
 	 * @param viewer - player to get location for
@@ -261,7 +256,7 @@ public class ArmorStand {
 		}
 		datawatcher.helper().setCustomNameVisible(visibility);
 
-		if (viewer.getProtocolVersion() > 47 || manager.isMarkerFor18x()) datawatcher.helper().setArmorStandFlags((byte)16);
+		if (viewer.getProtocolVersion() > 47) datawatcher.helper().setArmorStandFlags((byte)16);
 		return datawatcher;
 	}
 
@@ -304,7 +299,7 @@ public class ArmorStand {
 	 * @return location of armor stand
 	 */
 	public Location getArmorStandLocationFor(BridgePlayer viewer) {
-		return viewer.getProtocolVersion() == 47 && !manager.isMarkerFor18x() ? getLocation().clone().add(0,-2,0) : getLocation();
+		return viewer.getProtocolVersion() == 47 ? getLocation().clone().add(0,-2,0) : getLocation();
 	}
 
 	public void respawn(BukkitBridgePlayer viewer) {

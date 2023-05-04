@@ -1,8 +1,6 @@
 package me.neznamy.tab.bridge.bukkit;
 
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
+import lombok.Getter;
 import me.neznamy.tab.bridge.bukkit.features.BridgeTabExpansion;
 import me.neznamy.tab.bridge.bukkit.features.unlimitedtags.BridgeNameTagX;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
@@ -24,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BukkitBridge extends JavaPlugin implements PluginMessageListener, Listener {
 
-	private static BukkitBridge instance;
+	@Getter private static BukkitBridge instance;
 	public BridgeNameTagX nametagx;
 	
 	public void onEnable() {
@@ -40,15 +38,11 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		Bukkit.getMessenger().registerOutgoingPluginChannel(this, TABBridge.CHANNEL_NAME);
 		Bukkit.getPluginManager().registerEvents(this, this);
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			TABBridge.getInstance().getPlatform().inject(p, new CustomChannelDuplexHandler(p));
+			TABBridge.getInstance().getPlatform().inject(p, new BridgeChannelDuplexHandler(p));
 		}
 		TABBridge.getInstance().getDataBridge().startTasks();
 	}
 
-	public static BukkitBridge getInstance() {
-		return instance;
-	}
-	
 	public void onDisable() {
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
 		HandlerList.unregisterAll((Plugin)this);
@@ -62,7 +56,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
-		TABBridge.getInstance().getPlatform().inject(e.getPlayer(), new CustomChannelDuplexHandler(e.getPlayer()));
+		TABBridge.getInstance().getPlatform().inject(e.getPlayer(), new BridgeChannelDuplexHandler(e.getPlayer()));
 		TABBridge.getInstance().submitTask(() -> TABBridge.getInstance().getDataBridge().processQueue(e.getPlayer()));
 	}
 
@@ -86,27 +80,5 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		if (!channel.equals(TABBridge.CHANNEL_NAME)) return;
 		TABBridge.getInstance().submitTask(
 				() -> TABBridge.getInstance().getDataBridge().processPluginMessage(player, bytes, false));
-	}
-
-	public class CustomChannelDuplexHandler extends ChannelDuplexHandler {
-
-		private final Player player;
-
-		public CustomChannelDuplexHandler(Player player) {
-			this.player = player;
-		}
-
-		@Override
-		public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) {
-			try {
-				BukkitBridgePlayer p = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(player.getUniqueId());
-				if (p != null && nametagx.isEnabled()) {
-					nametagx.getPacketListener().onPacketSend(p, packet);
-				}
-				super.write(context, packet, channelPromise);
-			} catch (Exception e){
-				e.printStackTrace();
-			}
-		}
 	}
 }

@@ -42,6 +42,7 @@ public abstract class BridgePlayer {
         sendMessage("Group", group);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public void sendMessage(Object... args) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         for (Object arg : args) {
@@ -64,4 +65,10 @@ public abstract class BridgePlayer {
     public abstract void sendPluginMessage(byte[] message);
 
     public abstract void sendPacket(Object packet);
+
+    public abstract Scoreboard getScoreboard();
+
+    public abstract String getWorld();
+
+    public abstract boolean hasPermission(String permission);
 }

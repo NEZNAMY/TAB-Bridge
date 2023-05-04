@@ -1,6 +1,7 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
 import com.google.common.io.ByteArrayDataInput;
+import lombok.Getter;
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
@@ -17,22 +18,21 @@ import java.util.*;
 public class BridgeNameTagX implements Listener {
 
     private final JavaPlugin plugin;
-    private boolean enabled;
+    @Getter private boolean enabled;
 
-    private boolean markerFor18x;
-    private boolean disableOnBoats;
-    private double spaceBetweenLines;
-    private boolean alwaysVisible;
-    private List<String> dynamicLines;
-    private Map<String, Double> staticLines;
+    @Getter private boolean disableOnBoats;
+    @Getter private double spaceBetweenLines;
+    @Getter private boolean alwaysVisible;
+    @Getter private List<String> dynamicLines;
+    @Getter private Map<String, Double> staticLines;
 
     private final Set<BridgePlayer> playersDisabledWithAPI = Collections.newSetFromMap(new WeakHashMap<>());
-    private final Set<BridgePlayer> disabledUnlimitedPlayers = Collections.newSetFromMap(new WeakHashMap<>());
+    @Getter private final Set<BridgePlayer> disabledUnlimitedPlayers = Collections.newSetFromMap(new WeakHashMap<>());
     private String[] disabledUnlimitedWorldsArray;
     private boolean unlimitedWorldWhitelistMode;
 
-    private final PacketListener packetListener = new PacketListener(this);
-    private final VehicleRefresher vehicleManager = new VehicleRefresher(this);
+    @Getter private final PacketListener packetListener = new PacketListener(this);
+    @Getter private final VehicleRefresher vehicleManager = new VehicleRefresher(this);
     private final EventListener eventListener = new EventListener(this);
 
     private final Map<BridgePlayer, ArmorStandManager> armorStandManagerMap = new WeakHashMap<>();
@@ -52,22 +52,6 @@ public class BridgeNameTagX implements Listener {
 
     public boolean isPlayerDisabled(BridgePlayer player) {
         return disabledUnlimitedPlayers.contains(player) || playersDisabledWithAPI.contains(player);
-    }
-
-    public double getSpaceBetweenLines() {
-        return spaceBetweenLines;
-    }
-
-    public List<String> getDynamicLines() {
-        return dynamicLines;
-    }
-
-    public Map<String, Double> getStaticLines() {
-        return staticLines;
-    }
-
-    public boolean isAlwaysVisible() {
-        return alwaysVisible;
     }
 
     public Set<BridgePlayer> getPlayersPreviewingNameTag() {
@@ -90,10 +74,6 @@ public class BridgeNameTagX implements Listener {
             }
         }
         return false;
-    }
-
-    public Set<BridgePlayer> getDisabledUnlimitedPlayers() {
-        return disabledUnlimitedPlayers;
     }
 
     private void spawnArmorStands(BukkitBridgePlayer viewer, BukkitBridgePlayer target) {
@@ -128,7 +108,7 @@ public class BridgeNameTagX implements Listener {
         if (NMSStorage.getInstance() == null) return;
         boolean enabled = input.readBoolean();
         if (enabled) {
-            markerFor18x = input.readBoolean();
+            input.readBoolean();
             spaceBetweenLines = input.readDouble();
             disableOnBoats = input.readBoolean();
             alwaysVisible = input.readBoolean();
@@ -183,26 +163,6 @@ public class BridgeNameTagX implements Listener {
         }
         getArmorStandManager(player).destroy();
         armorStandManagerMap.remove(player);
-    }
-
-    public PacketListener getPacketListener() {
-        return packetListener;
-    }
-
-    public boolean isDisableOnBoats() {
-        return disableOnBoats;
-    }
-
-    public VehicleRefresher getVehicleManager() {
-        return vehicleManager;
-    }
-
-    public boolean isMarkerFor18x() {
-        return markerFor18x;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
     }
 
     public void readMessage(BukkitBridgePlayer receiver, ByteArrayDataInput in) {

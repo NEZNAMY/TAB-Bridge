@@ -5,7 +5,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
 
-import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -35,24 +34,9 @@ public interface Platform {
 
     void readUnlimitedNametagMessage(BridgePlayer player, ByteArrayDataInput input);
 
-    void sendScoreboardDisplayObjective(BridgePlayer player, int slot, String objective);
-
-    void sendScoreboardObjective(BridgePlayer player, String objective, int action, String displayName,
-                                 String displayComponent, int renderType);
-
-    void sendScoreboardScore(BridgePlayer player, String objective, int action, String playerName, int score);
-
-    void sendScoreboardTeam(BridgePlayer player, String name, int action, Collection<String> players, String prefix, String prefixComponent,
-                                 String suffix, String suffixComponent, int options, String visibility,
-                                 String collision, int color);
-
     void setExpansionValue(Object player, String identifier, String value);
 
-    boolean hasPermission(Object player, String permission);
-
     void registerExpansion();
-
-    String getWorld(Object player);
 
     BridgePlayer newPlayer(Object player, int protocolVersion);
 

@@ -1,7 +1,6 @@
 package me.neznamy.tab.bridge.bukkit.nms;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,23 +21,6 @@ public class DataWatcher {
 	 */
 	public void setValue(DataWatcherObject type, Object value){
 		dataValues.put(type.getPosition(), new DataWatcherItem(type, value));
-	}
-
-	/**
-	 * Removes value by position
-	 * @param position - position of value to remove
-	 */
-	public void removeValue(int position) {
-		dataValues.remove(position);
-	}
-
-	/**
-	 * Returns item with given position
-	 * @param position - position of item
-	 * @return item or null if not set
-	 */
-	public DataWatcherItem getItem(int position) {
-		return dataValues.get(position);
 	}
 
 	/**
@@ -75,25 +57,5 @@ public class DataWatcher {
 			if (nms.is1_19_3Plus()) nms.DataWatcher_markDirty.invoke(nmsWatcher, position);
 		}
 		return nmsWatcher;
-	}
-	
-	/**
-	 * Reads NMS data watcher and returns and instance of this class with same data
-	 * @param nmsWatcher - NMS DataWatcher to read
-	 * @return an instance of this class with same values
-	 * @throws	ReflectiveOperationException
-	 * 			if thrown by reflective operation
-	 */
-	@SuppressWarnings("unchecked")
-	public static DataWatcher fromNMS(Object nmsWatcher) throws ReflectiveOperationException {
-		DataWatcher watcher = new DataWatcher();
-		List<Object> items = (List<Object>) nmsWatcher.getClass().getMethod("c").invoke(nmsWatcher);
-		if (items != null) {
-			for (Object watchableObject : items) {
-				DataWatcherItem w = DataWatcherItem.fromNMS(watchableObject);
-				watcher.setValue(w.getType(), w.getValue());
-			}
-		}
-		return watcher;
 	}
 }
