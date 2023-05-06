@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("unchecked")
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class BukkitScoreboard implements Scoreboard {
 
     @NotNull private final BukkitBridgePlayer player;
     @Nullable private final NMSStorage nms = NMSStorage.getInstance();
-    @Getter private final Map<String, String> expectedTeams = new HashMap<>();
+    @Getter private final Map<String, String> expectedTeams = new ConcurrentHashMap<>();
 
     @Override
     public void setDisplaySlot(@NonNull DisplaySlot slot, @NonNull String objective) {
