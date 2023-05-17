@@ -121,7 +121,6 @@ public class ArmorStand {
 	}
 
 	public void sneak(boolean sneaking) {
-		if (this.sneaking == sneaking) return; //idk
 		this.sneaking = sneaking;
 		for (BukkitBridgePlayer viewer : manager.getArmorStandManager(player).getNearbyPlayers()) {
 			if (viewer.getProtocolVersion() >= 480 && viewer.getProtocolVersion() <= 498 && !alwaysVisible) {
@@ -187,9 +186,9 @@ public class ArmorStand {
 			y -= 1.76;
 		} else {
 			if (NMSStorage.getInstance().getMinorVersion() >= 9) {
-				y -= (sneaking ? 0.45 : 0.18);
+				y -= (player.getPlayer().isSneaking() ? 0.45 : 0.18);
 			} else {
-				y -= (sneaking ? 0.30 : 0.18);
+				y -= (player.getPlayer().isSneaking() ? 0.30 : 0.18);
 			}
 		}
 		return new Location(null,x,y,z);
