@@ -45,7 +45,6 @@ public class DataBridge {
 			// Read join input
 			int protocolVersion = in.readInt();
 			groupForwarding = in.readBoolean();
-			in.readBoolean(); // Removed pet fix feature
 			if (in.readBoolean() && TABBridge.getInstance().getExpansion() != null && !TABBridge.getInstance().getExpansion().isRegistered()) {
 				TABBridge.getInstance().getPlatform().registerExpansion();
 			}

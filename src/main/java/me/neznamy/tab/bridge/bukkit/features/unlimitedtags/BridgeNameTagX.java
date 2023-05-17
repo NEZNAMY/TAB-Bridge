@@ -21,15 +21,12 @@ public class BridgeNameTagX implements Listener {
     @Getter private boolean enabled;
 
     @Getter private boolean disableOnBoats;
-    @Getter private double spaceBetweenLines;
     @Getter private boolean alwaysVisible;
     @Getter private List<String> dynamicLines;
     @Getter private Map<String, Double> staticLines;
 
     private final Set<BridgePlayer> playersDisabledWithAPI = Collections.newSetFromMap(new WeakHashMap<>());
     @Getter private final Set<BridgePlayer> disabledUnlimitedPlayers = Collections.newSetFromMap(new WeakHashMap<>());
-    private String[] disabledUnlimitedWorldsArray;
-    private boolean unlimitedWorldWhitelistMode;
 
     @Getter private final PacketListener packetListener = new PacketListener(this);
     @Getter private final VehicleRefresher vehicleManager = new VehicleRefresher(this);
@@ -56,24 +53,6 @@ public class BridgeNameTagX implements Listener {
 
     public Set<BridgePlayer> getPlayersPreviewingNameTag() {
         return playersPreviewingNameTag;
-    }
-
-    public boolean isUnlimitedDisabled(String world) {
-        boolean contains = contains(disabledUnlimitedWorldsArray, world);
-        if (unlimitedWorldWhitelistMode) contains = !contains;
-        return contains;
-    }
-
-    private boolean contains(String[] list, String element) {
-        if (element == null) return false;
-        for (String s : list) {
-            if (s.endsWith("*")) {
-                if (element.toLowerCase().startsWith(s.substring(0, s.length()-1).toLowerCase())) return true;
-            } else {
-                if (element.equalsIgnoreCase(s)) return true;
-            }
-        }
-        return false;
     }
 
     private void spawnArmorStands(BukkitBridgePlayer viewer, BukkitBridgePlayer target) {
@@ -108,17 +87,11 @@ public class BridgeNameTagX implements Listener {
         if (NMSStorage.getInstance() == null) return;
         boolean enabled = input.readBoolean();
         if (enabled) {
-            input.readBoolean();
-            spaceBetweenLines = input.readDouble();
             disableOnBoats = input.readBoolean();
             alwaysVisible = input.readBoolean();
-            int disabledWouldCount = input.readInt();
-            List<String> worlds = new ArrayList<>();
-            for (int i=0; i<disabledWouldCount; i++) {
-                worlds.add(input.readUTF());
+            if (input.readBoolean()) {
+                disabledUnlimitedPlayers.add(player);
             }
-            disabledUnlimitedWorldsArray = worlds.toArray(new String[0]);
-            unlimitedWorldWhitelistMode = worlds.contains("WHITELIST");
             int dynamicLineCount = input.readInt();
             List<String> dynamicLines = new ArrayList<>();
             for (int i=0; i<dynamicLineCount; i++) {
@@ -143,8 +116,6 @@ public class BridgeNameTagX implements Listener {
         if (!enabled) return;
         packetListener.onJoin(player);
         vehicleManager.onJoin(player);
-        if (isUnlimitedDisabled(player.getPlayer().getWorld().getName()))
-            disabledUnlimitedPlayers.add(player);
         armorStandManagerMap.put(player, new ArmorStandManager(this, player));
         if (isPlayerDisabled(player)) return;
         for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
@@ -203,6 +174,14 @@ public class BridgeNameTagX implements Listener {
             }
             for (BridgePlayer all : TABBridge.getInstance().getOnlinePlayers()) {
                 getArmorStandManager(all).updateVisibility(true);
+            }
+        }
+        if (action.equals("SetEnabled")) {
+            boolean enabled = in.readBoolean();
+            if (enabled) {
+                disabledUnlimitedPlayers.remove(receiver);
+            } else {
+                disabledUnlimitedPlayers.add(receiver);
             }
         }
     }

@@ -51,12 +51,7 @@ public class EventListener implements Listener {
 	public void onWorldChange(PlayerChangedWorldEvent e) {
 		BukkitBridgePlayer player = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
 		if (player == null) return;
-		if (feature.isUnlimitedDisabled(e.getPlayer().getWorld().getName())) {
-			feature.getDisabledUnlimitedPlayers().add(player);
-		} else {
-			feature.getDisabledUnlimitedPlayers().remove(player);
-		}
-		if (feature.getPlayersPreviewingNameTag().contains(player)) {
+		if (!feature.getDisabledUnlimitedPlayers().contains(player) && feature.getPlayersPreviewingNameTag().contains(player)) {
 			feature.getArmorStandManager(player).spawn(player);
 		}
 	}

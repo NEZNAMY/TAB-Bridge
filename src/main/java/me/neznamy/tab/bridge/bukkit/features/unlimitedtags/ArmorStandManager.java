@@ -9,7 +9,6 @@ import java.util.*;
  */
 public class ArmorStandManager {
 
-	private final BridgeNameTagX nameTagX;
 	//map of registered armor stands
 	private final Map<String, ArmorStand> ArmorStands = new LinkedHashMap<>();
 
@@ -22,11 +21,10 @@ public class ArmorStandManager {
 	private BukkitBridgePlayer[] nearbyPlayerArray = new BukkitBridgePlayer[0];
 
 	public ArmorStandManager(BridgeNameTagX nameTagX, BukkitBridgePlayer owner) {
-		this.nameTagX = nameTagX;
 		double height = 0;
 		for (String line : nameTagX.getDynamicLines()) {
 			ArmorStands.put(line, new ArmorStand(owner, height, false));
-			height += nameTagX.getSpaceBetweenLines();
+			height += 0.26;
 		}
 		for (Map.Entry<String, Double> line : nameTagX.getStaticLines().entrySet()) {
 			ArmorStands.put(line.getKey(), new ArmorStand(owner, Double.parseDouble(line.getValue().toString()), true));
@@ -93,11 +91,11 @@ public class ArmorStandManager {
 	}
 
 	public void fixArmorStandHeights() {
-		double currentY = -nameTagX.getSpaceBetweenLines();
+		double currentY = -0.26;
 		for (ArmorStand as : ArmorStandArray) {
 			if (as.hasStaticOffset()) continue;
 			if (as.getText().length() != 0) {
-				currentY += nameTagX.getSpaceBetweenLines();
+				currentY += 0.26;
 				as.setOffset(currentY);
 			}
 		}
