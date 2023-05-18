@@ -22,7 +22,7 @@ public class TABBridge {
 
     @Getter private final Platform platform;
     @Getter private final DataBridge dataBridge;
-    @Getter private final TabExpansion expansion;
+    @Nullable @Getter private final TabExpansion expansion;
     private final Map<UUID, BridgePlayer> players = new ConcurrentHashMap<>();
     private final ExecutorService executorThread = Executors.newSingleThreadExecutor();
 

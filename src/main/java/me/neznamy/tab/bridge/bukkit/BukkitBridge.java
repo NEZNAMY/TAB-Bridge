@@ -7,6 +7,7 @@ import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.DataBridge;
 import me.neznamy.tab.bridge.shared.TABBridge;
+import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,6 +50,8 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 		Bukkit.getScheduler().cancelTasks(this);
 		nametagx.unload();
 		TABBridge.getInstance().shutdownExecutor();
+		TabExpansion expansion = TABBridge.getInstance().getExpansion();
+		if (expansion != null) expansion.unregister();
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			TABBridge.getInstance().getPlatform().uninject(p);
 		}

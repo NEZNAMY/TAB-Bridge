@@ -6,5 +6,7 @@ public interface TabExpansion {
 
     boolean register();
 
+    boolean unregister();
+
     void setValue(Object player, String identifier, String value);
 }

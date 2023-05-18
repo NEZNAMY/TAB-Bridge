@@ -3,10 +3,8 @@ package me.neznamy.tab.bridge.shared;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
-import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
-import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
-import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
-import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
+import lombok.Getter;
+import me.neznamy.tab.bridge.shared.placeholder.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +15,7 @@ public class DataBridge {
 	private final Map<Object, List<byte[]>> messageQueue = new WeakHashMap<>();
 	private final Map<String, Placeholder> asyncPlaceholders = new ConcurrentHashMap<>();
 	private final Map<String, Placeholder> syncPlaceholders = new ConcurrentHashMap<>();
+	@Getter private Map<String, PlaceholderReplacementPattern> replacements = new HashMap<>();
 	private boolean groupForwarding;
 
 	public void startTasks() {
@@ -54,6 +53,7 @@ public class DataBridge {
 			}
 			BridgePlayer bp = TABBridge.getInstance().getPlatform().newPlayer(player, protocolVersion);
 			TABBridge.getInstance().getPlatform().readUnlimitedNametagJoin(bp, in);
+			readReplacements(in);
 			TABBridge.getInstance().addPlayer(bp);
 
 			// Send response
@@ -176,6 +176,21 @@ public class DataBridge {
 				pl.getScoreboard().updateTeam(name, prefix, prefixComponent, suffix, suffixComponent, visibility, collision, options, color);
 			}
 		}
+	}
+
+	private void readReplacements(ByteArrayDataInput in) {
+		int placeholderCount = in.readInt();
+		Map<String, PlaceholderReplacementPattern> replacements = new HashMap<>();
+		for (int i=0; i<placeholderCount; i++) {
+			String placeholder = in.readUTF();
+			Map<Object, Object> rules = new HashMap<>();
+			int ruleCount = in.readInt();
+			for (int j=0; j<ruleCount; j++) {
+				rules.put(in.readUTF(), in.readUTF());
+			}
+			replacements.put(placeholder, new PlaceholderReplacementPattern(placeholder, rules));
+		}
+		this.replacements = replacements;
 	}
 
 	public void processQueue(Object player) {
