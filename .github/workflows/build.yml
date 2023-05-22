@@ -41,4 +41,4 @@ jobs:
         uses: actions/upload-artifact@v3.1.2 #https://github.com/actions/upload-artifact/releases
         with:
           name: Jar
-          path: jar/build/libs/TAB-Bridge-**.jar
+          path: build/libs/TAB-Bridge-**.jar
