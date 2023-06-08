@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.shared;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -10,8 +11,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 @RequiredArgsConstructor
 public class TABBridge {
@@ -21,10 +22,11 @@ public class TABBridge {
     @Getter @Setter private static TABBridge instance;
 
     @Getter private final Platform platform;
-    @Getter private final DataBridge dataBridge;
+    @Getter private final DataBridge dataBridge = new DataBridge();
     @Nullable @Getter private final TabExpansion expansion;
     private final Map<UUID, BridgePlayer> players = new ConcurrentHashMap<>();
-    private final ExecutorService executorThread = Executors.newSingleThreadExecutor();
+    @Getter private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(
+            new ThreadFactoryBuilder().setNameFormat("TAB-Bridge Thread").build());
 
     public void addPlayer(BridgePlayer player) {
         players.put(player.getUniqueId(), player);
@@ -44,7 +46,7 @@ public class TABBridge {
 
     public void submitTask(Runnable task) {
         // Executor service swallows exceptions
-        executorThread.submit(() -> {
+        scheduler.submit(() -> {
             try {
                 task.run();
             } catch (Throwable t) {
@@ -54,6 +56,6 @@ public class TABBridge {
     }
 
     public void shutdownExecutor() {
-        executorThread.shutdownNow();
+        scheduler.shutdownNow();
     }
 }

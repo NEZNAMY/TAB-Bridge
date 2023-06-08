@@ -11,9 +11,10 @@ import org.bukkit.Location;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class BridgeNameTagX implements Listener {
 
@@ -36,7 +37,7 @@ public class BridgeNameTagX implements Listener {
     private final Set<BridgePlayer> playersPreviewingNameTag = Collections.newSetFromMap(new WeakHashMap<>());
     private final Set<BridgePlayer> playersWithHiddenVisibilityView = Collections.newSetFromMap(new WeakHashMap<>());
 
-    private BukkitTask visibilityRefreshTask;
+    private ScheduledFuture<?> visibilityRefreshTask;
 
     public BridgeNameTagX(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -66,18 +67,18 @@ public class BridgeNameTagX implements Listener {
 
     public void load() {
         Bukkit.getPluginManager().registerEvents(eventListener, plugin);
-        visibilityRefreshTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+        visibilityRefreshTask = TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
             for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
                 if (isPlayerDisabled(p) || !armorStandManagerMap.containsKey(p)) continue;
                 getArmorStandManager(p).updateVisibility(false);
             }
-        }, 0, 10);
+        }, 0, 500, TimeUnit.MILLISECONDS);
     }
 
     public void unload() {
         if (!enabled) return;
         HandlerList.unregisterAll(eventListener);
-        visibilityRefreshTask.cancel();
+        visibilityRefreshTask.cancel(true);
         for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
             getArmorStandManager(p).destroy();
         }

@@ -2,14 +2,13 @@ package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
-import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.TABBridge;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class VehicleRefresher {
 
@@ -28,7 +27,7 @@ public class VehicleRefresher {
 
 	public VehicleRefresher(BridgeNameTagX feature) {
 		this.feature = feature;
-		Bukkit.getScheduler().runTaskTimerAsynchronously(BukkitBridge.getInstance(), () -> {
+		TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
 			if (!feature.isEnabled()) return;
 			for (BridgePlayer inVehicle : playersInVehicle.keySet()) {
 				ArmorStandManager asm = feature.getArmorStandManager(inVehicle);
@@ -45,7 +44,7 @@ public class VehicleRefresher {
 					refresh((BukkitBridgePlayer) p);
 				}
 			}
-		}, 0, 1);
+		}, 0, 50, TimeUnit.MILLISECONDS);
 	}
 
 	public void onJoin(BukkitBridgePlayer connectedPlayer) {
@@ -106,14 +105,18 @@ public class VehicleRefresher {
 	 */
 	@SuppressWarnings("deprecation")
 	public List<Entity> getPassengers(Entity vehicle){
-		if (NMSStorage.getInstance().getMinorVersion() >= 11) {
-			return vehicle.getPassengers();
-		} else {
-			if (vehicle.getPassenger() != null) {
-				return Collections.singletonList(vehicle.getPassenger());
+		try {
+			if (NMSStorage.getInstance().getMinorVersion() >= 11) {
+				return vehicle.getPassengers();
 			} else {
-				return new ArrayList<>();
+				if (vehicle.getPassenger() != null) {
+					return Collections.singletonList(vehicle.getPassenger());
+				} else {
+					return new ArrayList<>();
+				}
 			}
+		} catch (Exception folia) {
+			return Collections.emptyList();
 		}
 	}
 }

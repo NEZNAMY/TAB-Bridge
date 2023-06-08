@@ -8,6 +8,7 @@ import me.neznamy.tab.bridge.shared.placeholder.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unchecked")
 public class DataBridge {
@@ -20,17 +21,17 @@ public class DataBridge {
 
 	public void startTasks() {
 		TABBridge.getInstance().getPlatform().scheduleSyncRepeatingTask(() -> updatePlaceholders(syncPlaceholders.values(), false), 1);
-		TABBridge.getInstance().getPlatform().runTaskTimerAsynchronously(() -> updatePlaceholders(asyncPlaceholders.values(), false), 1);
-		TABBridge.getInstance().getPlatform().runTaskTimerAsynchronously(() -> {
+		TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> updatePlaceholders(asyncPlaceholders.values(), false), 50, 50, TimeUnit.MILLISECONDS);
+		TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
 			for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
-				player.setVanished(TABBridge.getInstance().getPlatform().isVanished(player));
-				player.setDisguised(TABBridge.getInstance().getPlatform().isDisguised(player));
-				player.setInvisible(TABBridge.getInstance().getPlatform().isInvisible(player));
+				player.setVanished(player.checkVanish());
+				player.setDisguised(player.checkDisguised());
+				player.setInvisible(player.checkInvisibility());
 				if (groupForwarding) {
-					player.setGroup(TABBridge.getInstance().getPlatform().getGroup(player));
+					player.setGroup(player.checkGroup());
 				}
 			}
-		}, 20);
+		}, 1000, 1000, TimeUnit.MILLISECONDS);
 	}
 	@SuppressWarnings("UnstableApiUsage")
 	public void processPluginMessage(Object player, byte[] bytes, boolean retry) {
@@ -45,7 +46,7 @@ public class DataBridge {
 			int protocolVersion = in.readInt();
 			groupForwarding = in.readBoolean();
 			if (in.readBoolean() && TABBridge.getInstance().getExpansion() != null && !TABBridge.getInstance().getExpansion().isRegistered()) {
-				TABBridge.getInstance().getPlatform().registerExpansion();
+				TABBridge.getInstance().getPlatform().registerExpansion(TABBridge.getInstance().getExpansion());
 			}
 			int placeholderCount = in.readInt();
 			for (int i=0; i<placeholderCount; i++) {
@@ -58,7 +59,7 @@ public class DataBridge {
 
 			// Send response
 			List<Object> args = Lists.newArrayList("PlayerJoinResponse", bp.getWorld());
-			if (groupForwarding) args.add(TABBridge.getInstance().getPlatform().getGroup(bp));
+			if (groupForwarding) args.add(bp.checkGroup());
 			Map<String, Object> placeholders = parsePlaceholders(bp);
 			args.add(placeholders.size());
 			for (Map.Entry<String, Object> placeholder : placeholders.entrySet()) {
@@ -107,7 +108,7 @@ public class DataBridge {
 			TABBridge.getInstance().removePlayer(pl);
 		}
 		if (subChannel.equals("Expansion")) {
-			TABBridge.getInstance().getPlatform().setExpansionValue(player, in.readUTF(), in.readUTF());
+			TABBridge.getInstance().getExpansion().setValue(player, in.readUTF(), in.readUTF());
 		}
 		if (subChannel.equals("PacketPlayOutScoreboardDisplayObjective")) {
 			pl.getScoreboard().setDisplaySlot(Scoreboard.DisplaySlot.values()[in.readInt()], in.readUTF());

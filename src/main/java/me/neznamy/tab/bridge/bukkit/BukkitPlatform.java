@@ -7,65 +7,23 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.Platform;
-import me.neznamy.tab.bridge.shared.TABBridge;
+import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
-import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.metadata.MetadataValue;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 @RequiredArgsConstructor
 public class BukkitPlatform implements Platform {
 
-    private final boolean vault = Bukkit.getPluginManager().isPluginEnabled("Vault");
     private final boolean placeholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
     private final JavaPlugin plugin;
-
-    @Override
-    public boolean isInvisible(BridgePlayer player) {
-        return ((BukkitBridgePlayer)player).getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY);
-    }
-
-    @Override
-    public boolean isVanished(BridgePlayer player) {
-        return ((BukkitBridgePlayer)player).getPlayer().getMetadata("vanished").stream().anyMatch(MetadataValue::asBoolean);
-    }
-
-    @Override
-    public boolean isDisguised(BridgePlayer player) {
-        Entity entity = ((BukkitBridgePlayer)player).getPlayer();
-        if (Bukkit.getPluginManager().isPluginEnabled("LibsDisguises")) {
-            try {
-                return (boolean) Class.forName("me.libraryaddict.disguise.DisguiseAPI").getMethod("isDisguised", Entity.class).invoke(null, entity);
-            } catch (Throwable e) {
-                //java.lang.NoClassDefFoundError: Could not initialize class me.libraryaddict.disguise.DisguiseAPI
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public String getGroup(BridgePlayer player) {
-        if (vault) {
-            RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
-            if (rsp == null || rsp.getProvider().getName().equals("SuperPerms")) {
-                return "No permission plugin found";
-            } else {
-                return rsp.getProvider().getPrimaryGroup(((BukkitBridgePlayer)player).getPlayer());
-            }
-        } else {
-            return "Vault not found";
-        }
-    }
 
     @Override
     public boolean isOnline(Object player) {
@@ -91,8 +49,13 @@ public class BukkitPlatform implements Platform {
     }
 
     @Override
-    public void runTaskTimerAsynchronously(Runnable task, int intervalTicks) {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, intervalTicks, intervalTicks);
+    public void readUnlimitedNametagJoin(BridgePlayer player, ByteArrayDataInput input) {
+        BukkitBridge.getInstance().nametagx.onJoin((BukkitBridgePlayer) player, input);
+    }
+
+    @Override
+    public void readUnlimitedNametagMessage(BridgePlayer player, ByteArrayDataInput input) {
+        BukkitBridge.getInstance().nametagx.readMessage((BukkitBridgePlayer) player, input);
     }
 
     @Override
@@ -106,24 +69,13 @@ public class BukkitPlatform implements Platform {
     }
 
     @Override
-    public void readUnlimitedNametagJoin(BridgePlayer player, ByteArrayDataInput input) {
-        BukkitBridge.getInstance().nametagx.onJoin((BukkitBridgePlayer) player, input);
+    public void registerExpansion(@NotNull TabExpansion expansion) {
+        Bukkit.getScheduler().runTask(plugin, expansion::register);
     }
 
     @Override
-    public void readUnlimitedNametagMessage(BridgePlayer player, ByteArrayDataInput input) {
-        BukkitBridge.getInstance().nametagx.readMessage((BukkitBridgePlayer) player, input);
-    }
-
-    @Override
-    public void setExpansionValue(Object player, String identifier, String value) {
-        TABBridge.getInstance().getExpansion().setValue(player, identifier, value);
-    }
-
-    @Override
-    public void registerExpansion() {
-        if (TABBridge.getInstance().getExpansion().isRegistered()) return;
-        Bukkit.getScheduler().runTask(BukkitBridge.getInstance(), TABBridge.getInstance().getExpansion()::register);
+    public void cancelTasks() {
+        Bukkit.getScheduler().cancelTasks(plugin);
     }
 
     @Override

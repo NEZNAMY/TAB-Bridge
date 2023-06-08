@@ -71,4 +71,12 @@ public abstract class BridgePlayer {
     public abstract String getWorld();
 
     public abstract boolean hasPermission(String permission);
+
+    public abstract boolean checkInvisibility();
+
+    public abstract boolean checkVanish();
+
+    public abstract boolean checkDisguised();
+
+    public abstract String checkGroup();
 }

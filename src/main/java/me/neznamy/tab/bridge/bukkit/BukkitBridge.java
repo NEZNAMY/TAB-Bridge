@@ -5,9 +5,10 @@ import me.neznamy.tab.bridge.bukkit.features.BridgeTabExpansion;
 import me.neznamy.tab.bridge.bukkit.features.unlimitedtags.BridgeNameTagX;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
-import me.neznamy.tab.bridge.shared.DataBridge;
+import me.neznamy.tab.bridge.shared.Platform;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.features.TabExpansion;
+import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,7 +29,9 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 	
 	public void onEnable() {
 		instance = this;
-		TABBridge.setInstance(new TABBridge(new BukkitPlatform(this), new DataBridge(), Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") ? new BridgeTabExpansion() : null));
+		boolean folia = ReflectionUtils.classExists("io.papermc.paper.threadedregions.RegionizedServer");
+		Platform platform = folia ? new FoliaPlatform(this) : new BukkitPlatform(this);
+		TABBridge.setInstance(new TABBridge(platform, Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") ? new BridgeTabExpansion() : null));
 		try {
 			NMSStorage.setInstance(new NMSStorage());
 		} catch (ReflectiveOperationException e) {
@@ -47,7 +50,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 	public void onDisable() {
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
 		HandlerList.unregisterAll((Plugin)this);
-		Bukkit.getScheduler().cancelTasks(this);
+		TABBridge.getInstance().getPlatform().cancelTasks();
 		nametagx.unload();
 		TABBridge.getInstance().shutdownExecutor();
 		TabExpansion expansion = TABBridge.getInstance().getExpansion();
