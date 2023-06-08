@@ -17,7 +17,7 @@ public class FoliaPlatform extends BukkitPlatform {
 
     @Override
     public void runTask(Runnable task) {
-        task.run();
+        // Do not initialize sync placeholders
     }
 
     @Override
