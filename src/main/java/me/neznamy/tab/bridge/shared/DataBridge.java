@@ -27,12 +27,16 @@ public class DataBridge {
 				player.setVanished(player.checkVanish());
 				player.setDisguised(player.checkDisguised());
 				player.setInvisible(player.checkInvisibility());
-				player.setGameMode(player.checkGameMode());
 				if (groupForwarding) {
 					player.setGroup(player.checkGroup());
 				}
 			}
 		}, 1000, 1000, TimeUnit.MILLISECONDS);
+		TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
+			for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
+				player.setGameMode(player.checkGameMode());
+			}
+		}, 100, 100, TimeUnit.MILLISECONDS);
 	}
 	@SuppressWarnings("UnstableApiUsage")
 	public void processPluginMessage(Object player, byte[] bytes, boolean retry) {
