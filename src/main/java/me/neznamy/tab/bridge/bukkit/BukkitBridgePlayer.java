@@ -87,4 +87,10 @@ public class BukkitBridgePlayer extends BridgePlayer {
             return "Vault not found";
         }
     }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public int checkGameMode() {
+        return player.getGameMode().getValue();
+    }
 }

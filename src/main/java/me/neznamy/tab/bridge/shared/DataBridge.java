@@ -27,6 +27,7 @@ public class DataBridge {
 				player.setVanished(player.checkVanish());
 				player.setDisguised(player.checkDisguised());
 				player.setInvisible(player.checkInvisibility());
+				player.setGameMode(player.checkGameMode());
 				if (groupForwarding) {
 					player.setGroup(player.checkGroup());
 				}
@@ -75,6 +76,7 @@ public class DataBridge {
 					args.add(placeholder.getValue());
 				}
 			}
+			args.add(bp.checkGameMode());
 			bp.sendMessage(args.toArray());
 			for (Placeholder placeholder : asyncPlaceholders.values()) {
 				if (placeholder instanceof RelationalPlaceholder) {

@@ -16,6 +16,7 @@ public abstract class BridgePlayer {
     @Getter private boolean vanished;
     @Getter private boolean disguised;
     @Getter private boolean invisible;
+    @Getter private int gameMode;
     private String group = "NONE";
 
     public void setVanished(boolean vanished) {
@@ -40,6 +41,12 @@ public abstract class BridgePlayer {
         if (this.group.equals(group)) return;
         this.group = group;
         sendMessage("Group", group);
+    }
+
+    public void setGameMode(int gameMode) {
+        if (this.gameMode == gameMode) return;
+        this.gameMode = gameMode;
+        sendMessage("UpdateGameMode", gameMode);
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -79,4 +86,6 @@ public abstract class BridgePlayer {
     public abstract boolean checkDisguised();
 
     public abstract String checkGroup();
+
+    public abstract int checkGameMode();
 }
