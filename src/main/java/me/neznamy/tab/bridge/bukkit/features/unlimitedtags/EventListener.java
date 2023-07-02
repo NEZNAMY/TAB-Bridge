@@ -32,7 +32,8 @@ public class EventListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onSneak(PlayerToggleSneakEvent e) {
 		ArmorStandManager asm = feature.getArmorStandManager(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId()));
-		if (asm != null) asm.sneak(e.isSneaking());
+		if (asm != null && !feature.isPlayerDisabled(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId())))
+			asm.sneak(e.isSneaking());
 	}
 	
 	/**

@@ -181,8 +181,12 @@ public class BridgeNameTagX implements Listener {
             boolean enabled = in.readBoolean();
             if (enabled) {
                 disabledUnlimitedPlayers.remove(receiver);
+                for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
+                    spawnArmorStands((BukkitBridgePlayer) viewer, receiver);
+                }
             } else {
                 disabledUnlimitedPlayers.add(receiver);
+                getArmorStandManager(receiver).destroy();
             }
         }
     }
