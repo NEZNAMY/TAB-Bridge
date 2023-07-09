@@ -1,6 +1,7 @@
 package me.neznamy.tab.bridge.shared.placeholder;
 
 import me.neznamy.tab.bridge.shared.BridgePlayer;
+import me.neznamy.tab.bridge.shared.TABBridge;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -26,6 +27,7 @@ public class RelationalPlaceholder extends Placeholder {
     }
 
     public String request(BridgePlayer viewer, BridgePlayer target) {
+        long time = System.currentTimeMillis();
         try {
             return function.apply(viewer, target);
         } catch (Throwable t) {
@@ -37,6 +39,11 @@ public class RelationalPlaceholder extends Placeholder {
             args.addAll(Arrays.stream(t.getStackTrace()).map(e -> "\tat " + e.toString()).collect(Collectors.toList()));
             viewer.sendMessage(args.toArray());
             return "<PlaceholderAPI Error>";
+        } finally {
+            long timeDiff = System.currentTimeMillis() - time;
+            if (timeDiff > 1000) {
+                TABBridge.getInstance().getPlatform().sendConsoleMessage("&c[WARN] Placeholder " + identifier + " took " + timeDiff + "ms to return value for " + viewer.getName() + " and " + target.getName());
+            }
         }
     }
 

@@ -57,4 +57,6 @@ public interface Platform {
     }
 
     void cancelTasks();
+
+    void sendConsoleMessage(String message);
 }

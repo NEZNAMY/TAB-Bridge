@@ -13,6 +13,7 @@ import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -76,6 +77,11 @@ public class BukkitPlatform implements Platform {
     @Override
     public void cancelTasks() {
         Bukkit.getScheduler().cancelTasks(plugin);
+    }
+
+    @Override
+    public void sendConsoleMessage(String message) {
+        Bukkit.getConsoleSender().sendMessage("[TAB-Bridge] " + ChatColor.translateAlternateColorCodes('&', message));
     }
 
     @Override
