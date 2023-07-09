@@ -1,6 +1,7 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
+import me.neznamy.tab.bridge.bukkit.platform.BukkitPlatform;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.TABBridge;
@@ -50,7 +51,7 @@ public class VehicleRefresher {
 	public void onJoin(BukkitBridgePlayer connectedPlayer) {
 		Entity vehicle = connectedPlayer.getPlayer().getVehicle();
 		if (vehicle != null) {
-			vehicles.put(vehicle.getEntityId(), getPassengers(vehicle));
+			updateVehicle(vehicle);
 			playersInVehicle.put(connectedPlayer, vehicle);
 			if (feature.isDisableOnBoats() && vehicle.getType().toString().contains("BOAT")) {
 				playersOnBoats.add(connectedPlayer);
@@ -80,7 +81,7 @@ public class VehicleRefresher {
 		}
 		if (!playersInVehicle.containsKey(p) && vehicle != null) {
 			//vehicle enter
-			vehicles.put(vehicle.getEntityId(), getPassengers(vehicle));
+			updateVehicle(vehicle);
 			feature.getArmorStandManager(p).respawn(); //making teleport instant instead of showing teleport animation
 			playersInVehicle.put(p, vehicle);
 			if (feature.isDisableOnBoats() && vehicle.getType().toString().contains("BOAT")) {
@@ -105,18 +106,18 @@ public class VehicleRefresher {
 	 */
 	@SuppressWarnings("deprecation")
 	public List<Entity> getPassengers(Entity vehicle){
-		try {
-			if (NMSStorage.getInstance().getMinorVersion() >= 11) {
-				return vehicle.getPassengers();
+		if (NMSStorage.getInstance().getMinorVersion() >= 11) {
+			return vehicle.getPassengers();
+		} else {
+			if (vehicle.getPassenger() != null) {
+				return Collections.singletonList(vehicle.getPassenger());
 			} else {
-				if (vehicle.getPassenger() != null) {
-					return Collections.singletonList(vehicle.getPassenger());
-				} else {
-					return new ArrayList<>();
-				}
+				return new ArrayList<>();
 			}
-		} catch (Exception folia) {
-			return Collections.emptyList();
 		}
+	}
+
+	private void updateVehicle(Entity vehicle) {
+		((BukkitPlatform)TABBridge.getInstance().getPlatform()).runEntityTask(vehicle, () -> vehicles.put(vehicle.getEntityId(), getPassengers(vehicle)));
 	}
 }

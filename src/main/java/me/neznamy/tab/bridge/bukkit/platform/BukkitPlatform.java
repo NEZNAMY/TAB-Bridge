@@ -1,9 +1,11 @@
-package me.neznamy.tab.bridge.bukkit;
+package me.neznamy.tab.bridge.bukkit.platform;
 
 import com.google.common.io.ByteArrayDataInput;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import me.clip.placeholderapi.PlaceholderAPI;
+import me.neznamy.tab.bridge.bukkit.BukkitBridge;
+import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.Platform;
@@ -14,6 +16,7 @@ import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -114,5 +117,9 @@ public class BukkitPlatform implements Platform {
             text = PlaceholderAPI.setPlaceholders(player, text);
         } while (!textBefore.equals(text));
         return text;
+    }
+
+    public void runEntityTask(Entity entity, Runnable task) {
+        task.run();
     }
 }

@@ -4,6 +4,8 @@ import lombok.Getter;
 import me.neznamy.tab.bridge.bukkit.features.BridgeTabExpansion;
 import me.neznamy.tab.bridge.bukkit.features.unlimitedtags.BridgeNameTagX;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
+import me.neznamy.tab.bridge.bukkit.platform.BukkitPlatform;
+import me.neznamy.tab.bridge.bukkit.platform.FoliaPlatform;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.Platform;
 import me.neznamy.tab.bridge.shared.TABBridge;
