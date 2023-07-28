@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "me.neznamy"
-version = "3.1.2"
+version = "3.1.3"
 
 dependencies {
     implementation(libs.annotations)
