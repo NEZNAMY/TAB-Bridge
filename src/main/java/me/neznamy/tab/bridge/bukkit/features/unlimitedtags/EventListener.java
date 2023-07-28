@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
+import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import org.bukkit.event.EventHandler;
@@ -12,19 +13,12 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 /**
  * The event listener part for securing proper functionality of armor stands
  */
+@RequiredArgsConstructor
 public class EventListener implements Listener {
 	
 	//the NameTag feature handler
 	private final BridgeNameTagX feature;
 
-	/**
-	 * Constructs new instance with given parameters
-	 * @param feature - NameTag feature handler
-	 */
-	public EventListener(BridgeNameTagX feature) {
-		this.feature = feature;
-	}
-	
 	/**
 	 * Sneak event listener to de-spawn and spawn armor stands to skip animation
 	 * @param e - sneak event
@@ -32,8 +26,10 @@ public class EventListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onSneak(PlayerToggleSneakEvent e) {
 		ArmorStandManager asm = feature.getArmorStandManager(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId()));
-		if (asm != null && !feature.isPlayerDisabled(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId())))
-			asm.sneak(e.isSneaking());
+		TABBridge.getInstance().submitTask(() -> {
+			if (asm != null && !feature.isPlayerDisabled(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId())))
+				asm.sneak(e.isSneaking());
+		});
 	}
 	
 	/**
