@@ -80,7 +80,9 @@ public class DataBridge {
 					args.add(placeholder.getValue());
 				}
 			}
-			args.add(bp.checkGameMode());
+			int gamemode = bp.checkGameMode();
+			bp.setGameModeRaw(gamemode);
+			args.add(gamemode);
 			bp.sendMessage(args.toArray());
 			for (Placeholder placeholder : asyncPlaceholders.values()) {
 				if (placeholder instanceof RelationalPlaceholder) {

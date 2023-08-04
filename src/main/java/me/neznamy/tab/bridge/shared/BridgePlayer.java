@@ -49,6 +49,10 @@ public abstract class BridgePlayer {
         sendMessage("UpdateGameMode", gameMode);
     }
 
+    public void setGameModeRaw(int gameMode) {
+        this.gameMode = gameMode;
+    }
+
     @SuppressWarnings("UnstableApiUsage")
     public void sendMessage(Object... args) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
