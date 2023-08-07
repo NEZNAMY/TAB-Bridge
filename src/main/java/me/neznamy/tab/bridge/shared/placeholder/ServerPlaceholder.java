@@ -47,7 +47,7 @@ public class ServerPlaceholder extends Placeholder {
             return "<PlaceholderAPI Error>";
         } finally {
             long timeDiff = System.currentTimeMillis() - time;
-            if (timeDiff > 1000) {
+            if (timeDiff > 50) {
                 TABBridge.getInstance().getPlatform().sendConsoleMessage("&c[WARN] Placeholder " + identifier + " took " + timeDiff + "ms to return value");
             }
         }
