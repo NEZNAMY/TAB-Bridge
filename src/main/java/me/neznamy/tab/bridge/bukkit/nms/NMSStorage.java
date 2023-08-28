@@ -151,8 +151,8 @@ public class NMSStorage {
 
     /**
      * Creates new instance, initializes required NMS classes and fields
-     * @throws	ReflectiveOperationException
-     * 			If any class, field or method fails to load
+     * @throws    ReflectiveOperationException
+     *             If any class, field or method fails to load
      */
     public NMSStorage() throws ReflectiveOperationException {
         initializeDataWatcher();

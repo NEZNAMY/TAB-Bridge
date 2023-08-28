@@ -11,9 +11,9 @@ import org.jetbrains.annotations.Nullable;
 @Getter
 public class DataWatcherObject {
 
-	//position in DataWatcher
-	private final int position;
-	
-	//value class type used since 1.9
-	@Nullable private final Object classType;
+    //position in DataWatcher
+    private final int position;
+    
+    //value class type used since 1.9
+    @Nullable private final Object classType;
 }

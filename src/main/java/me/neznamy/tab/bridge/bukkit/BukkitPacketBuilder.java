@@ -11,33 +11,33 @@ import java.util.UUID;
 
 public class BukkitPacketBuilder {
 
-	@Getter private static final BukkitPacketBuilder instance = new BukkitPacketBuilder();
+    @Getter private static final BukkitPacketBuilder instance = new BukkitPacketBuilder();
 
-	//nms storage
-	private final NMSStorage nms = NMSStorage.getInstance();
+    //nms storage
+    private final NMSStorage nms = NMSStorage.getInstance();
 
-	//entity type ids
-	private final EnumMap<EntityType, Integer> entityIds = new EnumMap<>(EntityType.class);
+    //entity type ids
+    private final EnumMap<EntityType, Integer> entityIds = new EnumMap<>(EntityType.class);
 
-	/**
-	 * Constructs new instance
-	 */
-	public BukkitPacketBuilder() {
+    /**
+     * Constructs new instance
+     */
+    public BukkitPacketBuilder() {
         if (nms == null) return;
         if (nms.getMinorVersion() >= 19) {
             entityIds.put(EntityType.ARMOR_STAND, 2);
         } else if (nms.getMinorVersion() >= 13) {
-			entityIds.put(EntityType.ARMOR_STAND, 1);
-			entityIds.put(EntityType.WITHER, 83);
-		} else {
-			entityIds.put(EntityType.WITHER, 64);
-			if (nms.getMinorVersion() >= 8){
-				entityIds.put(EntityType.ARMOR_STAND, 30);
-			}
-		}
-	}
+            entityIds.put(EntityType.ARMOR_STAND, 1);
+            entityIds.put(EntityType.WITHER, 83);
+        } else {
+            entityIds.put(EntityType.WITHER, 64);
+            if (nms.getMinorVersion() >= 8){
+                entityIds.put(EntityType.ARMOR_STAND, 30);
+            }
+        }
+    }
 
-	public Object entityDestroy(int... entities) {
+    public Object entityDestroy(int... entities) {
         try {
             try {
                 return nms.newPacketPlayOutEntityDestroy.newInstance(new Object[]{entities});
@@ -48,9 +48,9 @@ public class BukkitPacketBuilder {
         } catch (ReflectiveOperationException e) {
             return null;
         }
-	}
+    }
 
-	public Object entityMetadata(int entityId, DataWatcher dataWatcher) {
+    public Object entityMetadata(int entityId, DataWatcher dataWatcher) {
         try {
             if (nms.is1_19_3Plus()) {
                 return nms.newPacketPlayOutEntityMetadata.newInstance(entityId, nms.DataWatcher_b.invoke(dataWatcher.toNMS()));
@@ -60,9 +60,9 @@ public class BukkitPacketBuilder {
         } catch (ReflectiveOperationException e) {
             return null;
         }
-	}
+    }
 
-	public Object entitySpawn(int entityId, UUID uniqueId, EntityType entityType, Location location, DataWatcher dataWatcher) {
+    public Object entitySpawn(int entityId, UUID uniqueId, EntityType entityType, Location location, DataWatcher dataWatcher) {
         try {
             Object nmsPacket;
             if (nms.getMinorVersion() >= 17) {
@@ -96,9 +96,9 @@ public class BukkitPacketBuilder {
         } catch (ReflectiveOperationException e) {
             return null;
         }
-	}
+    }
 
-	public Object entityTeleport(int entityId, Location location) {
+    public Object entityTeleport(int entityId, Location location) {
         try {
             Object nmsPacket;
             if (nms.getMinorVersion() >= 17) {
@@ -122,10 +122,10 @@ public class BukkitPacketBuilder {
         } catch (ReflectiveOperationException e) {
             return null;
         }
-	}
+    }
 
-	private int floor(double paramDouble){
-		int i = (int)paramDouble;
-		return paramDouble < i ? i - 1 : i;
-	}
+    private int floor(double paramDouble){
+        int i = (int)paramDouble;
+        return paramDouble < i ? i - 1 : i;
+    }
 }
