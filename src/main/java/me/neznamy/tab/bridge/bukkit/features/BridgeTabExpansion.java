@@ -58,15 +58,13 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
             return text;
         }
         String value = values.computeIfAbsent(player, pl -> new HashMap<>()).get(identifier);
-        if (value == null) {
-            if (identifier.startsWith("placeholder_")) {
-                String placeholder = "%" + identifier.substring(12) + "%";
-                if (!sentRequests.computeIfAbsent(player, pl -> new HashSet<>()).contains(placeholder)){
-                    BridgePlayer pl = TABBridge.getInstance().getPlayer(player.getUniqueId());
-                    if (pl != null) {
-                        sentRequests.get(player).add(placeholder);
-                        pl.sendMessage("RegisterPlaceholder", placeholder);
-                    }
+        if (value == null && identifier.startsWith("placeholder_")) {
+            String placeholder = "%" + identifier.substring(12) + "%";
+            if (!sentRequests.computeIfAbsent(player, pl -> new HashSet<>()).contains(placeholder)){
+                BridgePlayer pl = TABBridge.getInstance().getPlayer(player.getUniqueId());
+                if (pl != null) {
+                    sentRequests.get(player).add(placeholder);
+                    pl.sendMessage("RegisterPlaceholder", placeholder);
                 }
             }
         }
