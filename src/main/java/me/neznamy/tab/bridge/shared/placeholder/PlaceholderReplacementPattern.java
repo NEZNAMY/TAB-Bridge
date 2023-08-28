@@ -47,10 +47,14 @@ public class PlaceholderReplacementPattern {
             } else if (key.contains("-")) {
                 try {
                     numberIntervals.put(new float[]{Float.parseFloat(key.split("-")[0]), Float.parseFloat(key.split("-")[1])}, value);
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                    // not a valid number
+                }
                 try {
                     numberIntervals.put(new float[]{Float.parseFloat(key.split("~")[0]), Float.parseFloat(key.split("~")[1])}, value);
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                    // not a valid number
+                }
             }
         }
     }

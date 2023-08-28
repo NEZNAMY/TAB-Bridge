@@ -43,6 +43,7 @@ public interface Platform {
         try {
             channel.pipeline().addBefore("packet_handler", "TAB-Bridge", handler);
         } catch (NoSuchElementException | IllegalArgumentException ignored) {
+            // some sort of netty bug
         }
     }
 
@@ -53,6 +54,7 @@ public interface Platform {
             if (channel.pipeline().names().contains("TAB-Bridge"))
                 channel.pipeline().remove("TAB-Bridge");
         } catch (NoSuchElementException ignored) {
+            // some sort of netty bug
         }
     }
 
