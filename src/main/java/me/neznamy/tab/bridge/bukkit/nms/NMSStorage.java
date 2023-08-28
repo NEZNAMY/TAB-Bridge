@@ -8,8 +8,13 @@ import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class NMSStorage {

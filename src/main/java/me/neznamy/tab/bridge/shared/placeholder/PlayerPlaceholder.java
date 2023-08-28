@@ -3,7 +3,10 @@ package me.neznamy.tab.bridge.shared.placeholder;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -31,7 +34,7 @@ public class PlayerPlaceholder extends Placeholder {
         try {
             return function.apply(player);
         } catch (Throwable t) {
-            List<Object> args = new ArrayList<>();
+            ArrayList<Object> args = new ArrayList<>();
             args.add("PlaceholderError");
             args.add("Player placeholder " + identifier + " generated an error when setting for player " + player.getName());
             args.add(t.getStackTrace().length+1);

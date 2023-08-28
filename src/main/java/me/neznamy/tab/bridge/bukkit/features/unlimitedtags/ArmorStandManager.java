@@ -2,7 +2,10 @@ package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A helper class for easy management of armor stands of a player

@@ -4,9 +4,20 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
-import me.neznamy.tab.bridge.shared.placeholder.*;
+import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
+import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
+import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
+import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
+import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
