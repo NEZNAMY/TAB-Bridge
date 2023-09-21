@@ -30,6 +30,7 @@ public class NMSStorage {
 
     @Getter private final boolean is1_19_3Plus = ReflectionUtils.classExists("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket");
     @Getter private final boolean is1_19_4Plus = is1_19_3Plus && !serverPackage.equals("v1_19_R2");
+    @Getter private final boolean is1_20_2Plus = minorVersion >= 20 && !serverPackage.equals("v1_20_R1");
 
     //base
     private final Class<?> Packet = getNMSClass("net.minecraft.network.protocol.Packet", "Packet");
@@ -42,7 +43,7 @@ public class NMSStorage {
     public final Constructor<?> newEntityArmorStand = getNMSClass("net.minecraft.world.entity.decoration.EntityArmorStand", "EntityArmorStand")
             .getConstructor(getNMSClass("net.minecraft.world.level.World", "World"), double.class, double.class, double.class);
     public final Field PLAYER_CONNECTION = ReflectionUtils.getFields(EntityPlayer, PlayerConnection).get(0);
-    public final Field NETWORK_MANAGER = ReflectionUtils.getFields(PlayerConnection, NetworkManager).get(0);
+    public final Field NETWORK_MANAGER = ReflectionUtils.getFields(is1_20_2Plus ? PlayerConnection.getSuperclass() : PlayerConnection, NetworkManager).get(0);
     public final Field CHANNEL = ReflectionUtils.getFields(NetworkManager, Channel.class).get(0);
     public final Method getHandle = Class.forName("org.bukkit.craftbukkit." + serverPackage + ".entity.CraftPlayer").getMethod("getHandle");
     public final Method sendPacket = ReflectionUtils.getMethods(PlayerConnection, void.class, Packet).get(0);
@@ -103,11 +104,13 @@ public class NMSStorage {
     public final Class<?> PacketPlayOutEntityMetadata = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata", "PacketPlayOutEntityMetadata", "Packet40EntityMetadata");
     public Constructor<?> newPacketPlayOutEntityMetadata;
 
-    public final Class<?> PacketPlayOutNamedEntitySpawn = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutNamedEntitySpawn", "PacketPlayOutNamedEntitySpawn", "Packet20NamedEntitySpawn");
+    public final Class<?> PacketPlayOutNamedEntitySpawn = getNMSClass(
+            "net.minecraft.network.protocol.game.PacketPlayOutNamedEntitySpawn",
+            "net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity",
+            "PacketPlayOutNamedEntitySpawn", "Packet20NamedEntitySpawn");
     public final Field PacketPlayOutNamedEntitySpawn_ENTITYID = ReflectionUtils.getFields(PacketPlayOutNamedEntitySpawn, int.class).get(0);
 
     //scoreboard objectives
-    private final Class<?> PacketPlayOutScoreboardDisplayObjective = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardDisplayObjective", "PacketPlayOutScoreboardDisplayObjective", "Packet208SetScoreboardDisplayObjective");
     private final Class<?> PacketPlayOutScoreboardObjective = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardObjective", "PacketPlayOutScoreboardObjective", "Packet206SetScoreboardObjective");
     private final Class<?> Scoreboard = getNMSClass("net.minecraft.world.scores.Scoreboard", "Scoreboard");
     private final Class<?> PacketPlayOutScoreboardScore = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardScore", "PacketPlayOutScoreboardScore", "Packet207SetScoreboardScore");
@@ -119,7 +122,6 @@ public class NMSStorage {
     public final Class<Enum> EnumNameTagVisibility = (Class<Enum>) getNMSClass("net.minecraft.world.scores.ScoreboardTeamBase$EnumNameTagVisibility", "ScoreboardTeamBase$EnumNameTagVisibility", "EnumNameTagVisibility");
     public final Constructor<?> newScoreboardObjective = ScoreboardObjective.getConstructors()[0];
     public final Constructor<?> newScoreboardScore = ScoreboardScore.getConstructor(Scoreboard, ScoreboardObjective, String.class);
-    public final Constructor<?> newPacketPlayOutScoreboardDisplayObjective = PacketPlayOutScoreboardDisplayObjective.getConstructor(int.class, ScoreboardObjective);
     public Constructor<?> newPacketPlayOutScoreboardObjective;
     public Constructor<?> newPacketPlayOutScoreboardScore_1_13;
     public Constructor<?> newPacketPlayOutScoreboardScore_String;
@@ -130,6 +132,11 @@ public class NMSStorage {
     public final Field PacketPlayOutScoreboardObjective_RENDERTYPE = ReflectionUtils.getFields(PacketPlayOutScoreboardObjective, EnumScoreboardHealthDisplay).get(0);
     public Field PacketPlayOutScoreboardObjective_DISPLAYNAME;
     public final Method ScoreboardScore_setScore = ReflectionUtils.getMethod(ScoreboardScore, new String[]{"setScore", "b"}, int.class);
+
+    // PacketPlayOutScoreboardDisplayObjective
+    private final Class<?> DisplayObjectiveClass = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardDisplayObjective", "PacketPlayOutScoreboardDisplayObjective", "Packet208SetScoreboardDisplayObjective");
+    public Constructor<?> newDisplayObjective;
+    public Enum[] DisplaySlot_values;
 
     //PacketPlayOutScoreboardTeam
     public final Class<?> PacketPlayOutScoreboardTeam = getNMSClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam", "PacketPlayOutScoreboardTeam");
@@ -251,6 +258,13 @@ public class NMSStorage {
             newPacketPlayOutScoreboardScore_String = PacketPlayOutScoreboardScore.getConstructor(String.class);
             PacketPlayOutScoreboardObjective_DISPLAYNAME = ReflectionUtils.getFields(PacketPlayOutScoreboardObjective, String.class).get(1);
             newPacketPlayOutScoreboardScore = PacketPlayOutScoreboardScore.getConstructor(ScoreboardScore);
+        }
+        if (is1_20_2Plus) {
+            Class<?> DisplaySlot = Class.forName("net.minecraft.world.scores.DisplaySlot");
+            newDisplayObjective = DisplayObjectiveClass.getConstructor(DisplaySlot, ScoreboardObjective);
+            DisplaySlot_values = (Enum[]) DisplaySlot.getDeclaredMethod("values").invoke(null);
+        } else {
+            newDisplayObjective = DisplayObjectiveClass.getConstructor(int.class, ScoreboardObjective);
         }
     }
 

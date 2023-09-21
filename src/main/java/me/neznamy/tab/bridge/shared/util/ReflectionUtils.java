@@ -96,8 +96,8 @@ public class ReflectionUtils {
      */
     public static List<Method> getMethods(@NonNull Class<?> clazz, @NonNull Class<?> returnType, @NonNull Class<?>... parameterTypes) {
         List<Method> list = new ArrayList<>();
-        for (Method m : clazz.getDeclaredMethods()) {
-            if (m.getReturnType() != returnType || m.getParameterCount() != parameterTypes.length || !Modifier.isPublic(m.getModifiers()))
+        for (Method m : clazz.getMethods()) {
+            if (m.getReturnType() != returnType || m.getParameterCount() != parameterTypes.length)
                 continue;
             Class<?>[] types = m.getParameterTypes();
             boolean valid = true;
