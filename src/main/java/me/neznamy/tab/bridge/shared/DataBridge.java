@@ -126,7 +126,7 @@ public class DataBridge {
         if (subChannel.equals("Unload") && !retry) {
             TABBridge.getInstance().removePlayer(pl);
         }
-        if (subChannel.equals("Expansion")) {
+        if (subChannel.equals("Expansion") && TABBridge.getInstance().getExpansion() != null) {
             TABBridge.getInstance().getExpansion().setValue(player, in.readUTF(), in.readUTF());
         }
         if (subChannel.equals("PacketPlayOutScoreboardDisplayObjective")) {
