@@ -37,29 +37,18 @@ public class PacketListener {
         entityIdMap.remove(disconnectedPlayer.getPlayer().getEntityId());
     }
 
-    @SuppressWarnings("unchecked")
-    public void onPacketSend(BukkitBridgePlayer receiver, Object packet) throws ReflectiveOperationException {
+    public void onPacketSend(BukkitBridgePlayer receiver, Object packet) {
         if (nms == null) return;
         if (receiver.getProtocolVersion() < 47) return;
         if (nameTagX.isPlayerDisabled(receiver) || nameTagX.getDisabledUnlimitedPlayers().contains(receiver)) return;
-        if (nms.PacketPlayOutEntity.isInstance(packet) && !nms.PacketPlayOutEntityLook.isInstance(packet)) {
-            onEntityMove(receiver, nms.PacketPlayOutEntity_ENTITYID.getInt(packet));
-        } else if (nms.PacketPlayOutEntityTeleport.isInstance(packet)) {
-            onEntityMove(receiver, nms.PacketPlayOutEntityTeleport_ENTITYID.getInt(packet));
-        } else if (nms.PacketPlayOutNamedEntitySpawn.isInstance(packet)) {
-            onEntitySpawn(receiver, nms.PacketPlayOutNamedEntitySpawn_ENTITYID.getInt(packet));
-        } else if (nms.PacketPlayOutEntityDestroy.isInstance(packet)) {
-            if (nms.getMinorVersion() >= 17) {
-                Object entities = nms.PacketPlayOutEntityDestroy_ENTITIES.get(packet);
-                if (entities instanceof List) {
-                    onEntityDestroy(receiver, (List<Integer>) entities);
-                } else {
-                    //1.17.0
-                    onEntityDestroy(receiver, (int) entities);
-                }
-            } else {
-                onEntityDestroy(receiver, (int[]) nms.PacketPlayOutEntityDestroy_ENTITIES.get(packet));
-            }
+        if (receiver.getEntityView().isMovePacket(packet) && !receiver.getEntityView().isLookPacket(packet)) { //ignoring head rotation only packets
+            onEntityMove(receiver, receiver.getEntityView().getMoveEntityId(packet));
+        } else if (receiver.getEntityView().isTeleportPacket(packet)) {
+            onEntityMove(receiver, receiver.getEntityView().getTeleportEntityId(packet));
+        } else if (receiver.getEntityView().isNamedEntitySpawnPacket(packet)) {
+            onEntitySpawn(receiver, receiver.getEntityView().getSpawnedPlayer(packet));
+        } else if (receiver.getEntityView().isDestroyPacket(packet)) {
+            onEntityDestroy(receiver, receiver.getEntityView().getDestroyedEntities(packet));
         }
     }
 
@@ -96,21 +85,11 @@ public class PacketListener {
         }
     }
 
-    private void onEntityDestroy(BukkitBridgePlayer receiver, List<Integer> entities) {
-        for (int entity : entities) {
-            onEntityDestroy(receiver, entity);
-        }
-    }
-    
     private void onEntityDestroy(BukkitBridgePlayer receiver, int... entities) {
         for (int entity : entities) {
-            onEntityDestroy(receiver, entity);
+            BridgePlayer deSpawnedPlayer = entityIdMap.get(entity);
+            if (deSpawnedPlayer != null && !nameTagX.isPlayerDisabled(deSpawnedPlayer))
+                TABBridge.getInstance().submitTask(() -> nameTagX.getArmorStandManager(deSpawnedPlayer).destroy(receiver));
         }
-    }
-    
-    private void onEntityDestroy(BukkitBridgePlayer receiver, int entity) {
-        BridgePlayer deSpawnedPlayer = entityIdMap.get(entity);
-        if (deSpawnedPlayer != null && !nameTagX.isPlayerDisabled(deSpawnedPlayer))
-            TABBridge.getInstance().submitTask(() -> nameTagX.getArmorStandManager(deSpawnedPlayer).destroy(receiver));
     }
 }

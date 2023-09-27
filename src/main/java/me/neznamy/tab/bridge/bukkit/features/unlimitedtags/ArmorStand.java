@@ -4,9 +4,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
-import me.neznamy.tab.bridge.bukkit.BukkitPacketBuilder;
 import me.neznamy.tab.bridge.bukkit.nms.DataWatcher;
-import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -85,30 +83,29 @@ public class ArmorStand {
     public void setOffset(double offset) {
         if (yOffset == offset) return;
         yOffset = offset;
-        for (BridgePlayer all : manager.getArmorStandManager(player).getNearbyPlayers()) {
-            all.sendPacket(getTeleportPacket(all));
+        for (BukkitBridgePlayer all : manager.getArmorStandManager(player).getNearbyPlayers()) {
+            all.getEntityView().teleportEntity(entityId, getArmorStandLocationFor(all));
         }
     }
     
     public void spawn(BukkitBridgePlayer viewer) {
-        for (Object packet : getSpawnPackets(viewer)) {
-            viewer.sendPacket(packet);
-        }
+        visible = getVisibility();
+        viewer.getEntityView().spawnEntity(entityId, uuid, EntityType.ARMOR_STAND, getArmorStandLocationFor(viewer), createDataWatcher(viewer));
     }
 
     public void destroy() {
-        for (BridgePlayer all : manager.getArmorStandManager(player).getNearbyPlayers()) {
-            all.sendPacket(BukkitPacketBuilder.getInstance().entityDestroy(entityId));
+        for (BukkitBridgePlayer all : manager.getArmorStandManager(player).getNearbyPlayers()) {
+            all.getEntityView().destroyEntities(entityId);
         }
     }
     
-    public void destroy(BridgePlayer viewer) {
-        viewer.sendPacket(BukkitPacketBuilder.getInstance().entityDestroy(entityId));
+    public void destroy(BukkitBridgePlayer viewer) {
+        viewer.getEntityView().destroyEntities(entityId);
     }
 
     public void teleport() {
-        for (BridgePlayer all : manager.getArmorStandManager(player).getNearbyPlayers()) {
-            all.sendPacket(getTeleportPacket(all));
+        for (BukkitBridgePlayer all : manager.getArmorStandManager(player).getNearbyPlayers()) {
+            all.getEntityView().teleportEntity(entityId, getArmorStandLocationFor(all));
         }
     }
 
@@ -116,7 +113,7 @@ public class ArmorStand {
         if (!manager.getArmorStandManager(player).isNearby(viewer) && viewer != player) {
             manager.getArmorStandManager(player).spawn(viewer);
         } else {
-            viewer.sendPacket(getTeleportPacket(viewer));
+            viewer.getEntityView().teleportEntity(entityId, getArmorStandLocationFor(viewer));
         }
     }
 
@@ -126,7 +123,7 @@ public class ArmorStand {
             if (viewer.getProtocolVersion() >= 480 && viewer.getProtocolVersion() <= 498 && !alwaysVisible) {
                 //1.14.x client sided bug, de-spawning completely
                 if (sneaking) {
-                    viewer.sendPacket(BukkitPacketBuilder.getInstance().entityDestroy(entityId));
+                    viewer.getEntityView().destroyEntities(entityId);
                 } else {
                     spawn(viewer);
                 }
@@ -146,20 +143,11 @@ public class ArmorStand {
     }
 
     /**
-     * Returns teleport packet for specified viewer
-     * @param viewer - player to get location for
-     * @return teleport packet
-     */
-    public Object getTeleportPacket(BridgePlayer viewer) {
-        return BukkitPacketBuilder.getInstance().entityTeleport(entityId, getArmorStandLocationFor(viewer));
-    }
-
-    /**
      * Updates armor stand's metadata
      */
     public void updateMetadata() {
         for (BukkitBridgePlayer viewer : manager.getArmorStandManager(player).getNearbyPlayers()) {
-            viewer.sendPacket(BukkitPacketBuilder.getInstance().entityMetadata(entityId, createDataWatcher(viewer)));
+            viewer.getEntityView().updateEntityMetadata(entityId, createDataWatcher(viewer));
         }
     }
 
@@ -185,7 +173,7 @@ public class ArmorStand {
         if (player.getPlayer().isSleeping()) {
             y -= 1.76;
         } else {
-            if (NMSStorage.getInstance().getMinorVersion() >= 9) {
+            if (BukkitBridge.getMinorVersion() >= 9) {
                 y -= (player.getPlayer().isSneaking() ? 0.45 : 0.18);
             } else {
                 y -= (player.getPlayer().isSneaking() ? 0.30 : 0.18);
@@ -216,15 +204,15 @@ public class ArmorStand {
             }
         }
         //1.13+ swimming or 1.9+ flying with elytra
-        if (isSwimming() || (NMSStorage.getInstance().getMinorVersion() >= 9 && player.getPlayer().isGliding())) {
+        if (isSwimming() || (BukkitBridge.getMinorVersion() >= 9 && player.getPlayer().isGliding())) {
             return player.getPlayer().getLocation().getY()-1.22;
         }
         return player.getPlayer().getLocation().getY();
     }
 
     private boolean isSwimming() {
-        if (NMSStorage.getInstance().getMinorVersion() >= 14 && player.getPlayer().getPose() == Pose.SWIMMING) return true;
-        return NMSStorage.getInstance().getMinorVersion() == 13 && player.getPlayer().isSwimming();
+        if (BukkitBridge.getMinorVersion() >= 14 && player.getPlayer().getPose() == Pose.SWIMMING) return true;
+        return BukkitBridge.getMinorVersion() == 13 && player.getPlayer().isSwimming();
     }
 
     /**
@@ -237,14 +225,14 @@ public class ArmorStand {
 
         byte flag = 32; //invisible
         if (sneaking) flag += (byte)2;
-        datawatcher.helper().setEntityFlags(flag);
+        datawatcher.setEntityFlags(flag);
         String text = this.text;
         String componentText = this.componentText;
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") && this.text.contains("%rel_")) {
             text = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.text));
             componentText = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.componentText));
         }
-        datawatcher.helper().setCustomName(text, componentText);
+        datawatcher.setCustomName(text, componentText);
 
         boolean visibility;
         if (isNameVisiblyEmpty(text) || !viewer.getPlayer().canSee(player.getPlayer()) ||
@@ -253,9 +241,9 @@ public class ArmorStand {
         } else {
             visibility = visible;
         }
-        datawatcher.helper().setCustomNameVisible(visibility);
+        datawatcher.setCustomNameVisible(visibility);
 
-        if (viewer.getProtocolVersion() > 47) datawatcher.helper().setArmorStandFlags((byte)16);
+        if (viewer.getProtocolVersion() > 47) datawatcher.setArmorStandFlags((byte)16);
         return datawatcher;
     }
 
@@ -273,26 +261,6 @@ public class ArmorStand {
     }
 
     /**
-     * Returns list of packets to send to make armor stand spawn with metadata
-     * @param viewer - viewer to apply relational placeholders for
-     * @return array of packets that spawn the armor stand
-     */
-    public Object[] getSpawnPackets(BukkitBridgePlayer viewer) {
-        visible = getVisibility();
-        DataWatcher dataWatcher = createDataWatcher(viewer);
-        if (NMSStorage.getInstance().getMinorVersion() >= 15) {
-            return new Object[] {
-                    BukkitPacketBuilder.getInstance().entitySpawn(entityId, uuid, EntityType.ARMOR_STAND, getArmorStandLocationFor(viewer), null),
-                    BukkitPacketBuilder.getInstance().entityMetadata(entityId, dataWatcher)
-            };
-        } else {
-            return new Object[] {
-                    BukkitPacketBuilder.getInstance().entitySpawn(entityId, uuid, EntityType.ARMOR_STAND, getArmorStandLocationFor(viewer), dataWatcher),
-            };
-        }
-    }
-
-    /**
      * Returns location where armor stand should be for specified viewer
      * @param viewer - player to get location for
      * @return location of armor stand
@@ -302,7 +270,7 @@ public class ArmorStand {
     }
 
     public void respawn(BukkitBridgePlayer viewer) {
-        viewer.sendPacket(BukkitPacketBuilder.getInstance().entityDestroy(entityId));
+        viewer.getEntityView().destroyEntities(entityId);
         spawn(viewer);
     }
 }

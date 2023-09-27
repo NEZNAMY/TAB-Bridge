@@ -1,9 +1,9 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
+import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.bukkit.platform.BukkitPlatform;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
-import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import org.bukkit.entity.Entity;
 
@@ -111,7 +111,7 @@ public class VehicleRefresher {
      */
     @SuppressWarnings("deprecation")
     public List<Entity> getPassengers(Entity vehicle){
-        if (NMSStorage.getInstance().getMinorVersion() >= 11) {
+        if (BukkitBridge.getMinorVersion() >= 11) {
             return vehicle.getPassengers();
         } else {
             if (vehicle.getPassenger() != null) {

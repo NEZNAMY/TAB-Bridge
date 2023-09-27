@@ -2,6 +2,7 @@ package me.neznamy.tab.bridge.bukkit;
 
 import lombok.Getter;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
+import me.neznamy.tab.bridge.bukkit.nms.PacketEntityView;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.Scoreboard;
 import me.neznamy.tab.bridge.shared.TABBridge;
@@ -19,6 +20,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
 
     @Getter private final Player player;
     @Getter private final Scoreboard scoreboard = new BukkitScoreboard(this);
+    @Getter private final PacketEntityView entityView = new PacketEntityView(this);
 
     public BukkitBridgePlayer(Player player, int protocolVersion) {
         super(player.getName(), player.getUniqueId(), protocolVersion);

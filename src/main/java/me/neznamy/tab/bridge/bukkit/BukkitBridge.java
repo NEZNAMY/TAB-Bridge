@@ -26,6 +26,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class BukkitBridge extends JavaPlugin implements PluginMessageListener, Listener {
 
+    @Getter private static final String serverPackage = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+    @Getter private static final int minorVersion = Integer.parseInt(serverPackage.split("_")[1]);
+    @Getter private static final boolean is1_19_3Plus = ReflectionUtils.classExists("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket");
+    @Getter private static final boolean is1_19_4Plus = is1_19_3Plus && !serverPackage.equals("v1_19_R2");
+    @Getter private static final boolean is1_20_2Plus = minorVersion >= 20 && !serverPackage.equals("v1_20_R1");
+
     @Getter private static BukkitBridge instance;
     public BridgeNameTagX nametagx;
     
