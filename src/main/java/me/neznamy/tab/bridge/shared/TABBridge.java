@@ -26,7 +26,10 @@ public class TABBridge {
     @Nullable @Getter private final TabExpansion expansion;
     private final Map<UUID, BridgePlayer> players = new ConcurrentHashMap<>();
     @Getter private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(
-            new ThreadFactoryBuilder().setNameFormat("TAB-Bridge Thread").build());
+            new ThreadFactoryBuilder().setNameFormat("TAB-Bridge Processing Thread").build());
+
+    @Getter private final ScheduledExecutorService placeholderThread = Executors.newSingleThreadScheduledExecutor(
+            new ThreadFactoryBuilder().setNameFormat("TAB-Bridge Placeholder Refreshing Thread").build());
 
     public void addPlayer(BridgePlayer player) {
         players.put(player.getUniqueId(), player);
@@ -57,5 +60,6 @@ public class TABBridge {
 
     public void shutdownExecutor() {
         scheduler.shutdownNow();
+        placeholderThread.shutdownNow();
     }
 }

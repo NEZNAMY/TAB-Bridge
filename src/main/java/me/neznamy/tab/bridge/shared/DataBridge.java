@@ -32,7 +32,7 @@ public class DataBridge {
 
     public void startTasks() {
         TABBridge.getInstance().getPlatform().scheduleSyncRepeatingTask(() -> updatePlaceholders(syncPlaceholders.values(), false), 1);
-        TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> updatePlaceholders(asyncPlaceholders.values(), false), 50, 50, TimeUnit.MILLISECONDS);
+        TABBridge.getInstance().getPlaceholderThread().scheduleAtFixedRate(() -> updatePlaceholders(asyncPlaceholders.values(), false), 50, 50, TimeUnit.MILLISECONDS);
         TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
             for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
                 player.setVanished(player.checkVanish());
