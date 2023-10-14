@@ -1,11 +1,13 @@
 package me.neznamy.tab.bridge.bukkit;
 
 import lombok.Getter;
+import lombok.SneakyThrows;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.bukkit.nms.PacketEntityView;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.Scoreboard;
 import me.neznamy.tab.bridge.shared.TABBridge;
+import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -13,6 +15,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.Set;
 
 public class BukkitBridgePlayer extends BridgePlayer {
 
@@ -28,7 +32,13 @@ public class BukkitBridgePlayer extends BridgePlayer {
     }
 
     @Override
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
     public void sendPluginMessage(byte[] message) {
+        if (BukkitBridge.getMinorVersion() >= 20) {
+            // 1.20.2 bug adding it with a significant delay, add ourselves to make it work
+            ((Set<String>) ReflectionUtils.getFields(player.getClass(), Set.class).get(0).get(player)).add(TABBridge.CHANNEL_NAME);
+        }
         player.sendPluginMessage(BukkitBridge.getInstance(), TABBridge.CHANNEL_NAME, message);
     }
 
