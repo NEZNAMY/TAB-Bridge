@@ -160,9 +160,10 @@ public class BridgeNameTagX implements Listener {
             asm.destroy();
         }
         if (action.equals("SetText")) {
+            String line = in.readUTF();
             String text = in.readUTF();
             String unused = in.readUTF(); // previously forwarded component, not anymore
-            asm.getArmorStand(in.readUTF()).setText(text);
+            asm.getArmorStand(line).setText(text);
         }
         if (action.equals("Pause")) {
             playersDisabledWithAPI.add(receiver);
