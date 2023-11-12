@@ -5,6 +5,8 @@ import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.nms.DataWatcher;
+import me.neznamy.tab.bridge.shared.chat.EnumChatFormat;
+import me.neznamy.tab.bridge.shared.chat.IChatBaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -47,7 +49,6 @@ public class ArmorStand {
     private boolean visible;
 
     private String text = "";
-    private String componentText = "{\"text\":\"\"}";
 
     //if offset is static or dynamic based on other armor stands
     private final boolean staticOffset;
@@ -59,10 +60,9 @@ public class ArmorStand {
         visible = getVisibility();
     }
 
-    public void setText(String text, String componentText) {
+    public void setText(String text) {
         if (this.text.equals(text)) return;
         this.text = text;
-        this.componentText = componentText;
         refresh();
         manager.getArmorStandManager(player).fixArmorStandHeights();
     }
@@ -227,12 +227,10 @@ public class ArmorStand {
         if (sneaking) flag += (byte)2;
         datawatcher.setEntityFlags(flag);
         String text = this.text;
-        String componentText = this.componentText;
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") && this.text.contains("%rel_")) {
-            text = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.text));
-            componentText = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.componentText));
+            text = EnumChatFormat.color(PlaceholderAPI.setRelationalPlaceholders(viewer.getPlayer(), player.getPlayer(), this.text));
         }
-        datawatcher.setCustomName(text, componentText);
+        datawatcher.setCustomName(text, IChatBaseComponent.optimizedComponent(text).toString(viewer.getProtocolVersion()));
 
         boolean visibility;
         if (isNameVisiblyEmpty(text) || !viewer.getPlayer().canSee(player.getPlayer()) ||
