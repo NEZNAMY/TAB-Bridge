@@ -5,6 +5,7 @@ import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.bukkit.platform.BukkitPlatform;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
+import me.neznamy.tab.bridge.shared.message.outgoing.SetOnBoat;
 import org.bukkit.entity.Entity;
 
 import java.util.ArrayList;
@@ -81,7 +82,7 @@ public class VehicleRefresher {
             playersInVehicle.remove(p);
             if (feature.isDisableOnBoats() && playersOnBoats.contains(p)) {
                 playersOnBoats.remove(p);
-                p.sendMessage("Boat", false);
+                p.sendPluginMessage(new SetOnBoat(false));
             }
         }
         if (!playersInVehicle.containsKey(p) && vehicle != null) {
@@ -91,7 +92,7 @@ public class VehicleRefresher {
             playersInVehicle.put(p, vehicle);
             if (feature.isDisableOnBoats() && vehicle.getType().toString().contains("BOAT")) {
                 playersOnBoats.add(p);
-                p.sendMessage("Boat", true);
+                p.sendPluginMessage(new SetOnBoat(true));
             }
         }
     }

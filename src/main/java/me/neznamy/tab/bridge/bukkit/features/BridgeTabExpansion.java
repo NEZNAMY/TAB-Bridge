@@ -6,6 +6,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.features.TabExpansion;
+import me.neznamy.tab.bridge.shared.message.outgoing.RegisterPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -64,7 +65,7 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
                 BridgePlayer pl = TABBridge.getInstance().getPlayer(player.getUniqueId());
                 if (pl != null) {
                     sentRequests.get(player).add(placeholder);
-                    pl.sendMessage("RegisterPlaceholder", placeholder);
+                    pl.sendPluginMessage(new RegisterPlaceholder(placeholder));
                 }
             }
         }
@@ -72,8 +73,8 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
     }
 
     @Override
-    public void setValue(Object player, String identifier, String value) {
-        values.computeIfAbsent((Player) player, p -> new HashMap<>()).put(identifier, value);
+    public void setValue(BridgePlayer player, String identifier, String value) {
+        values.computeIfAbsent((Player) player.getPlayer(), p -> new HashMap<>()).put(identifier, value);
     }
 
     public @NotNull List<String> detectPlaceholders(@NotNull String text) {

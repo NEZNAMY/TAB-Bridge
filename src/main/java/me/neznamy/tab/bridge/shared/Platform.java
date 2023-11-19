@@ -3,9 +3,7 @@ package me.neznamy.tab.bridge.shared;
 import com.google.common.io.ByteArrayDataInput;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
-import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -25,8 +23,6 @@ public interface Platform {
     void readUnlimitedNametagJoin(BridgePlayer player, ByteArrayDataInput input);
 
     void readUnlimitedNametagMessage(BridgePlayer player, ByteArrayDataInput input);
-
-    void registerExpansion(@NotNull TabExpansion expansion);
 
     BridgePlayer newPlayer(Object player, int protocolVersion);
 

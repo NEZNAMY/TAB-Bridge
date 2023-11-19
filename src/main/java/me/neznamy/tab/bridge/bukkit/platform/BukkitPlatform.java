@@ -9,7 +9,6 @@ import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.Platform;
-import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
@@ -19,7 +18,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -70,11 +68,6 @@ public class BukkitPlatform implements Platform {
     @Override
     public void runTask(Runnable task) {
         Bukkit.getScheduler().runTask(plugin, task);
-    }
-
-    @Override
-    public void registerExpansion(@NotNull TabExpansion expansion) {
-        Bukkit.getScheduler().runTask(plugin, expansion::register);
     }
 
     @Override

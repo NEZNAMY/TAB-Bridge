@@ -2,14 +2,11 @@ package me.neznamy.tab.bridge.shared.placeholder;
 
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
+import me.neznamy.tab.bridge.shared.message.outgoing.PlaceholderError;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 public class RelationalPlaceholder extends Placeholder {
 
@@ -35,18 +32,14 @@ public class RelationalPlaceholder extends Placeholder {
         try {
             return function.apply(viewer, target);
         } catch (Throwable t) {
-            List<Object> args = new ArrayList<>();
-            args.add("PlaceholderError");
-            args.add("Relational placeholder " + identifier + " generated an error when setting for viewer " + viewer.getName() + " and target " + target.getName());
-            args.add(t.getStackTrace().length+1);
-            args.add(t.getClass().getName() + ": " + t.getMessage());
-            args.addAll(Arrays.stream(t.getStackTrace()).map(e -> "\tat " + e.toString()).collect(Collectors.toList()));
-            viewer.sendMessage(args.toArray());
+            viewer.sendPluginMessage(new PlaceholderError("Relational placeholder " + identifier +
+                    " generated an error when setting for viewer " + viewer.getName() + " and target " + target.getName(), t));
             return "<PlaceholderAPI Error>";
         } finally {
             long timeDiff = System.currentTimeMillis() - time;
             if (timeDiff > 50) {
-                TABBridge.getInstance().getPlatform().sendConsoleMessage("&c[WARN] Placeholder " + identifier + " took " + timeDiff + "ms to return value for " + viewer.getName() + " and " + target.getName());
+                TABBridge.getInstance().getPlatform().sendConsoleMessage("&c[WARN] Placeholder " + identifier +
+                        " took " + timeDiff + "ms to return value for " + viewer.getName() + " and " + target.getName());
             }
         }
     }

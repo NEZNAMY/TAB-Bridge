@@ -2,11 +2,9 @@ package me.neznamy.tab.bridge.bukkit.platform;
 
 import lombok.SneakyThrows;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
-import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -24,11 +22,6 @@ public class FoliaPlatform extends BukkitPlatform {
     @Override
     public void runTask(Runnable task) {
         // Do not initialize sync placeholders
-    }
-
-    @Override
-    public void registerExpansion(@NotNull TabExpansion expansion) {
-        expansion.register();
     }
 
     @Override

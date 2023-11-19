@@ -4,6 +4,10 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
+import me.neznamy.tab.bridge.shared.message.incoming.*;
+import me.neznamy.tab.bridge.shared.message.outgoing.PlayerJoinResponse;
+import me.neznamy.tab.bridge.shared.message.outgoing.UpdatePlaceholder;
+import me.neznamy.tab.bridge.shared.message.outgoing.UpdateRelationalPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
 import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
@@ -20,15 +24,28 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")
 public class DataBridge {
 
     private final Map<Object, List<byte[]>> messageQueue = new WeakHashMap<>();
+    @Getter private final Map<Object, List<IncomingMessage>> messageQueue2 = new WeakHashMap<>();
     private final Map<String, Placeholder> asyncPlaceholders = new ConcurrentHashMap<>();
     private final Map<String, Placeholder> syncPlaceholders = new ConcurrentHashMap<>();
     @Getter private Map<String, PlaceholderReplacementPattern> replacements = new HashMap<>();
     private boolean groupForwarding;
+
+    private final Map<String, Supplier<IncomingMessage>> registeredMessages = new HashMap<String, Supplier<IncomingMessage>>() {{
+        put("Permission", PermissionCheck::new);
+        put("Placeholder", PlaceholderRegister::new);
+        put("Expansion", ExpansionPlaceholder::new);
+        put("PacketPlayOutScoreboardDisplayObjective", SetDisplayObjective::new);
+        put("PacketPlayOutScoreboardObjective", ScoreboardObjective::new);
+        put("PacketPlayOutScoreboardScore", ScoreboardScore::new);
+        put("PacketPlayOutScoreboardTeam", ScoreboardTeam::new);
+        put("NameTagX", NameTagMessage::new);
+    }};
 
     public void startTasks() {
         TABBridge.getInstance().getPlatform().scheduleSyncRepeatingTask(() -> updatePlaceholders(syncPlaceholders.values(), false), 1);
@@ -61,46 +78,30 @@ public class DataBridge {
             // Read join input
             int protocolVersion = in.readInt();
             groupForwarding = in.readBoolean();
-            if (in.readBoolean() && TABBridge.getInstance().getExpansion() != null && !TABBridge.getInstance().getExpansion().isRegistered()) {
-                TABBridge.getInstance().getPlatform().registerExpansion(TABBridge.getInstance().getExpansion());
-            }
             int placeholderCount = in.readInt();
             for (int i=0; i<placeholderCount; i++) {
                 registerPlaceholder(in.readUTF(), in.readInt());
             }
             BridgePlayer bp = TABBridge.getInstance().getPlatform().newPlayer(player, protocolVersion);
-            TABBridge.getInstance().getPlatform().readUnlimitedNametagJoin(bp, in);
             readReplacements(in);
+            TABBridge.getInstance().getPlatform().readUnlimitedNametagJoin(bp, in);
             TABBridge.getInstance().addPlayer(bp);
 
             // Send response
-            List<Object> args = Lists.newArrayList("PlayerJoinResponse", bp.getWorld());
-            if (groupForwarding) args.add(bp.checkGroup());
-            Map<String, Object> placeholders = parsePlaceholders(bp);
-            args.add(placeholders.size());
-            for (Map.Entry<String, Object> placeholder : placeholders.entrySet()) {
-                args.add(placeholder.getKey());
-                if (placeholder.getKey().startsWith("%rel_")) {
-                    Map<String, String> perPlayer = (Map<String, String>) placeholder.getValue();
-                    args.add(perPlayer.size());
-                    for (Map.Entry<String, String> entry : perPlayer.entrySet()) {
-                        args.add(entry.getKey());
-                        args.add(entry.getValue());
-                    }
-                } else {
-                    args.add(placeholder.getValue());
-                }
-            }
             int gamemode = bp.checkGameMode();
             bp.setGameModeRaw(gamemode);
-            args.add(gamemode);
-            bp.sendMessage(args.toArray());
+            bp.sendPluginMessage(new PlayerJoinResponse(
+                    bp.getWorld(),
+                    groupForwarding ? bp.checkGroup() : null,
+                    parsePlaceholders(bp),
+                    gamemode
+            ));
             for (Placeholder placeholder : asyncPlaceholders.values()) {
                 if (placeholder instanceof RelationalPlaceholder) {
                     RelationalPlaceholder pl = (RelationalPlaceholder) placeholder;
                     for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
                         if (pl.update(viewer, bp)) {
-                            viewer.sendMessage("Placeholder", pl.getIdentifier(), bp.getName(), pl.getLastValue(viewer, bp));
+                            viewer.sendPluginMessage(new UpdateRelationalPlaceholder(pl.getIdentifier(), bp.getName(), pl.getLastValue(viewer, bp)));
                         }
                     }
                 }
@@ -113,88 +114,15 @@ public class DataBridge {
             messageQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(bytes);
             return;
         }
-        if (subChannel.equals("Placeholder")){
-            registerPlaceholder(in.readUTF(), in.readInt());
+        Supplier<IncomingMessage> supplier = registeredMessages.get(subChannel);
+        if (supplier != null) {
+            IncomingMessage msg = supplier.get();
+            msg.read(in);
+            msg.process(pl);
         }
-        if (subChannel.equals("Permission")){
-            String permission = in.readUTF();
-            pl.sendMessage("Permission", permission, pl.hasPermission(permission));
-        }
-        if (subChannel.equals("NameTagX")) {
-            TABBridge.getInstance().getPlatform().readUnlimitedNametagMessage(pl, in);
-        }
+
         if (subChannel.equals("Unload") && !retry) {
             TABBridge.getInstance().removePlayer(pl);
-        }
-        if (subChannel.equals("Expansion") && TABBridge.getInstance().getExpansion() != null) {
-            TABBridge.getInstance().getExpansion().setValue(player, in.readUTF(), in.readUTF());
-        }
-        if (subChannel.equals("PacketPlayOutScoreboardDisplayObjective")) {
-            pl.getScoreboard().setDisplaySlot(Scoreboard.DisplaySlot.values()[in.readInt()], in.readUTF());
-        }
-        if (subChannel.equals("PacketPlayOutScoreboardObjective")) {
-            String objective = in.readUTF();
-            int action = in.readInt();
-            String display = null;
-            String displayComponent = null;
-            int renderType = 0;
-            if (action == 0 || action == 2) {
-                display = in.readUTF();
-                displayComponent = in.readUTF();
-                renderType = in.readInt();
-            }
-            if (action == 0) {
-                pl.getScoreboard().registerObjective(objective, display, displayComponent, renderType == 1);
-            } else if (action == 1) {
-                pl.getScoreboard().unregisterObjective(objective);
-            } else if (action == 2) {
-                pl.getScoreboard().updateObjective(objective, display, displayComponent, renderType == 1);
-            }
-        }
-        if (subChannel.equals("PacketPlayOutScoreboardScore")) {
-            String objective = in.readUTF();
-            int action = in.readInt();
-            String playerName = in.readUTF();
-            int score = in.readInt();
-            if (action == 0) {
-                pl.getScoreboard().setScore(objective, playerName, score);
-            } else {
-                pl.getScoreboard().removeScore(objective, playerName);
-            }
-        }
-        if (subChannel.equals("PacketPlayOutScoreboardTeam")) {
-            String name = in.readUTF();
-            int action = in.readInt();
-            int playerCount = in.readInt();
-            List<String> players = new ArrayList<>();
-            for (int i=0; i<playerCount; i++) {
-                players.add(in.readUTF());
-            }
-            String prefix = null;
-            String prefixComponent = null;
-            String suffix = null;
-            String suffixComponent = null;
-            int options = 0;
-            String visibility = null;
-            String collision = null;
-            int color = 0;
-            if (action == 0 || action == 2) {
-                prefix = in.readUTF();
-                prefixComponent = in.readUTF();
-                suffix = in.readUTF();
-                suffixComponent = in.readUTF();
-                options = in.readInt();
-                visibility = in.readUTF();
-                collision = in.readUTF();
-                color = in.readInt();
-            }
-            if (action == 0) {
-                pl.getScoreboard().registerTeam(name, prefix, prefixComponent, suffix, suffixComponent, visibility, collision, players, options, color);
-            } else if (action == 1) {
-                pl.getScoreboard().unregisterTeam(name);
-            } else if (action == 2) {
-                pl.getScoreboard().updateTeam(name, prefix, prefixComponent, suffix, suffixComponent, visibility, collision, options, color);
-            }
         }
     }
 
@@ -275,7 +203,7 @@ public class DataBridge {
                 ServerPlaceholder pl = (ServerPlaceholder) placeholder;
                 if (pl.update()) {
                     for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
-                        p.sendMessage("Placeholder", pl.getIdentifier(), pl.getLastValue());
+                        p.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue()));
                     }
                 }
             }
@@ -283,7 +211,7 @@ public class DataBridge {
                 PlayerPlaceholder pl = (PlayerPlaceholder) placeholder;
                 for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
                     if (pl.update(p)) {
-                        p.sendMessage("Placeholder", pl.getIdentifier(), pl.getLastValue(p));
+                        p.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue(p)));
                     }
                 }
             }
@@ -292,7 +220,7 @@ public class DataBridge {
                 for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
                     for (BridgePlayer target : TABBridge.getInstance().getOnlinePlayers()) {
                         if (pl.update(viewer, target)) {
-                            viewer.sendMessage("Placeholder", pl.getIdentifier(), target.getName(), pl.getLastValue(viewer, target));
+                            viewer.sendPluginMessage(new UpdateRelationalPlaceholder(pl.getIdentifier(), target.getName(), pl.getLastValue(viewer, target)));
                         }
                     }
                 }

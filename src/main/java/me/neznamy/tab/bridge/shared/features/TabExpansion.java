@@ -1,5 +1,7 @@
 package me.neznamy.tab.bridge.shared.features;
 
+import me.neznamy.tab.bridge.shared.BridgePlayer;
+
 public interface TabExpansion {
 
     boolean isRegistered();
@@ -8,5 +10,5 @@ public interface TabExpansion {
 
     boolean unregister();
 
-    void setValue(Object player, String identifier, String value);
+    void setValue(BridgePlayer player, String identifier, String value);
 }

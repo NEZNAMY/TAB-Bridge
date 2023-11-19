@@ -3,12 +3,9 @@ package me.neznamy.tab.bridge.shared.placeholder;
 import com.google.common.collect.Iterables;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
+import me.neznamy.tab.bridge.shared.message.outgoing.PlaceholderError;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class ServerPlaceholder extends Placeholder {
 
@@ -36,13 +33,7 @@ public class ServerPlaceholder extends Placeholder {
         } catch (Throwable t) {
             BridgePlayer first = Iterables.getFirst(TABBridge.getInstance().getOnlinePlayers(), null);
             if (first != null) {
-                List<Object> args = new ArrayList<>();
-                args.add("PlaceholderError");
-                args.add("Server placeholder " + identifier + " generated an error");
-                args.add(t.getStackTrace().length+1);
-                args.add(t.getClass().getName() + ": " + t.getMessage());
-                args.addAll(Arrays.stream(t.getStackTrace()).map(e -> "\tat " + e.toString()).collect(Collectors.toList()));
-                first.sendMessage(args.toArray());
+                first.sendPluginMessage(new PlaceholderError("Server placeholder " + identifier + " generated an error", t));
             }
             return "<PlaceholderAPI Error>";
         } finally {

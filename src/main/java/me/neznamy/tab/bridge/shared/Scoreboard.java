@@ -1,31 +1,34 @@
 package me.neznamy.tab.bridge.shared;
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
 public interface Scoreboard {
 
-    void setDisplaySlot(@NonNull DisplaySlot slot, @NonNull String objective);
+    void setDisplaySlot(@NotNull DisplaySlot slot, @NotNull String objective);
 
-    void setScore(@NonNull String objective, @NonNull String player, int score);
+    void setScore(@NotNull String objective, @NotNull String player, int score,
+                  @Nullable String displayName, @Nullable String numberFormat);
 
-    void removeScore(@NonNull String objective, @NonNull String player);
+    void removeScore(@NotNull String objective, @NotNull String player);
 
-    void registerObjective(@NonNull String objectiveName, @NonNull String title, @NonNull String titleComponent, boolean hearts);
+    void registerObjective(@NotNull String objectiveName, @NotNull String title,
+                           boolean hearts, @Nullable String numberFormat);
 
-    void unregisterObjective(@NonNull String objectiveName);
+    void unregisterObjective(@NotNull String objectiveName);
 
-    void updateObjective(@NonNull String objectiveName, @NonNull String title, @NonNull String titleComponent, boolean hearts);
+    void updateObjective(@NotNull String objectiveName, @NotNull String title,
+                         boolean hearts, @Nullable String numberFormat);
 
-    void registerTeam(@NonNull String name, @NonNull String prefix, @NonNull String prefixComponent, @NonNull String suffix,
-                      @NonNull String suffixComponent, @NonNull String visibility,
-                      @NonNull String collision, @NonNull Collection<String> players, int options, int color);
+    void registerTeam(@NotNull String name, @NotNull String prefix, @NotNull String suffix, @NotNull String visibility,
+                      @NotNull String collision, @NotNull Collection<String> players, int options, int color);
 
-    void unregisterTeam(@NonNull String name);
+    void unregisterTeam(@NotNull String name);
 
-    void updateTeam(@NonNull String name, @NonNull String prefix, @NonNull String prefixComponent, @NonNull String suffix,
-                    @NonNull String suffixComponent, @NonNull String visibility, @NonNull String collision, int options, int color);
+    void updateTeam(@NotNull String name, @NotNull String prefix, @NotNull String suffix,
+                    @NotNull String visibility, @NotNull String collision, int options, int color);
 
     enum DisplaySlot {PLAYER_LIST, SIDEBAR, BELOW_NAME}
 }

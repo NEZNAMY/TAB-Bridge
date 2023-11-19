@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.Scoreboard;
+import me.neznamy.tab.bridge.shared.chat.IChatBaseComponent;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -239,7 +241,8 @@ public class BukkitScoreboard implements Scoreboard {
 
     @Override
     @SneakyThrows
-    public void setScore(@NonNull String objective, @NonNull String playerName, int score) {
+    public void setScore(@NonNull String objective, @NonNull String playerName, int score,
+                         @Nullable String displayName, @Nullable String numberFormat) {
         if (!available) return;
         if (minorVersion >= 13) {
             player.sendPacket(newScorePacket_1_13.newInstance(
@@ -264,22 +267,24 @@ public class BukkitScoreboard implements Scoreboard {
     }
 
     @Override
-    public void registerObjective(@NonNull String objectiveName, @NonNull String title, @NonNull String titleComponent, boolean hearts) {
-        sendObjectivePacket(0, objectiveName, title, titleComponent, hearts);
+    public void registerObjective(@NonNull String objectiveName, @NonNull String title,
+                                  boolean hearts, @Nullable String numberFormat) {
+        sendObjectivePacket(0, objectiveName, title, hearts);
     }
 
     @Override
     public void unregisterObjective(@NonNull String objectiveName) {
-        sendObjectivePacket(1, objectiveName, "", "{\"text\":\"\"}", false);
+        sendObjectivePacket(1, objectiveName, "", false);
     }
 
     @Override
-    public void updateObjective(@NonNull String objectiveName, @NonNull String title, @NonNull String titleComponent, boolean hearts) {
-        sendObjectivePacket(2, objectiveName, title, titleComponent, hearts);
+    public void updateObjective(@NonNull String objectiveName, @NonNull String title,
+                                boolean hearts, @Nullable String numberFormat) {
+        sendObjectivePacket(2, objectiveName, title, hearts);
     }
 
     @SneakyThrows
-    private void sendObjectivePacket(int action, String objectiveName, String title, String titleComponent, boolean hearts) {
+    private void sendObjectivePacket(int action, String objectiveName, String title, boolean hearts) {
         if (!available) return;
         Object display = Enum.valueOf(EnumScoreboardHealthDisplay, hearts ? "HEARTS" : "INTEGER");
         if (minorVersion >= 13) {
@@ -288,7 +293,7 @@ public class BukkitScoreboard implements Scoreboard {
                             null,
                             objectiveName,
                             null,
-                            deserialize(titleComponent),
+                            toComponent(title),
                             display
                     ), action
             ));
@@ -304,8 +309,7 @@ public class BukkitScoreboard implements Scoreboard {
 
     @Override
     @SneakyThrows
-    public void registerTeam(@NonNull String name, @NonNull String prefix, @NonNull String prefixComponent,
-                             @NonNull String suffix, @NonNull String suffixComponent, @NonNull String visibility,
+    public void registerTeam(@NonNull String name, @NonNull String prefix, @NonNull String suffix, @NonNull String visibility,
                              @NonNull String collision, @NonNull Collection<String> players, int options, int color) {
         if (!available) return;
         Object team = newScoreboardTeam.newInstance(emptyScoreboard, name);
@@ -315,8 +319,8 @@ public class BukkitScoreboard implements Scoreboard {
         ScoreboardTeam_setNameTagVisibility.invoke(team, Enum.valueOf(EnumNameTagVisibility, visibility.equals("always") ? "ALWAYS" : "NEVER"));
         if (minorVersion >= 9) ScoreboardTeam_setCollisionRule.invoke(team, Enum.valueOf(EnumTeamPush, collision.equals("always") ? "ALWAYS" : "NEVER"));
         if (minorVersion >= 13) {
-            ScoreboardTeam_setPrefix.invoke(team, deserialize(prefixComponent));
-            ScoreboardTeam_setSuffix.invoke(team, deserialize(suffixComponent));
+            ScoreboardTeam_setPrefix.invoke(team, toComponent(prefix));
+            ScoreboardTeam_setSuffix.invoke(team, toComponent(suffix));
             ScoreboardTeam_setColor.invoke(team, EnumChatFormat_values[color]);
         } else {
             ScoreboardTeam_setPrefix.invoke(team, prefix);
@@ -345,8 +349,7 @@ public class BukkitScoreboard implements Scoreboard {
 
     @Override
     @SneakyThrows
-    public void updateTeam(@NonNull String name, @NonNull String prefix, @NonNull String prefixComponent,
-                           @NonNull String suffix, @NonNull String suffixComponent, @NonNull String visibility,
+    public void updateTeam(@NonNull String name, @NonNull String prefix, @NonNull String suffix, @NonNull String visibility,
                            @NonNull String collision, int options, int color) {
         if (!available) return;
         Object team = newScoreboardTeam.newInstance(emptyScoreboard, name);
@@ -355,8 +358,8 @@ public class BukkitScoreboard implements Scoreboard {
         ScoreboardTeam_setNameTagVisibility.invoke(team, Enum.valueOf(EnumNameTagVisibility, visibility.equals("always") ? "ALWAYS" : "NEVER"));
         if (minorVersion >= 9) ScoreboardTeam_setCollisionRule.invoke(team, Enum.valueOf(EnumTeamPush, collision.equals("always") ? "ALWAYS" : "NEVER"));
         if (minorVersion >= 13) {
-            ScoreboardTeam_setPrefix.invoke(team, deserialize(prefixComponent));
-            ScoreboardTeam_setSuffix.invoke(team, deserialize(suffixComponent));
+            ScoreboardTeam_setPrefix.invoke(team, toComponent(prefix));
+            ScoreboardTeam_setSuffix.invoke(team, toComponent(suffix));
             ScoreboardTeam_setColor.invoke(team, EnumChatFormat_values[color]);
         } else {
             ScoreboardTeam_setPrefix.invoke(team, prefix);
@@ -379,7 +382,11 @@ public class BukkitScoreboard implements Scoreboard {
     }
 
     @SneakyThrows
-    private Object deserialize(String string) {
-        return DESERIALIZE.invoke(null, string);
+    private Object deserialize(String json) {
+        return DESERIALIZE.invoke(null, json);
+    }
+
+    private Object toComponent(String string) {
+        return deserialize(IChatBaseComponent.optimizedComponent(string).toString(player.getProtocolVersion()));
     }
 }

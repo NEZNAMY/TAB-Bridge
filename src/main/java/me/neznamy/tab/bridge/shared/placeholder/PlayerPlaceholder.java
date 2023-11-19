@@ -2,13 +2,11 @@ package me.neznamy.tab.bridge.shared.placeholder;
 
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
+import me.neznamy.tab.bridge.shared.message.outgoing.PlaceholderError;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class PlayerPlaceholder extends Placeholder {
 
@@ -34,13 +32,7 @@ public class PlayerPlaceholder extends Placeholder {
         try {
             return function.apply(player);
         } catch (Throwable t) {
-            ArrayList<Object> args = new ArrayList<>();
-            args.add("PlaceholderError");
-            args.add("Player placeholder " + identifier + " generated an error when setting for player " + player.getName());
-            args.add(t.getStackTrace().length+1);
-            args.add(t.getClass().getName() + ": " + t.getMessage());
-            args.addAll(Arrays.stream(t.getStackTrace()).map(e -> "\tat " + e.toString()).collect(Collectors.toList()));
-            player.sendMessage(args.toArray());
+            player.sendPluginMessage(new PlaceholderError("Player placeholder " + identifier + " generated an error when setting for player " + player.getName(), t));
             return "<PlaceholderAPI Error>";
         } finally {
             long timeDiff = System.currentTimeMillis() - time;

@@ -10,6 +10,7 @@ import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.Platform;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.features.TabExpansion;
+import me.neznamy.tab.bridge.shared.message.outgoing.WorldChange;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -39,7 +40,9 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
         instance = this;
         boolean folia = ReflectionUtils.classExists("io.papermc.paper.threadedregions.RegionizedServer");
         Platform platform = folia ? new FoliaPlatform(this) : new BukkitPlatform(this);
-        TABBridge.setInstance(new TABBridge(platform, Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") ? new BridgeTabExpansion() : null));
+        BridgeTabExpansion expansion = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") ? new BridgeTabExpansion() : null;
+        TABBridge.setInstance(new TABBridge(platform, expansion));
+        if (expansion != null) expansion.register();
         try {
             NMSStorage.setInstance(new NMSStorage());
         } catch (ReflectiveOperationException e) {
@@ -86,7 +89,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
     public void onWorldChange(PlayerChangedWorldEvent e) {
         BridgePlayer p = TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
         if (p == null) return;
-        p.sendMessage("World", e.getPlayer().getWorld().getName());
+        p.sendPluginMessage(new WorldChange(e.getPlayer().getWorld().getName()));
     }
 
     @Override
