@@ -16,6 +16,7 @@ dependencies {
     compileOnly(libs.papi)
     compileOnly(libs.vault)
     compileOnly(libs.netty)
+    compileOnly("net.luckperms:api:5.4")
     compileOnly("net.kyori:adventure-api:4.13.0")
     compileOnly("net.kyori:adventure-text-serializer-legacy:4.13.0")
     compileOnly("net.kyori:adventure-text-minimessage:4.13.0")
