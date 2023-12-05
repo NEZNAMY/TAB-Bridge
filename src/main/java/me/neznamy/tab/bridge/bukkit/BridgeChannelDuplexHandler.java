@@ -28,7 +28,7 @@ public class BridgeChannelDuplexHandler extends ChannelDuplexHandler {
                 if (BukkitBridge.getInstance().nametagx.isEnabled()) {
                     BukkitBridge.getInstance().nametagx.getPacketListener().onPacketSend(p, packet);
                 }
-                if (BukkitScoreboard.isAvailable() && BukkitScoreboard.TeamPacketClass.isInstance(packet)) {
+                if (BukkitScoreboard.isAvailable() && BukkitScoreboard.teamPacketData.TeamPacketClass.isInstance(packet)) {
                     modifyPlayers(packet);
                 }
             }
@@ -45,10 +45,10 @@ public class BridgeChannelDuplexHandler extends ChannelDuplexHandler {
         BukkitScoreboard scoreboard = (BukkitScoreboard) bp.getScoreboard();
         NMSStorage nms = NMSStorage.getInstance();
         if (nms == null) return;
-        int action = BukkitScoreboard.TeamPacket_ACTION.getInt(packetPlayOutScoreboardTeam);
+        int action = BukkitScoreboard.teamPacketData.TeamPacket_ACTION.getInt(packetPlayOutScoreboardTeam);
         if (action == 1 || action == 2 || action == 4) return;
-        Collection<String> players = (Collection<String>) BukkitScoreboard.TeamPacket_PLAYERS.get(packetPlayOutScoreboardTeam);
-        String teamName = (String) BukkitScoreboard.TeamPacket_NAME.get(packetPlayOutScoreboardTeam);
+        Collection<String> players = (Collection<String>) BukkitScoreboard.teamPacketData.TeamPacket_PLAYERS.get(packetPlayOutScoreboardTeam);
+        String teamName = (String) BukkitScoreboard.teamPacketData.TeamPacket_NAME.get(packetPlayOutScoreboardTeam);
         if (players == null) return;
         //creating a new list to prevent NoSuchFieldException in minecraft packet encoder when a player is removed
         Collection<String> newList = new ArrayList<>();
@@ -64,6 +64,6 @@ public class BridgeChannelDuplexHandler extends ChannelDuplexHandler {
                 newList.add(entry);
             }
         }
-        BukkitScoreboard.TeamPacket_PLAYERS.set(packetPlayOutScoreboardTeam, newList);
+        BukkitScoreboard.teamPacketData.TeamPacket_PLAYERS.set(packetPlayOutScoreboardTeam, newList);
     }
 }

@@ -2,7 +2,6 @@ package me.neznamy.tab.bridge.shared.message.incoming;
 
 import com.google.common.io.ByteArrayDataInput;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
-import me.neznamy.tab.bridge.shared.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 
 public class SetDisplayObjective implements IncomingMessage {
@@ -18,6 +17,6 @@ public class SetDisplayObjective implements IncomingMessage {
 
     @Override
     public void process(@NotNull BridgePlayer player) {
-        player.getScoreboard().setDisplaySlot(Scoreboard.DisplaySlot.values()[slot], objective);
+        player.getScoreboard().setDisplaySlot(slot, objective);
     }
 }

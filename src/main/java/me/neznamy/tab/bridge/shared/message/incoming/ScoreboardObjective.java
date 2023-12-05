@@ -28,11 +28,11 @@ public class ScoreboardObjective implements IncomingMessage {
     @Override
     public void process(@NotNull BridgePlayer player) {
         if (action == 0) {
-            player.getScoreboard().registerObjective(objective, title, renderType == 1, numberFormat);
+            player.getScoreboard().registerObjective(objective, title, renderType, numberFormat);
         } else if (action == 1) {
             player.getScoreboard().unregisterObjective(objective);
         } else if (action == 2) {
-            player.getScoreboard().updateObjective(objective, title, renderType == 1, numberFormat);
+            player.getScoreboard().updateObjective(objective, title, renderType, numberFormat);
         }
     }
 }

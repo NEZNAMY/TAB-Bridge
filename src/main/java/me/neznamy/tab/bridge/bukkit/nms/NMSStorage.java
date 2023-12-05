@@ -7,14 +7,12 @@ import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.BukkitScoreboard;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-@SuppressWarnings({"rawtypes"})
 public class NMSStorage {
 
     //instance of this class
@@ -42,12 +40,9 @@ public class NMSStorage {
         DESERIALIZE = ReflectionUtils.getMethods(ChatSerializer, Object.class, String.class).get(0);
         DataWatcher.load(this);
         PacketEntityView.load();
-        try {
-            BukkitScoreboard.load(this);
-        } catch (ReflectiveOperationException e) {
+        if (!BukkitScoreboard.isAvailable())
             Bukkit.getConsoleSender().sendMessage("\u00a7c[TAB-Bridge] Failed to initialize Scoreboard fields due to " +
                     "a compatibility issue, plugin functionality will be limited.");
-        }
     }
 
     /**
@@ -86,37 +81,6 @@ public class NMSStorage {
                 //maybe fabric?
                 return Class.forName(name);
             }
-        }
-    }
-
-    /**
-     * Returns class with given potential names in same order
-     *
-     * @param   names
-     *          possible class names
-     * @return  class for specified names
-     * @throws  ClassNotFoundException
-     *          if class does not exist
-     */
-    public Class<?> getLegacyClass(@NotNull String... names) throws ClassNotFoundException {
-        for (String name : names) {
-            try {
-                return getLegacyClass(name);
-            } catch (ClassNotFoundException e) {
-                //not the first class name in array
-            }
-        }
-        throw new ClassNotFoundException("No class found with possible names " + Arrays.toString(names));
-    }
-
-    public Enum[] getEnumValues(Class<?> enumClass) {
-        if (enumClass == null) throw new IllegalArgumentException("Class cannot be null");
-        if (!enumClass.isEnum()) throw new IllegalArgumentException(enumClass.getName() + " is not an enum class");
-        try {
-            return (Enum[]) enumClass.getMethod("values").invoke(null);
-        } catch (ReflectiveOperationException e) {
-            //this should never happen
-            return new Enum[0];
         }
     }
 }
