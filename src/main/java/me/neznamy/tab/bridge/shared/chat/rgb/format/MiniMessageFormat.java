@@ -12,11 +12,13 @@ public class MiniMessageFormat implements RGBFormatter {
 
     @Override
     public @NotNull String reformat(@NotNull String text) {
-        if (text.contains("<") && !text.contains(EnumChatFormat.COLOR_STRING)) {
-            try {
-                return LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize(text));
-            } catch (Throwable ignored) {}
+        if (!text.contains("<")) return text; // User did not even attempt to use MiniMessage
+        String modified = text.replace(EnumChatFormat.WHITE.getFormat(), "<white>"); // Forced &f in scoreboard
+        if (modified.contains(EnumChatFormat.COLOR_STRING)) return text;
+        try {
+            return LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize(modified));
+        } catch (Throwable ignored) {
+            return text;
         }
-        return text;
     }
 }
