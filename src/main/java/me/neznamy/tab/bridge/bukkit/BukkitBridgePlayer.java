@@ -39,7 +39,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
     public void sendPluginMessage(byte[] message) {
         // 1.20.2 bug adding it with a significant delay, add ourselves to make it work
         // apparently it affects those players on older server version as well, so do this always
-        ((Set<String>) ReflectionUtils.getFields(player.getClass(), Set.class).get(0).get(player)).add(TABBridge.CHANNEL_NAME);
+        ((Set<String>) ReflectionUtils.getField(player.getClass(), "channels").get(player)).add(TABBridge.CHANNEL_NAME);
         player.sendPluginMessage(BukkitBridge.getInstance(), TABBridge.CHANNEL_NAME, message);
     }
 
