@@ -16,7 +16,6 @@ import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,8 +47,10 @@ public class DataBridge {
     }};
 
     public void startTasks() {
-        TABBridge.getInstance().getPlatform().scheduleSyncRepeatingTask(() -> updatePlaceholders(syncPlaceholders.values(), false), 1);
-        TABBridge.getInstance().getPlaceholderThread().scheduleAtFixedRate(() -> updatePlaceholders(asyncPlaceholders.values(), false), 50, 50, TimeUnit.MILLISECONDS);
+        TABBridge.getInstance().getPlatform().scheduleSyncRepeatingTask(() ->
+                updatePlaceholders(syncPlaceholders.values()), 1);
+        TABBridge.getInstance().getPlaceholderThread().scheduleAtFixedRate(() ->
+                updatePlaceholders(asyncPlaceholders.values()), 50, 50, TimeUnit.MILLISECONDS);
         TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
             for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
                 player.setVanished(player.checkVanish());
@@ -79,10 +80,10 @@ public class DataBridge {
             int protocolVersion = in.readInt();
             groupForwarding = in.readBoolean();
             int placeholderCount = in.readInt();
-            for (int i=0; i<placeholderCount; i++) {
-                registerPlaceholder(in.readUTF(), in.readInt());
-            }
             BridgePlayer bp = TABBridge.getInstance().getPlatform().newPlayer(player, protocolVersion);
+            for (int i=0; i<placeholderCount; i++) {
+                registerPlaceholder(bp, in.readUTF(), in.readInt());
+            }
             readReplacements(in);
             TABBridge.getInstance().getPlatform().readUnlimitedNametagJoin(bp, in);
             TABBridge.getInstance().addPlayer(bp);
@@ -147,7 +148,7 @@ public class DataBridge {
         list.forEach(msg -> processPluginMessage(player, msg, true));
     }
 
-    public void registerPlaceholder(String identifier, int refresh) {
+    public void registerPlaceholder(BridgePlayer player, String identifier, int refresh) {
         if (syncPlaceholders.containsKey(identifier)) {
             syncPlaceholders.get(identifier).setRefresh(refresh);
         } else if (asyncPlaceholders.containsKey(identifier)) {
@@ -169,9 +170,10 @@ public class DataBridge {
             }
         }
         if (identifier.startsWith("%sync:")) {
-            TABBridge.getInstance().getPlatform().runTask(() -> updatePlaceholders(Collections.singletonList(syncPlaceholders.get(identifier)), true));
+            TABBridge.getInstance().getPlatform().runTask(() ->
+                    updatePlaceholder(syncPlaceholders.get(identifier), true, player));
         } else {
-            updatePlaceholders(Collections.singletonList(asyncPlaceholders.get(identifier)), true);
+            updatePlaceholder(asyncPlaceholders.get(identifier), true, player);
         }
     }
 
@@ -196,33 +198,33 @@ public class DataBridge {
         return outputs;
     }
 
-    private void updatePlaceholders(Collection<Placeholder> placeholders, boolean force) {
+    private void updatePlaceholders(Collection<Placeholder> placeholders) {
         for (Placeholder placeholder : placeholders) {
-            if (!placeholder.isInPeriod() && !force) continue;
-            if (placeholder instanceof ServerPlaceholder) {
-                ServerPlaceholder pl = (ServerPlaceholder) placeholder;
-                if (pl.update()) {
-                    for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
-                        p.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue()));
-                    }
-                }
+            if (!placeholder.isInPeriod()) continue;
+            for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
+                updatePlaceholder(placeholder, false, player);
             }
-            if (placeholder instanceof PlayerPlaceholder) {
-                PlayerPlaceholder pl = (PlayerPlaceholder) placeholder;
-                for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
-                    if (pl.update(p)) {
-                        p.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue(p)));
-                    }
-                }
+        }
+    }
+
+    private void updatePlaceholder(Placeholder placeholder, boolean force, BridgePlayer player) {
+        if (placeholder instanceof ServerPlaceholder) {
+            ServerPlaceholder pl = (ServerPlaceholder) placeholder;
+            if (pl.update() || force) {
+                player.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue()));
             }
-            if (placeholder instanceof RelationalPlaceholder) {
-                RelationalPlaceholder pl = (RelationalPlaceholder) placeholder;
-                for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
-                    for (BridgePlayer target : TABBridge.getInstance().getOnlinePlayers()) {
-                        if (pl.update(viewer, target)) {
-                            viewer.sendPluginMessage(new UpdateRelationalPlaceholder(pl.getIdentifier(), target.getName(), pl.getLastValue(viewer, target)));
-                        }
-                    }
+        }
+        if (placeholder instanceof PlayerPlaceholder) {
+            PlayerPlaceholder pl = (PlayerPlaceholder) placeholder;
+            if (pl.update(player) || force) {
+                player.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue(player)));
+            }
+        }
+        if (placeholder instanceof RelationalPlaceholder) {
+            RelationalPlaceholder pl = (RelationalPlaceholder) placeholder;
+            for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
+                if (pl.update(viewer, player) || force) {
+                    viewer.sendPluginMessage(new UpdateRelationalPlaceholder(pl.getIdentifier(), player.getName(), pl.getLastValue(viewer, player)));
                 }
             }
         }
