@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @AllArgsConstructor
 public abstract class Placeholder {
 
+    protected static final boolean PRINT_WARNS = true;
+
     @Getter protected final String identifier;
     @Setter private int refresh;
     private final AtomicInteger atomicInteger = new AtomicInteger();
