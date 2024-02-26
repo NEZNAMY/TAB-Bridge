@@ -4,6 +4,7 @@ import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.TABBridge;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 import java.util.List;
@@ -42,9 +43,9 @@ public class PacketListener {
         if (receiver.getProtocolVersion() < 47) return;
         if (nameTagX.isPlayerDisabled(receiver) || nameTagX.getDisabledUnlimitedPlayers().contains(receiver)) return;
         if (receiver.getEntityView().isMovePacket(packet) && !receiver.getEntityView().isLookPacket(packet)) { //ignoring head rotation only packets
-            onEntityMove(receiver, receiver.getEntityView().getMoveEntityId(packet));
+            onEntityMove(receiver, receiver.getEntityView().getMoveEntityId(packet), receiver.getEntityView().getMoveDiff(packet));
         } else if (receiver.getEntityView().isTeleportPacket(packet)) {
-            onEntityMove(receiver, receiver.getEntityView().getTeleportEntityId(packet));
+            onEntityTeleport(receiver, receiver.getEntityView().getTeleportEntityId(packet));
         } else if (receiver.getEntityView().isNamedEntitySpawnPacket(packet)) {
             onEntitySpawn(receiver, receiver.getEntityView().getSpawnedPlayer(packet));
         } else if (receiver.getEntityView().isDestroyPacket(packet)) {
@@ -52,12 +53,33 @@ public class PacketListener {
         }
     }
 
+    private void onEntityMove(BukkitBridgePlayer receiver, int entityId, Location diff) {
+        BridgePlayer pl = entityIdMap.get(entityId);
+        List<Entity> vehicleList;
+        if (pl != null) {
+            //player moved
+            if (nameTagX.isPlayerDisabled(pl)) return;
+            TABBridge.getInstance().submitTask(() -> {
+                ArmorStandManager asm = nameTagX.getArmorStandManager(pl);
+                if (asm != null) asm.move(receiver, diff);
+            });
+        } else if ((vehicleList = nameTagX.getVehicleManager().getVehicles().get(entityId)) != null){
+            //a vehicle carrying something moved
+            for (Entity entity : vehicleList) {
+                BridgePlayer passenger = entityIdMap.get(entity.getEntityId());
+                if (passenger != null && nameTagX.getArmorStandManager(passenger) != null) {
+                    TABBridge.getInstance().submitTask(() -> nameTagX.getArmorStandManager(passenger).move(receiver, diff));
+                }
+            }
+        }
+    }
+
     /**
-     * Processes entity move packet
+     * Processes entity teleport packet
      * @param receiver - packet receiver
-     * @param entityId - entity that moved
+     * @param entityId - entity that teleported
      */
-    private void onEntityMove(BukkitBridgePlayer receiver, int entityId) {
+    private void onEntityTeleport(BukkitBridgePlayer receiver, int entityId) {
         BridgePlayer pl = entityIdMap.get(entityId);
         List<Entity> vehicleList;
         if (pl != null) {

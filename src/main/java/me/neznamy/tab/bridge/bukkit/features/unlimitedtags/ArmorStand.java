@@ -117,8 +117,21 @@ public class ArmorStand {
         }
     }
 
+    public void move(BukkitBridgePlayer viewer, Location diff) {
+        if (!manager.getArmorStandManager(player).isNearby(viewer) && viewer != player) {
+            manager.getArmorStandManager(player).spawn(viewer);
+        } else {
+            viewer.getEntityView().moveEntity(entityId, diff);
+        }
+    }
+
     public void sneak(boolean sneaking) {
         this.sneaking = sneaking;
+        if (player.getPlayer().isFlying()) {
+            // Do not teleport if flying to keep in sync with vanilla position bug
+            updateMetadata();
+            return;
+        }
         for (BukkitBridgePlayer viewer : manager.getArmorStandManager(player).getNearbyPlayers()) {
             if (viewer.getProtocolVersion() >= 480 && viewer.getProtocolVersion() <= 498 && !alwaysVisible) {
                 //1.14.x client sided bug, de-spawning completely

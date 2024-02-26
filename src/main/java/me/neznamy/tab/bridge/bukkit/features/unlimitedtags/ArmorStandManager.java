@@ -1,6 +1,7 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
+import org.bukkit.Location;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -23,7 +24,10 @@ public class ArmorStandManager {
 
     private BukkitBridgePlayer[] nearbyPlayerArray = new BukkitBridgePlayer[0];
 
+    private final BukkitBridgePlayer owner;
+
     public ArmorStandManager(BridgeNameTagX nameTagX, BukkitBridgePlayer owner) {
+        this.owner = owner;
         double height = 0;
         for (String line : nameTagX.getDynamicLines()) {
             ArmorStands.put(line, new ArmorStand(owner, height, false));
@@ -56,6 +60,10 @@ public class ArmorStandManager {
     
     public void teleport(BukkitBridgePlayer viewer) {
         for (ArmorStand a : ArmorStandArray) a.teleport(viewer);
+    }
+
+    public void move(BukkitBridgePlayer viewer, Location diff) {
+        for (ArmorStand a : ArmorStandArray) a.move(viewer, diff);
     }
 
     public void updateVisibility(boolean force) {
