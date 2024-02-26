@@ -11,7 +11,7 @@ group = "me.neznamy"
 version = "5.0.2"
 
 dependencies {
-    implementation(libs.annotations)
+    compileOnly(libs.annotations)
     compileOnly(libs.bukkit)
     compileOnly(libs.papi)
     compileOnly(libs.vault)
@@ -20,7 +20,8 @@ dependencies {
     compileOnly("net.kyori:adventure-api:4.13.0")
     compileOnly("net.kyori:adventure-text-serializer-legacy:4.13.0")
     compileOnly("net.kyori:adventure-text-minimessage:4.13.0")
-    implementation(libs.plugin.lombok)
+    compileOnly(libs.plugin.lombok)
+    implementation("org.bstats:bstats-bukkit:3.0.1")
 }
 
 publishing {
@@ -35,6 +36,10 @@ tasks {
     }
     shadowJar {
         archiveFileName.set("TAB-Bridge-${project.version}.jar")
+        relocate("org.bstats", "me.neznamy.tab.bridge.libs.org.bstats")
+    }
+    build {
+        dependsOn(shadowJar)
     }
     processResources {
         filesMatching("plugin.yml") {

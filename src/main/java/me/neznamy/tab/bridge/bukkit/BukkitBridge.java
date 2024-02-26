@@ -12,6 +12,7 @@ import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import me.neznamy.tab.bridge.shared.message.outgoing.WorldChange;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -56,6 +57,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
             TABBridge.getInstance().getPlatform().inject(p, new BridgeChannelDuplexHandler(p));
         }
         TABBridge.getInstance().getDataBridge().startTasks();
+        new Metrics(this, 20810);
     }
 
     public void onDisable() {
