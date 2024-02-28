@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public class BridgeChannelDuplexHandler extends ChannelDuplexHandler {
                         " (expected team: " + expectedTeam + ")";
                 if (!msg.equals(lastConsoleMessage)) {
                     lastConsoleMessage = msg;
-                    Bukkit.getConsoleSender().sendMessage(msg);
+                    //Bukkit.getConsoleSender().sendMessage(msg);
                 }
             } else {
                 newList.add(entry);
