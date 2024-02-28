@@ -55,7 +55,8 @@ public class BridgeChannelDuplexHandler extends ChannelDuplexHandler {
         for (String entry : players) {
             String expectedTeam = scoreboard.getExpectedTeams().get(entry);
             if (expectedTeam != null && !expectedTeam.equals(teamName)) {
-                String msg = "[TAB-Bridge] Blocked attempt to add player " + entry + " into team " + teamName;
+                String msg = "[TAB-Bridge] Blocked attempt to add player " + entry + " into team " + teamName +
+                        " (expected team: " + expectedTeam + ")";
                 if (!msg.equals(lastConsoleMessage)) {
                     lastConsoleMessage = msg;
                     Bukkit.getConsoleSender().sendMessage(msg);
