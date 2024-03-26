@@ -24,10 +24,7 @@ public class ArmorStandManager {
 
     private BukkitBridgePlayer[] nearbyPlayerArray = new BukkitBridgePlayer[0];
 
-    private final BukkitBridgePlayer owner;
-
     public ArmorStandManager(BridgeNameTagX nameTagX, BukkitBridgePlayer owner) {
-        this.owner = owner;
         double height = 0;
         for (String line : nameTagX.getDynamicLines()) {
             ArmorStands.put(line, new ArmorStand(owner, height, false));

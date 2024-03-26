@@ -40,6 +40,7 @@ public class BridgeNameTagX implements Listener {
     private final EventListener eventListener = new EventListener(this);
 
     private final Map<BridgePlayer, ArmorStandManager> armorStandManagerMap = new WeakHashMap<>();
+    @Getter
     private final Set<BridgePlayer> playersPreviewingNameTag = Collections.newSetFromMap(new WeakHashMap<>());
     private final Set<BridgePlayer> playersWithHiddenVisibilityView = Collections.newSetFromMap(new WeakHashMap<>());
 
@@ -56,10 +57,6 @@ public class BridgeNameTagX implements Listener {
 
     public boolean isPlayerDisabled(BridgePlayer player) {
         return disabledUnlimitedPlayers.contains(player) || playersDisabledWithAPI.contains(player);
-    }
-
-    public Set<BridgePlayer> getPlayersPreviewingNameTag() {
-        return playersPreviewingNameTag;
     }
 
     private void spawnArmorStands(BukkitBridgePlayer viewer, BukkitBridgePlayer target) {

@@ -13,7 +13,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,8 +37,7 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
     // Objective packet
     public static Class<?> ObjectivePacketClass;
     private static Constructor<?> newObjectivePacket;
-    public static Field Objective_OBJECTIVE_NAME;
-    public static Field Objective_METHOD;
+
     private static Field Objective_RENDER_TYPE;
     private static Constructor<?> newScoreboardObjective;
     private static Method ScoreboardObjective_setDisplayName;
@@ -73,9 +71,6 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
                     "Packet206SetScoreboardObjective" // 1.5 - 1.6.4
             );
             emptyScoreboard = Scoreboard.getConstructor().newInstance();
-            Objective_OBJECTIVE_NAME = ReflectionUtils.getFields(ObjectivePacketClass, String.class).get(0);
-            List<Field> list = ReflectionUtils.getFields(ObjectivePacketClass, int.class);
-            Objective_METHOD = list.get(list.size()-1);
             newObjectivePacket = ObjectivePacketClass.getConstructor(ScoreboardObjective, int.class);
             IScoreboardCriteria_dummy = ReflectionUtils.getFields(IScoreboardCriteria, IScoreboardCriteria).get(0).get(null);
             newScoreboardObjective = ReflectionUtils.getOnlyConstructor(ScoreboardObjective);
@@ -500,8 +495,6 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
 
         public final Class<?> DisplayObjectiveClass;
         private final Constructor<?> newDisplayObjective;
-        public final Field DisplayObjective_POSITION;
-        public final Field DisplayObjective_OBJECTIVE_NAME;
         private final Object[] displaySlots;
 
         @SneakyThrows
@@ -512,15 +505,12 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
                     "PacketPlayOutScoreboardDisplayObjective", // Bukkit 1.7 - 1.16.5
                     "Packet208SetScoreboardDisplayObjective" // Bukkit 1.5 - 1.6.4
             );
-            DisplayObjective_OBJECTIVE_NAME = ReflectionUtils.getOnlyField(DisplayObjectiveClass, String.class);
             if (BukkitReflection.is1_20_2Plus()) {
                 Class<?> DisplaySlot = BukkitReflection.getClass("world.scores.DisplaySlot");
                 displaySlots = (Object[]) DisplaySlot.getDeclaredMethod("values").invoke(null);
-                DisplayObjective_POSITION = ReflectionUtils.getOnlyField(DisplayObjectiveClass, DisplaySlot);
                 newDisplayObjective = DisplayObjectiveClass.getConstructor(DisplaySlot, ScoreboardObjective);
             } else {
                 displaySlots = new Object[]{0, 1, 2};
-                DisplayObjective_POSITION = ReflectionUtils.getOnlyField(DisplayObjectiveClass, int.class);
                 newDisplayObjective = DisplayObjectiveClass.getConstructor(int.class, ScoreboardObjective);
             }
         }

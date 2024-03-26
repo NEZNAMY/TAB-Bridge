@@ -297,20 +297,6 @@ public class IChatBaseComponent {
     }
 
     /**
-     * Returns raw text without colors, only works correctly when component is organized
-     *
-     * @return  raw text in this component and all child components
-     */
-    public @NotNull String toRawText() {
-        StringBuilder builder = new StringBuilder();
-        if (text != null) builder.append(text);
-        for (IChatBaseComponent child : getExtra()) {
-            if (child.text != null) builder.append(child.text);
-        }
-        return builder.toString();
-    }
-
-    /**
      * Returns the most optimized component based on text. Returns null if text is null,
      * organized component if RGB colors are used or simple component with only text field
      * containing the whole text when no RGB colors are used

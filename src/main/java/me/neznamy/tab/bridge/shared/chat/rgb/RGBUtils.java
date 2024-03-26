@@ -1,7 +1,6 @@
 package me.neznamy.tab.bridge.shared.chat.rgb;
 
 import lombok.Getter;
-import me.neznamy.tab.bridge.shared.chat.IChatBaseComponent;
 import me.neznamy.tab.bridge.shared.chat.rgb.format.*;
 import me.neznamy.tab.bridge.shared.chat.rgb.gradient.CMIGradient;
 import me.neznamy.tab.bridge.shared.chat.rgb.gradient.CommonGradient;
@@ -71,35 +70,6 @@ public class RGBUtils {
             replaced = formatter.reformat(replaced);
         }
         return replaced;
-    }
-
-    /**
-     * Applies all gradient formats to text and returns it. This only affects
-     * usage where no placeholder is used inside.
-     *
-     * @param   text
-     *          original text
-     * @return  text where all gradients with static text are converted to #RRGGBB
-     */
-    public @NotNull String applyCleanGradients(@NotNull String text) {
-        String replaced = text;
-        for (GradientPattern pattern : gradients) {
-            replaced = pattern.applyPattern(replaced, true);
-        }
-        return replaced;
-    }
-
-    /**
-     * Converts all hex codes in given string to legacy codes.
-     * Also removes redundant color codes caused by this operation
-     * to properly fit in limits.
-     *
-     * @param   text
-     *          text to convert
-     * @return  translated text
-     */
-    public @NotNull String convertRGBtoLegacy(@NotNull String text) {
-        return IChatBaseComponent.fromColoredText(text).toLegacyText();
     }
 
     /**

@@ -1,13 +1,13 @@
 package me.neznamy.tab.bridge.shared.chat;
 
 import lombok.Getter;
-import me.neznamy.tab.bridge.shared.chat.rgb.RGBUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * An enum containing all possible legacy color codes and magic codes. Also contains handy color-related methods.
  */
+@Getter
 public enum EnumChatFormat {
 
     BLACK('0', 0x000000),
@@ -43,22 +43,22 @@ public enum EnumChatFormat {
     public static final String COLOR_STRING = String.valueOf(COLOR_CHAR);
 
     /** Character representing the color or magic code */
-    @Getter private final char character;
+    private final char character;
 
     /** Red value of this constant, 0 for magic codes */
-    @Getter private final short red;
+    private final short red;
 
     /** Green value of this constant, 0 for magic codes */
-    @Getter private final short green;
+    private final short green;
 
     /** Blue value of this constant, 0 for magic codes */
-    @Getter private final short blue;
+    private final short blue;
 
     /** Color as a hex code, 0 for magic codes */
-    @Getter private final int hexCode;
+    private final int hexCode;
 
     /** Color symbol followed by constant's character */
-    @Getter private final String format;
+    private final String format;
 
     /**
      * Constructs new color instance with given character and hex code
@@ -107,27 +107,6 @@ public enum EnumChatFormat {
     }
 
     /**
-     * Returns enum value of last colors used in given string.
-     * If it's null, empty or does not contain color codes, WHITE is returned.
-     *
-     * @param   string
-     *          string to check last colors of
-     * @return  last used color code in given string or WHITE if nothing is found
-     */
-    public static @NotNull EnumChatFormat lastColorsOf(@NotNull String string) {
-        if (string.length() == 0) return EnumChatFormat.WHITE;
-        String legacyText = RGBUtils.getInstance().convertRGBtoLegacy(string);
-        String last = getLastColors(legacyText);
-        if (last.length() > 0) {
-            char c = last.toCharArray()[1];
-            for (EnumChatFormat e : VALUES) {
-                if (e.character == c) return e;
-            }
-        }
-        return EnumChatFormat.WHITE;
-    }
-
-    /**
      * Returns enum value with exact red, green and blue values or null if no match was found
      *
      * @param   red
@@ -163,18 +142,6 @@ public enum EnumChatFormat {
             }
         }
         return new String(b);
-    }
-
-    /**
-     * Turns back the color symbol into '&amp;' symbol in provided text.
-     *
-     * @param   text
-     *          text to revert colors in
-     * @return  reverted text
-     */
-    public static @NotNull String decolor(@NotNull String text) {
-        if (!text.contains(COLOR_STRING)) return text;
-        return text.replace(COLOR_CHAR, '&');
     }
 
     /**

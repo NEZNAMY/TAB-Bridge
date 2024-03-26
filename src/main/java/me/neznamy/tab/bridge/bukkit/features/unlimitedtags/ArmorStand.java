@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
+import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
@@ -48,6 +49,7 @@ public class ArmorStand {
     //armor stand visibility
     private boolean visible;
 
+    @Getter
     private String text = "";
 
     //if offset is static or dynamic based on other armor stands
@@ -67,10 +69,6 @@ public class ArmorStand {
         manager.getArmorStandManager(player).fixArmorStandHeights();
     }
 
-    public String getText() {
-        return text;
-    }
-    
     public void refresh() {
         visible = getVisibility();
         updateMetadata();
