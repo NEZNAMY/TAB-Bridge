@@ -8,10 +8,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public class UnnamedFormat1 implements RGBFormatter {
 
-    private final String format = EnumChatFormat.COLOR_STRING + "#";
+    private final String formatNew = EnumChatFormat.COLOR_STRING + "#"; // 4.1.3+
+    private final String formatOld = "&#"; // 4.1.2-
 
     @Override
     public @NotNull String reformat(@NotNull String text) {
-        return text.contains(format) ? text.replace(format, "#") : text;
+        return text.contains(formatNew) ? text.replace(formatNew, "#") :
+                text.contains(formatOld) ? text.replace(formatOld, "#") : text;
     }
 }
