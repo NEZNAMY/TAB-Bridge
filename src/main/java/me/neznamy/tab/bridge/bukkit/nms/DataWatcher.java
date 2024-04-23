@@ -11,9 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * A class representing the n.m.s.DataWatcher class to make work with it much easier
@@ -22,17 +20,15 @@ public class DataWatcher {
 
     private static NMSStorage nms;
 
-    public static Class<?> DataWatcherClass;
+    /** 1.19.3+ */
+    private static Constructor<?> newDataWatcher$Item;
+
+    /** 1.19.2- */
+    public static Class<?> DataWatcher;
     private static Constructor<?> newDataWatcher;
     private static Method DataWatcher_register;
-    private static Method DataWatcher_markDirty;
-    public static Method DataWatcher_packDirty;
-
-    private static Class<?> DataWatcherObject;
     private static Constructor<?> newDataWatcherObject;
 
-    private static Class<?> DataWatcherRegistry;
-    private static Class<?> DataWatcherSerializer;
     private static Object DataWatcherSerializer_BYTE;
     private static Object DataWatcherSerializer_STRING;
     private static Object DataWatcherSerializer_OPTIONAL_COMPONENT;
@@ -43,58 +39,66 @@ public class DataWatcher {
     //DataWatcher data
     private final Map<Integer, Item> dataValues = new HashMap<>();
 
-    public static void load(@NotNull NMSStorage nms) throws ReflectiveOperationException {
-        DataWatcher.nms = nms;
+    public static void load(@NotNull NMSStorage nms0) throws ReflectiveOperationException {
+        nms = nms0;
         armorStandFlagsPosition = getArmorStandFlagsPosition();
-        if (BukkitBridge.getMinorVersion() >= 17) {
-            DataWatcherClass = Class.forName("net.minecraft.network.syncher.DataWatcher");
-            DataWatcherObject = Class.forName("net.minecraft.network.syncher.DataWatcherObject");
-            DataWatcherRegistry = Class.forName("net.minecraft.network.syncher.DataWatcherRegistry");
-            DataWatcherSerializer = Class.forName("net.minecraft.network.syncher.DataWatcherSerializer");
+        int minorVersion = BukkitReflection.getMinorVersion();
+        if (minorVersion >= 9) {
+            loadSerializers();
+        }
+        if (BukkitReflection.is1_19_3Plus()) {
+            Class<?> dataWatcher$Item = BukkitReflection.getClass("network.syncher.SynchedEntityData$DataValue", "network.syncher.DataWatcher$c", "network.syncher.DataWatcher$b");
+            Class<?> dataWatcherSerializer = BukkitReflection.getClass("network.syncher.EntityDataSerializer",
+                    "network.syncher.DataWatcherSerializer", "DataWatcherSerializer");
+            newDataWatcher$Item = dataWatcher$Item.getConstructor(int.class, dataWatcherSerializer, Object.class);
         } else {
-            DataWatcherClass = nms.getLegacyClass("DataWatcher");
-            if (BukkitBridge.getMinorVersion() >= 9) {
-                DataWatcherObject = nms.getLegacyClass("DataWatcherObject");
-                DataWatcherRegistry = nms.getLegacyClass("DataWatcherRegistry");
-                DataWatcherSerializer = nms.getLegacyClass("DataWatcherSerializer");
+            DataWatcher = BukkitReflection.getClass("network.syncher.SynchedEntityData", "network.syncher.DataWatcher", "DataWatcher");
+            if (minorVersion >= 7) {
+                newDataWatcher = DataWatcher.getConstructor(BukkitReflection.getClass("world.entity.Entity", "Entity"));
+            } else {
+                newDataWatcher = DataWatcher.getConstructor();
+            }
+            if (minorVersion >= 9) {
+                Class<?> dataWatcherObject = BukkitReflection.getClass("network.syncher.EntityDataAccessor",
+                        "network.syncher.DataWatcherObject", "DataWatcherObject");
+                Class<?> dataWatcherSerializer = BukkitReflection.getClass("network.syncher.EntityDataSerializer",
+                        "network.syncher.DataWatcherSerializer", "DataWatcherSerializer");
+                DataWatcher_register = ReflectionUtils.getMethod(
+                        DataWatcher,
+                        new String[]{"define", "register", "a", "m_135372_"}, // {Mojang, Bukkit, Bukkit 1.18+, Mohist 1.18.2}
+                        dataWatcherObject, Object.class
+                );
+                newDataWatcherObject = dataWatcherObject.getConstructor(int.class, dataWatcherSerializer);
+            } else {
+                DataWatcher_register = ReflectionUtils.getMethod(
+                        DataWatcher,
+                        new String[]{"func_75682_a", "a"}, int.class, // {Thermos 1.7.10, Bukkit}
+                        Object.class
+                );
             }
         }
-        newDataWatcher = ReflectionUtils.getOnlyConstructor(DataWatcherClass);
-        if (BukkitBridge.getMinorVersion() >= 9) {
-            DataWatcher_register = ReflectionUtils.getMethod(
-                    DataWatcherClass,
-                    new String[]{"define", "register", "a", "m_135372_"}, // {Bukkit 1.20.2+, Bukkit, Bukkit 1.18+, Mohist 1.18.2}
-                    DataWatcherObject, Object.class
-            );
-        } else {
-            DataWatcher_register = ReflectionUtils.getMethod(DataWatcherClass, new String[]{"func_75682_a", "a"}, int.class, Object.class); // {Thermos 1.7.10, Bukkit}
-        }
-        if (BukkitBridge.getMinorVersion() >= 19) {
-            DataWatcher_packDirty = ReflectionUtils.getMethod(DataWatcherClass, new String[]{"packDirty", "b"}); // {Mojang | 1.20.2+, 1.20.2-}
-        }
-        if (BukkitBridge.is1_19_3Plus()) {
-            DataWatcher_markDirty = ReflectionUtils.getMethods(DataWatcherClass, void.class, DataWatcherObject).get(0);
-        }
-        if (BukkitBridge.getMinorVersion() >= 9) {
-            newDataWatcherObject = DataWatcherObject.getConstructor(int.class, DataWatcherSerializer);
-            DataWatcherSerializer_BYTE = ReflectionUtils.getField(DataWatcherRegistry, "BYTE", "a", "f_135027_").get(null); // Mohist 1.18.2
-            DataWatcherSerializer_STRING = ReflectionUtils.getField(DataWatcherRegistry, "STRING", "d", "f_135030_").get(null); // Mohist 1.18.2
-            if (BukkitBridge.is1_19_3Plus()) {
-                DataWatcherSerializer_OPTIONAL_COMPONENT = ReflectionUtils.getField(DataWatcherRegistry, "OPTIONAL_COMPONENT", "g").get(null);
-                if (BukkitBridge.is1_19_4Plus()) {
-                    DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(DataWatcherRegistry, "BOOLEAN", "k").get(null);
-                } else {
-                    DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(DataWatcherRegistry, "BOOLEAN", "j").get(null);
-                }
+    }
+
+    private static void loadSerializers() throws ReflectiveOperationException {
+        Class<?> dataWatcherRegistry = BukkitReflection.getClass("network.syncher.EntityDataSerializers",
+                "network.syncher.DataWatcherRegistry", "DataWatcherRegistry");
+        DataWatcherSerializer_BYTE = ReflectionUtils.getField(dataWatcherRegistry, "BYTE", "a", "f_135027_").get(null); // Mohist 1.18.2
+        DataWatcherSerializer_STRING = ReflectionUtils.getField(dataWatcherRegistry, "STRING", "d", "f_135030_").get(null); // Mohist 1.18.2
+        if (BukkitReflection.is1_19_3Plus()) {
+            DataWatcherSerializer_OPTIONAL_COMPONENT = ReflectionUtils.getField(dataWatcherRegistry, "OPTIONAL_COMPONENT", "g").get(null);
+            if (BukkitReflection.is1_19_4Plus()) {
+                DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(dataWatcherRegistry, "BOOLEAN", "k").get(null);
             } else {
-                if (BukkitBridge.getMinorVersion() >= 13) {
-                    DataWatcherSerializer_OPTIONAL_COMPONENT = ReflectionUtils.getField(DataWatcherRegistry,
-                            "OPTIONAL_COMPONENT", "f", "f_135032_").get(null); // Mohist 1.18.2
-                    DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(DataWatcherRegistry,
-                            "BOOLEAN", "i", "f_135035_").get(null); // Mohist 1.18.2
-                } else {
-                    DataWatcherSerializer_BOOLEAN = DataWatcherRegistry.getDeclaredField("h").get(null);
-                }
+                DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(dataWatcherRegistry, "BOOLEAN", "j").get(null);
+            }
+        } else {
+            if (BukkitReflection.getMinorVersion() >= 13) {
+                DataWatcherSerializer_OPTIONAL_COMPONENT = ReflectionUtils.getField(dataWatcherRegistry,
+                        "OPTIONAL_COMPONENT", "f", "f_135032_").get(null); // Mohist 1.18.2
+                DataWatcherSerializer_BOOLEAN = ReflectionUtils.getField(dataWatcherRegistry,
+                        "BOOLEAN", "i", "f_135035_").get(null); // Mohist 1.18.2
+            } else {
+                DataWatcherSerializer_BOOLEAN = dataWatcherRegistry.getDeclaredField("h").get(null);
             }
         }
     }
@@ -104,19 +108,25 @@ public class DataWatcher {
     }
 
     public Object toNMS() throws ReflectiveOperationException {
-        Object nmsWatcher;
-        if (newDataWatcher.getParameterCount() == 1) { //1.7+
-            Object[] args = new Object[] {null};
-            nmsWatcher = newDataWatcher.newInstance(args);
+        if (BukkitReflection.is1_19_3Plus()) {
+            List<Object> items = new ArrayList<>();
+            for (Item item : dataValues.values()) {
+                items.add(newDataWatcher$Item.newInstance(item.position, item.serializer, item.value));
+            }
+            return items;
         } else {
-            nmsWatcher = newDataWatcher.newInstance();
+            Object nmsWatcher;
+            if (newDataWatcher.getParameterCount() == 1) { //1.7+
+                nmsWatcher = newDataWatcher.newInstance(new Object[] {null});
+            } else {
+                nmsWatcher = newDataWatcher.newInstance();
+            }
+            for (Item item : dataValues.values()) {
+                Object nmsObject = item.createObject();
+                DataWatcher_register.invoke(nmsWatcher, nmsObject, item.getValue());
+            }
+            return nmsWatcher;
         }
-        for (Item item : dataValues.values()) {
-            Object nmsObject = item.createObject();
-            DataWatcher_register.invoke(nmsWatcher, nmsObject, item.getValue());
-            if (BukkitBridge.is1_19_3Plus()) DataWatcher_markDirty.invoke(nmsWatcher, nmsObject);
-        }
-        return nmsWatcher;
     }
 
     /**
@@ -133,7 +143,7 @@ public class DataWatcher {
     public void setCustomName(String customName, String componentText) {
         if (BukkitBridge.getMinorVersion() >= 13) {
             setValue(2, DataWatcherSerializer_OPTIONAL_COMPONENT,
-                    Optional.ofNullable(nms.DESERIALIZE.invoke(null, componentText)));
+                    Optional.ofNullable(nms.deserialize.apply(componentText)));
         } else if (BukkitBridge.getMinorVersion() >= 8) {
             setValue(2, DataWatcherSerializer_STRING, customName);
         } else {
@@ -166,7 +176,7 @@ public class DataWatcher {
         } else if (BukkitBridge.getMinorVersion() >= 15) {
             //1.15.x, 1.16.x
             return 14;
-        } else if (BukkitBridge.getMinorVersion() >= 14) {
+        } else if (BukkitBridge.getMinorVersion() == 14) {
             //1.14.x
             return 13;
         } else if (BukkitBridge.getMinorVersion() >= 10) {

@@ -101,7 +101,7 @@ public class PacketEntityView {
         if (BukkitBridge.is1_19_3Plus()) {
             newEntityMetadata = entityMetadataClass.getConstructor(int.class, List.class);
         } else {
-            newEntityMetadata = entityMetadataClass.getConstructor(int.class, DataWatcher.DataWatcherClass, boolean.class);
+            newEntityMetadata = entityMetadataClass.getConstructor(int.class, DataWatcher.DataWatcher, boolean.class);
         }
     }
 
@@ -227,7 +227,7 @@ public class PacketEntityView {
             }
             SpawnEntity_EntityType = ReflectionUtils.getFields(SpawnEntityClass, int.class).get(1);
             if (BukkitBridge.getMinorVersion() <= 14) {
-                SpawnEntity_DataWatcher = ReflectionUtils.getOnlyField(SpawnEntityClass, DataWatcher.DataWatcherClass);
+                SpawnEntity_DataWatcher = ReflectionUtils.getOnlyField(SpawnEntityClass, DataWatcher.DataWatcher);
             }
         }
         if (BukkitBridge.getMinorVersion() >= 13) {
@@ -282,7 +282,7 @@ public class PacketEntityView {
     public void updateEntityMetadata(int entityId, @NotNull DataWatcher data) {
         if (newEntityMetadata.getParameterCount() == 2) {
             //1.19.3+
-            player.sendPacket(newEntityMetadata.newInstance(entityId, DataWatcher.DataWatcher_packDirty.invoke(data.toNMS())));
+            player.sendPacket(newEntityMetadata.newInstance(entityId, data.toNMS()));
         } else {
             player.sendPacket(newEntityMetadata.newInstance(entityId, data.toNMS(), true));
         }

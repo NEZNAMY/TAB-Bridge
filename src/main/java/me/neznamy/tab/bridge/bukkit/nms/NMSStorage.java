@@ -5,13 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.BukkitScoreboard;
+import me.neznamy.tab.bridge.shared.util.FunctionWithException;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class NMSStorage {
 
@@ -27,7 +31,7 @@ public class NMSStorage {
     public final Field CHANNEL = ReflectionUtils.getFields(NetworkManager, Channel.class).get(0);
     public final Method getHandle = Class.forName("org.bukkit.craftbukkit." + BukkitBridge.getServerPackage() + ".entity.CraftPlayer").getMethod("getHandle");
     public final Method sendPacket = ReflectionUtils.getMethods(PlayerConnection, void.class, Packet).get(0);
-    public Method DESERIALIZE;
+    public final FunctionWithException<String, Object> deserialize = getDeserializeFunction();
 
     /**
      * Creates new instance, initializes required NMS classes and fields
@@ -35,14 +39,33 @@ public class NMSStorage {
      *             If any class, field or method fails to load
      */
     public NMSStorage() throws ReflectiveOperationException {
-        Class<?> ChatSerializer = getNMSClass("net.minecraft.network.chat.IChatBaseComponent$ChatSerializer",
-                "IChatBaseComponent$ChatSerializer", "ChatSerializer");
-        DESERIALIZE = ReflectionUtils.getMethods(ChatSerializer, Object.class, String.class).get(0);
         DataWatcher.load(this);
         PacketEntityView.load();
         if (!BukkitScoreboard.isAvailable())
             Bukkit.getConsoleSender().sendMessage("\u00a7c[TAB-Bridge] Failed to initialize Scoreboard fields due to " +
                     "a compatibility issue, plugin functionality will be limited.");
+    }
+
+    private FunctionWithException<String, Object> getDeserializeFunction() throws ReflectiveOperationException {
+        Class<?> ChatSerializer = BukkitReflection.getClass("network.chat.Component$Serializer",
+                "network.chat.IChatBaseComponent$ChatSerializer", "IChatBaseComponent$ChatSerializer", "ChatSerializer");
+        try {
+            // 1.20.5+
+            Class<?> HolderLookup$Provider = BukkitReflection.getClass("core.HolderLookup$Provider", "core.HolderLookup$a");
+            Method fromJson = first(ReflectionUtils.getMethods(ChatSerializer, Object.class, String.class, HolderLookup$Provider));
+            Object emptyProvider = ReflectionUtils.getOnlyMethod(HolderLookup$Provider, HolderLookup$Provider, Stream.class).invoke(null, Stream.empty());
+            return string -> fromJson.invoke(null, string, emptyProvider);
+        } catch (ReflectiveOperationException e) {
+            // 1.20.4-
+            Method fromJson = first(ReflectionUtils.getMethods(ChatSerializer, Object.class, String.class));
+            return string -> fromJson.invoke(null, string);
+        }
+    }
+
+    @NotNull
+    private Method first(@NotNull List<Method> methods) throws NoSuchMethodException {
+        if (methods.isEmpty()) throw new NoSuchMethodException("Json deserialize method not found");
+        return methods.get(0);
     }
 
     /**

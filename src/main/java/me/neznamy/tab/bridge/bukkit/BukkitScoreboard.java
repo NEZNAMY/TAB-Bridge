@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.neznamy.tab.bridge.bukkit.nms.BukkitReflection;
+import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.shared.chat.IChatBaseComponent;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,8 +50,6 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
     public static TeamPacketData teamPacketData;
     public static DisplayPacketData displayPacketData;
 
-    private static Method ChatSerializer_DESERIALIZE;
-
     private final BukkitBridgePlayer player;
     @Getter private final Map<String, String> expectedTeams = new ConcurrentHashMap<>();
 
@@ -76,9 +76,6 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
             newScoreboardObjective = ReflectionUtils.getOnlyConstructor(ScoreboardObjective);
             if (minorVersion >= 7) {
                 Component = BukkitReflection.getClass("network.chat.Component", "network.chat.IChatBaseComponent", "IChatBaseComponent");
-                Class<?> ChatSerializer = BukkitReflection.getClass("network.chat.Component$Serializer",
-                        "network.chat.IChatBaseComponent$ChatSerializer", "IChatBaseComponent$ChatSerializer", "ChatSerializer");
-                ChatSerializer_DESERIALIZE = ReflectionUtils.getMethods(ChatSerializer, Object.class, String.class).get(0);
             }
             if (minorVersion >= 8) {
                 Class<?> EnumScoreboardHealthDisplay = BukkitReflection.getClass(
@@ -239,7 +236,7 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
     @SneakyThrows
     private Object deserialize(@Nullable String json) {
         if (json == null) return null;
-        return ChatSerializer_DESERIALIZE.invoke(null, json);
+        return NMSStorage.getInstance().deserialize.apply(json);
     }
 
     @Nullable
@@ -258,12 +255,13 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
 
     private static class ScorePacketData {
 
-        private final Constructor<?> newSetScorePacket;
+        private Constructor<?> newSetScorePacket;
         private Constructor<?> newResetScorePacket;      // 1.20.3+
         private Constructor<?> newSetScorePacket_String; // 1.12-
         private Constructor<?> newScoreboardScore;       // 1.12-
         private Field SetScorePacket_SCORE;              // 1.12-
         private Enum<?>[] scoreboardActions;             // 1.20.2-
+        boolean is1_20_5Plus;
 
         @SneakyThrows
         public ScorePacketData() {
@@ -274,8 +272,15 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
                     "Packet207SetScoreboardScore" // 1.5 - 1.6.4
             );
             if (BukkitReflection.is1_20_3Plus()) {
+                try {
+                    // 1.20.5+
+                    newSetScorePacket = SetScorePacket.getConstructor(String.class, String.class, int.class, Optional.class, Optional.class);
+                    is1_20_5Plus = true;
+                } catch (Exception e) {
+                    // 1.20.3 / 1.20.4
+                    newSetScorePacket = SetScorePacket.getConstructor(String.class, String.class, int.class, Component, NumberFormat);
+                }
                 newResetScorePacket = BukkitReflection.getClass("network.protocol.game.ClientboundResetScorePacket").getConstructor(String.class, String.class);
-                newSetScorePacket = SetScorePacket.getConstructor(String.class, String.class, int.class, Component, NumberFormat);
             } else if (BukkitReflection.getMinorVersion() >= 13) {
                 Class<?> EnumScoreboardAction = BukkitReflection.getClass("server.ServerScoreboard$Method",
                         "server.ScoreboardServer$Action", "ScoreboardServer$Action");
@@ -297,7 +302,9 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
         @SneakyThrows
         public Object setScore(@NotNull String objective, @NotNull String scoreHolder, int score,
                                @Nullable Object displayName, @Nullable Object numberFormat) {
-            if (BukkitReflection.is1_20_3Plus()) {
+            if (is1_20_5Plus) {
+                return newSetScorePacket.newInstance(scoreHolder, objective, score, Optional.ofNullable(displayName), Optional.ofNullable(numberFormat));
+            } else if (BukkitReflection.is1_20_3Plus()) {
                 return newSetScorePacket.newInstance(scoreHolder, objective, score, displayName, numberFormat);
             } else if (BukkitReflection.getMinorVersion() >= 13) {
                 return newSetScorePacket.newInstance(scoreboardActions[0], objective, scoreHolder, score);
