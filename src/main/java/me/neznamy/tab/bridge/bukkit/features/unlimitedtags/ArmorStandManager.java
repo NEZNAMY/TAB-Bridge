@@ -27,11 +27,11 @@ public class ArmorStandManager {
     public ArmorStandManager(BridgeNameTagX nameTagX, BukkitBridgePlayer owner) {
         double height = 0;
         for (String line : nameTagX.getDynamicLines()) {
-            ArmorStands.put(line, new ArmorStand(owner, height, false));
+            ArmorStands.put(line, new ArmorStand(this, owner, height, false));
             height += 0.26;
         }
         for (Map.Entry<String, Double> line : nameTagX.getStaticLines().entrySet()) {
-            ArmorStands.put(line.getKey(), new ArmorStand(owner, Double.parseDouble(line.getValue().toString()), true));
+            ArmorStands.put(line.getKey(), new ArmorStand(this, owner, Double.parseDouble(line.getValue().toString()), true));
         }
         ArmorStandArray = ArmorStands.values().toArray(new ArmorStand[0]);
     }
@@ -102,7 +102,7 @@ public class ArmorStandManager {
         double currentY = -0.26;
         for (ArmorStand as : ArmorStandArray) {
             if (as.hasStaticOffset()) continue;
-            if (as.getText().length() != 0) {
+            if (!as.getText().isEmpty()) {
                 currentY += 0.26;
                 as.setOffset(currentY);
             }

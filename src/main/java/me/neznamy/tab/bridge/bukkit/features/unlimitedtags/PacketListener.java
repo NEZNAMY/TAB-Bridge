@@ -41,7 +41,7 @@ public class PacketListener {
     public void onPacketSend(BukkitBridgePlayer receiver, Object packet) {
         if (nms == null) return;
         if (receiver.getProtocolVersion() < 47) return;
-        if (nameTagX.isPlayerDisabled(receiver) || nameTagX.getDisabledUnlimitedPlayers().contains(receiver)) return;
+        if (nameTagX.isPlayerDisabled(receiver)) return;
         if (receiver.getEntityView().isMovePacket(packet) && !receiver.getEntityView().isLookPacket(packet)) { //ignoring head rotation only packets
             onEntityMove(receiver, receiver.getEntityView().getMoveEntityId(packet), receiver.getEntityView().getMoveDiff(packet));
         } else if (receiver.getEntityView().isTeleportPacket(packet)) {
@@ -60,15 +60,15 @@ public class PacketListener {
             //player moved
             if (nameTagX.isPlayerDisabled(pl)) return;
             TABBridge.getInstance().submitTask(() -> {
-                ArmorStandManager asm = nameTagX.getArmorStandManager(pl);
+                ArmorStandManager asm = pl.unlimitedNametagData.armorStandManager;
                 if (asm != null) asm.move(receiver, diff);
             });
         } else if ((vehicleList = nameTagX.getVehicleManager().getVehicles().get(entityId)) != null){
             //a vehicle carrying something moved
             for (Entity entity : vehicleList) {
                 BridgePlayer passenger = entityIdMap.get(entity.getEntityId());
-                if (passenger != null && nameTagX.getArmorStandManager(passenger) != null) {
-                    TABBridge.getInstance().submitTask(() -> nameTagX.getArmorStandManager(passenger).move(receiver, diff));
+                if (passenger != null && passenger.unlimitedNametagData.armorStandManager != null) {
+                    TABBridge.getInstance().submitTask(() -> passenger.unlimitedNametagData.armorStandManager.move(receiver, diff));
                 }
             }
         }
@@ -86,15 +86,15 @@ public class PacketListener {
             //player moved
             if (nameTagX.isPlayerDisabled(pl)) return;
             TABBridge.getInstance().submitTask(() -> {
-                ArmorStandManager asm = nameTagX.getArmorStandManager(pl);
+                ArmorStandManager asm = pl.unlimitedNametagData.armorStandManager;
                 if (asm != null) asm.teleport(receiver);
             });
         } else if ((vehicleList = nameTagX.getVehicleManager().getVehicles().get(entityId)) != null){
             //a vehicle carrying something moved
             for (Entity entity : vehicleList) {
                 BridgePlayer passenger = entityIdMap.get(entity.getEntityId());
-                if (passenger != null && nameTagX.getArmorStandManager(passenger) != null) {
-                    TABBridge.getInstance().submitTask(() -> nameTagX.getArmorStandManager(passenger).teleport(receiver));
+                if (passenger != null && passenger.unlimitedNametagData.armorStandManager != null) {
+                    TABBridge.getInstance().submitTask(() -> passenger.unlimitedNametagData.armorStandManager.teleport(receiver));
                 }
             }
         }
@@ -103,7 +103,7 @@ public class PacketListener {
     private void onEntitySpawn(BukkitBridgePlayer receiver, int entityId) {
         BridgePlayer spawnedPlayer = entityIdMap.get(entityId);
         if (spawnedPlayer != null && !nameTagX.isPlayerDisabled(spawnedPlayer)) {
-            TABBridge.getInstance().submitTask(() -> nameTagX.getArmorStandManager(spawnedPlayer).spawn(receiver));
+            TABBridge.getInstance().submitTask(() -> spawnedPlayer.unlimitedNametagData.armorStandManager.spawn(receiver));
         }
     }
 
@@ -111,7 +111,7 @@ public class PacketListener {
         for (int entity : entities) {
             BridgePlayer deSpawnedPlayer = entityIdMap.get(entity);
             if (deSpawnedPlayer != null && !nameTagX.isPlayerDisabled(deSpawnedPlayer))
-                TABBridge.getInstance().submitTask(() -> nameTagX.getArmorStandManager(deSpawnedPlayer).destroy(receiver));
+                TABBridge.getInstance().submitTask(() -> deSpawnedPlayer.unlimitedNametagData.armorStandManager.destroy(receiver));
         }
     }
 }

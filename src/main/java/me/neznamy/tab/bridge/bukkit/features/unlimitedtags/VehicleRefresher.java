@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
+import lombok.Getter;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
 import me.neznamy.tab.bridge.bukkit.platform.BukkitPlatform;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -23,10 +23,8 @@ public class VehicleRefresher {
     private final WeakHashMap<BridgePlayer, Entity> playersInVehicle = new WeakHashMap<>();
     
     //map of vehicles carrying players
+    @Getter
     private final Map<Integer, List<Entity>> vehicles = new ConcurrentHashMap<>();
-    
-    //set of players currently on boats
-    private final Set<BridgePlayer> playersOnBoats = Collections.newSetFromMap(new WeakHashMap<>());
 
     private final WeakHashMap<BridgePlayer, String> playerVehicles = new WeakHashMap<>();
     
@@ -37,12 +35,12 @@ public class VehicleRefresher {
         TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
             if (!feature.isEnabled()) return;
             for (BridgePlayer inVehicle : playersInVehicle.keySet()) {
-                ArmorStandManager asm = feature.getArmorStandManager(inVehicle);
+                ArmorStandManager asm = inVehicle.unlimitedNametagData.armorStandManager;
                 if (asm != null) asm.teleport();
             }
             for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
-                if (feature.getPlayersPreviewingNameTag().contains(p)) {
-                    feature.getArmorStandManager(p).teleport((BukkitBridgePlayer) p);
+                if (p.unlimitedNametagData.previewing) {
+                    p.unlimitedNametagData.armorStandManager.teleport((BukkitBridgePlayer) p);
                 }
                 Entity e = ((BukkitBridgePlayer)p).getPlayer().getVehicle();
                 String vehicle = e == null ? "" : e.getClass().getName() + "@" + Integer.toHexString(e.hashCode());
@@ -60,7 +58,7 @@ public class VehicleRefresher {
             updateVehicle(vehicle);
             playersInVehicle.put(connectedPlayer, vehicle);
             if (feature.isDisableOnBoats() && vehicle.getType().toString().contains("BOAT")) {
-                playersOnBoats.add(connectedPlayer);
+                connectedPlayer.unlimitedNametagData.onBoat = true;
             }
         }
     }
@@ -78,33 +76,25 @@ public class VehicleRefresher {
         if (playersInVehicle.containsKey(p) && vehicle == null) {
             //vehicle exit
             vehicles.remove(playersInVehicle.get(p).getEntityId());
-            feature.getArmorStandManager(p).teleport();
+            p.unlimitedNametagData.armorStandManager.teleport();
             playersInVehicle.remove(p);
-            if (feature.isDisableOnBoats() && playersOnBoats.contains(p)) {
-                playersOnBoats.remove(p);
+            if (feature.isDisableOnBoats() && p.unlimitedNametagData.onBoat) {
+                p.unlimitedNametagData.onBoat = false;
                 p.sendPluginMessage(new SetOnBoat(false));
             }
         }
         if (!playersInVehicle.containsKey(p) && vehicle != null) {
             //vehicle enter
             updateVehicle(vehicle);
-            feature.getArmorStandManager(p).respawn(); //making teleport instant instead of showing teleport animation
+            p.unlimitedNametagData.armorStandManager.respawn(); //making teleport instant instead of showing teleport animation
             playersInVehicle.put(p, vehicle);
             if (feature.isDisableOnBoats() && vehicle.getType().toString().contains("BOAT")) {
-                playersOnBoats.add(p);
+                p.unlimitedNametagData.onBoat = true;
                 p.sendPluginMessage(new SetOnBoat(true));
             }
         }
     }
 
-    public boolean isOnBoat(BridgePlayer p) {
-        return playersOnBoats.contains(p);
-    }
-    
-    public Map<Integer, List<Entity>> getVehicles() {
-        return vehicles;
-    }
-    
     /**
      * Returns list of all passengers on specified vehicle
      * @param vehicle - vehicle to check passengers of

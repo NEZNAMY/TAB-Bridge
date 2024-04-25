@@ -2,27 +2,25 @@ package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 
 import com.google.common.io.ByteArrayDataInput;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
-import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
+import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class BridgeNameTagX implements Listener {
+@RequiredArgsConstructor
+public class BridgeNameTagX {
 
     private final JavaPlugin plugin;
     @Getter private boolean enabled;
@@ -32,31 +30,13 @@ public class BridgeNameTagX implements Listener {
     @Getter private List<String> dynamicLines;
     @Getter private Map<String, Double> staticLines;
 
-    private final Set<BridgePlayer> playersDisabledWithAPI = Collections.newSetFromMap(new WeakHashMap<>());
-    @Getter private final Set<BridgePlayer> disabledUnlimitedPlayers = Collections.newSetFromMap(new WeakHashMap<>());
-
     @Getter private final PacketListener packetListener = new PacketListener(this);
     @Getter private final VehicleRefresher vehicleManager = new VehicleRefresher(this);
     private final EventListener eventListener = new EventListener(this);
-
-    private final Map<BridgePlayer, ArmorStandManager> armorStandManagerMap = new WeakHashMap<>();
-    @Getter
-    private final Set<BridgePlayer> playersPreviewingNameTag = Collections.newSetFromMap(new WeakHashMap<>());
-    private final Set<BridgePlayer> playersWithHiddenVisibilityView = Collections.newSetFromMap(new WeakHashMap<>());
-
     private ScheduledFuture<?> visibilityRefreshTask;
 
-    public BridgeNameTagX(JavaPlugin plugin) {
-        this.plugin = plugin;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-    }
-
-    public ArmorStandManager getArmorStandManager(BridgePlayer player) {
-        return armorStandManagerMap.get(player);
-    }
-
     public boolean isPlayerDisabled(BridgePlayer player) {
-        return disabledUnlimitedPlayers.contains(player) || playersDisabledWithAPI.contains(player);
+        return player.unlimitedNametagData.disabled || player.unlimitedNametagData.disabledWithAPI;
     }
 
     private void spawnArmorStands(BukkitBridgePlayer viewer, BukkitBridgePlayer target) {
@@ -64,7 +44,7 @@ public class BridgeNameTagX implements Listener {
         if (target == viewer || isPlayerDisabled(target) || target.getPlayer().isDead()) return;
         if (viewer.getPlayer().getWorld() != target.getPlayer().getWorld()) return;
         if (getDistance(viewer, target) <= 48 && viewer.getPlayer().canSee(target.getPlayer()) && !target.isVanished()) {
-            getArmorStandManager(target).spawn(viewer);
+            target.unlimitedNametagData.armorStandManager.spawn(viewer);
         }
     }
 
@@ -72,8 +52,8 @@ public class BridgeNameTagX implements Listener {
         Bukkit.getPluginManager().registerEvents(eventListener, plugin);
         visibilityRefreshTask = TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
             for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
-                if (isPlayerDisabled(p) || !armorStandManagerMap.containsKey(p)) continue;
-                getArmorStandManager(p).updateVisibility(false);
+                if (isPlayerDisabled(p) || p.unlimitedNametagData.armorStandManager == null) continue;
+                p.unlimitedNametagData.armorStandManager.updateVisibility(false);
             }
         }, 0, 500, TimeUnit.MILLISECONDS);
     }
@@ -83,7 +63,7 @@ public class BridgeNameTagX implements Listener {
         HandlerList.unregisterAll(eventListener);
         visibilityRefreshTask.cancel(true);
         for (BridgePlayer p : TABBridge.getInstance().getOnlinePlayers()) {
-            getArmorStandManager(p).destroy();
+            p.unlimitedNametagData.armorStandManager.destroy();
         }
     }
 
@@ -94,7 +74,7 @@ public class BridgeNameTagX implements Listener {
             disableOnBoats = input.readBoolean();
             alwaysVisible = input.readBoolean();
             if (input.readBoolean()) {
-                disabledUnlimitedPlayers.add(player);
+                player.unlimitedNametagData.disabled = true;
             }
             int dynamicLineCount = input.readInt();
             List<String> dynamicLines = new ArrayList<>();
@@ -120,7 +100,7 @@ public class BridgeNameTagX implements Listener {
         if (!enabled) return;
         packetListener.onJoin(player);
         vehicleManager.onJoin(player);
-        armorStandManagerMap.put(player, new ArmorStandManager(this, player));
+        player.unlimitedNametagData.armorStandManager = new ArmorStandManager(this, player);
         if (isPlayerDisabled(player)) return;
         for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
             if (viewer == player) continue;
@@ -134,22 +114,21 @@ public class BridgeNameTagX implements Listener {
         packetListener.onQuit(player);
         vehicleManager.onQuit(player);
         for (BridgePlayer all : TABBridge.getInstance().getOnlinePlayers()) {
-            if (getArmorStandManager(all) != null) getArmorStandManager(all).unregisterPlayer(player);
+            if (all.unlimitedNametagData.armorStandManager != null) all.unlimitedNametagData.armorStandManager.unregisterPlayer(player);
         }
-        getArmorStandManager(player).destroy();
-        armorStandManagerMap.remove(player);
+        player.unlimitedNametagData.armorStandManager.destroy();
     }
 
     public void readMessage(BukkitBridgePlayer receiver, ByteArrayDataInput in) {
-        ArmorStandManager asm = getArmorStandManager(receiver);
+        ArmorStandManager asm = receiver.unlimitedNametagData.armorStandManager;
         if (asm == null) return;
         String action = in.readUTF();
         if (action.equals("Preview")) {
             if (in.readBoolean()) {
-                playersPreviewingNameTag.add(receiver);
+                receiver.unlimitedNametagData.previewing = true;
                 asm.spawn(receiver);
             } else {
-                playersPreviewingNameTag.remove(receiver);
+                receiver.unlimitedNametagData.previewing = false;
                 asm.destroy(receiver);
             }
         }
@@ -162,7 +141,7 @@ public class BridgeNameTagX implements Listener {
             asm.getArmorStand(line).setText(text);
         }
         if (action.equals("Pause")) {
-            playersDisabledWithAPI.add(receiver);
+            receiver.unlimitedNametagData.disabledWithAPI = true;
             asm.destroy();
         }
         if (action.equals("Resume")) {
@@ -170,28 +149,24 @@ public class BridgeNameTagX implements Listener {
                 if (viewer == receiver) continue;
                 spawnArmorStands((BukkitBridgePlayer) viewer, receiver);
             }
-            playersDisabledWithAPI.remove(receiver);
+            receiver.unlimitedNametagData.disabledWithAPI = false;
         }
         if (action.equals("VisibilityView")) {
-            if (playersWithHiddenVisibilityView.contains(receiver)) {
-                playersWithHiddenVisibilityView.remove(receiver);
-            } else {
-                playersWithHiddenVisibilityView.add(receiver);
-            }
+            receiver.unlimitedNametagData.hiddenNameTagView = !receiver.unlimitedNametagData.hiddenNameTagView;
             for (BridgePlayer all : TABBridge.getInstance().getOnlinePlayers()) {
-                getArmorStandManager(all).updateVisibility(true);
+                all.unlimitedNametagData.armorStandManager.updateVisibility(true);
             }
         }
         if (action.equals("SetEnabled")) {
             boolean enabled = in.readBoolean();
             if (enabled) {
-                disabledUnlimitedPlayers.remove(receiver);
+                receiver.unlimitedNametagData.disabled = false;
                 for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
                     spawnArmorStands((BukkitBridgePlayer) viewer, receiver);
                 }
             } else {
-                disabledUnlimitedPlayers.add(receiver);
-                getArmorStandManager(receiver).destroy();
+                receiver.unlimitedNametagData.disabled = true;
+                receiver.unlimitedNametagData.armorStandManager.destroy();
             }
         }
     }
@@ -208,11 +183,27 @@ public class BridgeNameTagX implements Listener {
         return Math.sqrt(Math.pow(loc1.getX()-loc2.getX(), 2) + Math.pow(loc1.getZ()-loc2.getZ(), 2));
     }
 
-    public boolean hasHiddenNametag(BridgePlayer player) {
-        return playersDisabledWithAPI.contains(player);
-    }
+    /**
+     * Class storing unlimited nametag data for players.
+     */
+    public static class PlayerData {
 
-    public boolean hasHiddenNameTagVisibilityView(BridgePlayer player) {
-        return playersWithHiddenVisibilityView.contains(player);
+        /** Armor stand manager */
+        public ArmorStandManager armorStandManager;
+
+        /** Whether player is previewing armor stands or not */
+        public boolean previewing;
+
+        /** Whether armor stands are disabled via API or not */
+        public boolean disabledWithAPI;
+
+        /** Whether player is riding a boat or not */
+        public boolean onBoat;
+
+        /** Whether this player has hidden nametag view or not */
+        public boolean hiddenNameTagView;
+
+        /** Whether player has disabled unlimited nametags or not */
+        public boolean disabled;
     }
 }

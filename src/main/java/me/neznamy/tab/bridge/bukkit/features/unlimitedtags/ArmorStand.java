@@ -33,6 +33,8 @@ public class ArmorStand {
 
     //armor stand owner
     private final BukkitBridgePlayer player;
+    
+    private final ArmorStandManager asm;
 
     //offset in blocks, 0 for original height
     private double yOffset;
@@ -55,7 +57,8 @@ public class ArmorStand {
     //if offset is static or dynamic based on other armor stands
     private final boolean staticOffset;
 
-    public ArmorStand(BukkitBridgePlayer player, double yOffset, boolean staticOffset) {
+    public ArmorStand(ArmorStandManager asm, BukkitBridgePlayer player, double yOffset, boolean staticOffset) {
+        this.asm = asm;
         this.player = player;
         this.staticOffset = staticOffset;
         this.yOffset = yOffset;
@@ -66,7 +69,7 @@ public class ArmorStand {
         if (this.text.equals(text)) return;
         this.text = text;
         refresh();
-        manager.getArmorStandManager(player).fixArmorStandHeights();
+        asm.fixArmorStandHeights();
     }
 
     public void refresh() {
@@ -81,7 +84,7 @@ public class ArmorStand {
     public void setOffset(double offset) {
         if (yOffset == offset) return;
         yOffset = offset;
-        for (BukkitBridgePlayer all : manager.getArmorStandManager(player).getNearbyPlayers()) {
+        for (BukkitBridgePlayer all : asm.getNearbyPlayers()) {
             all.getEntityView().teleportEntity(entityId, getArmorStandLocationFor(all));
         }
     }
@@ -92,7 +95,7 @@ public class ArmorStand {
     }
 
     public void destroy() {
-        for (BukkitBridgePlayer all : manager.getArmorStandManager(player).getNearbyPlayers()) {
+        for (BukkitBridgePlayer all : asm.getNearbyPlayers()) {
             all.getEntityView().destroyEntities(entityId);
         }
     }
@@ -102,22 +105,22 @@ public class ArmorStand {
     }
 
     public void teleport() {
-        for (BukkitBridgePlayer all : manager.getArmorStandManager(player).getNearbyPlayers()) {
+        for (BukkitBridgePlayer all : asm.getNearbyPlayers()) {
             all.getEntityView().teleportEntity(entityId, getArmorStandLocationFor(all));
         }
     }
 
     public void teleport(BukkitBridgePlayer viewer) {
-        if (!manager.getArmorStandManager(player).isNearby(viewer) && viewer != player) {
-            manager.getArmorStandManager(player).spawn(viewer);
+        if (!asm.isNearby(viewer) && viewer != player) {
+            asm.spawn(viewer);
         } else {
             viewer.getEntityView().teleportEntity(entityId, getArmorStandLocationFor(viewer));
         }
     }
 
     public void move(BukkitBridgePlayer viewer, Location diff) {
-        if (!manager.getArmorStandManager(player).isNearby(viewer) && viewer != player) {
-            manager.getArmorStandManager(player).spawn(viewer);
+        if (!asm.isNearby(viewer) && viewer != player) {
+            asm.spawn(viewer);
         } else {
             viewer.getEntityView().moveEntity(entityId, diff);
         }
@@ -130,7 +133,7 @@ public class ArmorStand {
             updateMetadata();
             return;
         }
-        for (BukkitBridgePlayer viewer : manager.getArmorStandManager(player).getNearbyPlayers()) {
+        for (BukkitBridgePlayer viewer : asm.getNearbyPlayers()) {
             if (viewer.getProtocolVersion() >= 480 && viewer.getProtocolVersion() <= 498 && !alwaysVisible) {
                 //1.14.x client sided bug, de-spawning completely
                 if (sneaking) {
@@ -157,7 +160,7 @@ public class ArmorStand {
      * Updates armor stand's metadata
      */
     public void updateMetadata() {
-        for (BukkitBridgePlayer viewer : manager.getArmorStandManager(player).getNearbyPlayers()) {
+        for (BukkitBridgePlayer viewer : asm.getNearbyPlayers()) {
             viewer.getEntityView().updateEntityMetadata(entityId, createDataWatcher(viewer));
         }
     }
@@ -167,10 +170,10 @@ public class ArmorStand {
      * @return true if armor stand should be visible, false if not
      */
     public boolean getVisibility() {
-        if (player.isDisguised() || manager.getVehicleManager().isOnBoat(player)) return false;
+        if (player.isDisguised() || player.unlimitedNametagData.onBoat) return false;
         if (alwaysVisible) return true;
         return !player.isInvisible() && player.getPlayer().getGameMode() != GameMode.SPECTATOR &&
-                !manager.hasHiddenNametag(player) && text.length() > 0;
+                !player.unlimitedNametagData.disabledWithAPI && !text.isEmpty();
     }
 
     /**
@@ -245,7 +248,7 @@ public class ArmorStand {
 
         boolean visibility;
         if (isNameVisiblyEmpty(text) || !viewer.getPlayer().canSee(player.getPlayer()) ||
-                manager.hasHiddenNametag(player) || manager.hasHiddenNameTagVisibilityView(viewer)) {
+                player.unlimitedNametagData.disabledWithAPI || viewer.unlimitedNametagData.hiddenNameTagView) {
             visibility = false;
         } else {
             visibility = visible;
@@ -262,11 +265,11 @@ public class ArmorStand {
      * @return true if it's empty, false if not
      */
     private boolean isNameVisiblyEmpty(String displayName) {
-        if (displayName.length() == 0) return true;
+        if (displayName.isEmpty()) return true;
         if (!displayName.startsWith("\u00a7") && !displayName.startsWith("&") && !displayName.startsWith("#")) return false;
         String text = ChatColor.stripColor(displayName);
         if (text.contains(" ")) text = text.replace(" ", "");
-        return text.length() == 0;
+        return text.isEmpty();
     }
 
     /**

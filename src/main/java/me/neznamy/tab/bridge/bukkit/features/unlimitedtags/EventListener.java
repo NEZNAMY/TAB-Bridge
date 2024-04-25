@@ -25,9 +25,11 @@ public class EventListener implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSneak(PlayerToggleSneakEvent e) {
-        ArmorStandManager asm = feature.getArmorStandManager(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId()));
+        BukkitBridgePlayer player = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
+        if (player == null) return;
+        ArmorStandManager asm = player.unlimitedNametagData.armorStandManager;
         TABBridge.getInstance().submitTask(() -> {
-            if (asm != null && !feature.isPlayerDisabled(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId())))
+            if (asm != null && !feature.isPlayerDisabled(player))
                 asm.sneak(e.isSneaking());
         });
     }
@@ -38,8 +40,10 @@ public class EventListener implements Listener {
      */
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
-        ArmorStandManager asm = feature.getArmorStandManager(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId()));
-        if (asm != null && !feature.isPlayerDisabled(TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId()))) {
+        BukkitBridgePlayer player = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
+        if (player == null) return;
+        ArmorStandManager asm = player.unlimitedNametagData.armorStandManager;
+        if (asm != null && !feature.isPlayerDisabled(player)) {
             asm.teleport();
         }
     }
@@ -48,8 +52,8 @@ public class EventListener implements Listener {
     public void onWorldChange(PlayerChangedWorldEvent e) {
         BukkitBridgePlayer player = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
         if (player == null) return;
-        if (!feature.getDisabledUnlimitedPlayers().contains(player) && feature.getPlayersPreviewingNameTag().contains(player)) {
-            feature.getArmorStandManager(player).spawn(player);
+        if (!player.unlimitedNametagData.disabled && player.unlimitedNametagData.previewing) {
+            player.unlimitedNametagData.armorStandManager.spawn(player);
         }
     }
 }
