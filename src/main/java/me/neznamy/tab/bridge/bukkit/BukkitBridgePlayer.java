@@ -5,7 +5,6 @@ import lombok.SneakyThrows;
 import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.bukkit.nms.PacketEntityView;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
-import me.neznamy.tab.bridge.shared.Scoreboard;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.hook.LuckPermsHook;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
@@ -25,7 +24,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
     private static final boolean vault = Bukkit.getPluginManager().isPluginEnabled("Vault");
 
     private final Player player;
-    private final Scoreboard scoreboard = new BukkitScoreboard(this);
+    private final BukkitScoreboard scoreboard = new BukkitScoreboard(this);
     private final PacketEntityView entityView = new PacketEntityView(this);
     private final Set<String> channels;
 

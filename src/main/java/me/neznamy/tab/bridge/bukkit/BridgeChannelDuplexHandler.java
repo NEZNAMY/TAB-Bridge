@@ -12,17 +12,20 @@ import org.bukkit.entity.Player;
 public class BridgeChannelDuplexHandler extends ChannelDuplexHandler {
 
     private final Player player;
+    private BukkitBridgePlayer bridgePlayer;
 
     @Override
     public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) {
         try {
-            BukkitBridgePlayer p = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(player.getUniqueId());
-            if (p != null && NMSStorage.getInstance() != null) {
+            if (bridgePlayer == null) {
+                bridgePlayer = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(player.getUniqueId());
+            }
+            if (bridgePlayer != null && NMSStorage.getInstance() != null) {
                 if (BukkitBridge.getInstance().nametagx.isEnabled()) {
-                    BukkitBridge.getInstance().nametagx.getPacketListener().onPacketSend(p, packet);
+                    BukkitBridge.getInstance().nametagx.getPacketListener().onPacketSend(bridgePlayer, packet);
                 }
                 if (BukkitScoreboard.isAvailable()) {
-                    ((BukkitScoreboard)player.getScoreboard()).onPacketSend(packet);
+                    bridgePlayer.getScoreboard().onPacketSend(packet);
                 }
             }
             super.write(context, packet, channelPromise);
