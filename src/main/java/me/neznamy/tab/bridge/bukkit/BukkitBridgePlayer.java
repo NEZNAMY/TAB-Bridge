@@ -27,19 +27,22 @@ public class BukkitBridgePlayer extends BridgePlayer {
     private final Player player;
     private final Scoreboard scoreboard = new BukkitScoreboard(this);
     private final PacketEntityView entityView = new PacketEntityView(this);
+    private final Set<String> channels;
 
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
     public BukkitBridgePlayer(Player player, int protocolVersion) {
         super(player.getName(), player.getUniqueId(), protocolVersion);
         this.player = player;
+        channels = ((Set<String>) ReflectionUtils.getField(player.getClass(), "channels").get(player));
     }
 
     @Override
     @SneakyThrows
-    @SuppressWarnings("unchecked")
     public void sendPluginMessage(byte[] message) {
         // 1.20.2 bug adding it with a significant delay, add ourselves to make it work
         // apparently it affects those players on older server version as well, so do this always
-        ((Set<String>) ReflectionUtils.getField(player.getClass(), "channels").get(player)).add(TABBridge.CHANNEL_NAME);
+        channels.add(TABBridge.CHANNEL_NAME);
         player.sendPluginMessage(BukkitBridge.getInstance(), TABBridge.CHANNEL_NAME, message);
     }
 
