@@ -15,7 +15,6 @@ import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,6 +31,8 @@ public class DataBridge {
     @Getter private final Map<Object, List<IncomingMessage>> messageQueue2 = new WeakHashMap<>();
     private final Map<String, Placeholder> asyncPlaceholders = new ConcurrentHashMap<>();
     private final Map<String, Placeholder> syncPlaceholders = new ConcurrentHashMap<>();
+    private Placeholder[] syncPlaceholderArray = new Placeholder[0];
+    private Placeholder[] asyncPlaceholderArray = new Placeholder[0];
     @Getter private Map<String, PlaceholderReplacementPattern> replacements = new HashMap<>();
     private boolean groupForwarding;
     private int refreshCounterSync;
@@ -50,9 +51,9 @@ public class DataBridge {
 
     public void startTasks() {
         TABBridge.getInstance().getPlatform().scheduleSyncRepeatingTask(() ->
-                updatePlaceholders(syncPlaceholders.values(), refreshCounterSync += 50), 1);
+                updatePlaceholders(syncPlaceholderArray, refreshCounterSync += 50), 1);
         TABBridge.getInstance().getPlaceholderThread().scheduleAtFixedRate(() ->
-                updatePlaceholders(asyncPlaceholders.values(), refreshCounterAsync += 50), 50, 50, TimeUnit.MILLISECONDS);
+                updatePlaceholders(asyncPlaceholderArray, refreshCounterAsync += 50), 50, 50, TimeUnit.MILLISECONDS);
         TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
             for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
                 player.setVanished(player.checkVanish());
@@ -99,7 +100,7 @@ public class DataBridge {
                     parsePlaceholders(bp),
                     gamemode
             ));
-            for (Placeholder placeholder : asyncPlaceholders.values()) {
+            for (Placeholder placeholder : asyncPlaceholderArray) {
                 if (placeholder instanceof RelationalPlaceholder) {
                     RelationalPlaceholder pl = (RelationalPlaceholder) placeholder;
                     for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
@@ -166,9 +167,9 @@ public class DataBridge {
             }
             Placeholder placeholder = TABBridge.getInstance().getPlatform().createPlaceholder(identifier, finalIdentifier, refresh);
             if (sync) {
-                syncPlaceholders.put(identifier, placeholder);
+                addSyncPlaceholder(placeholder);
             } else {
-                asyncPlaceholders.put(identifier, placeholder);
+                addAsyncPlaceholder(placeholder);
             }
         }
         if (identifier.startsWith("%sync:")) {
@@ -179,9 +180,19 @@ public class DataBridge {
         }
     }
 
+    public void addSyncPlaceholder(Placeholder placeholder) {
+        syncPlaceholders.put(placeholder.getIdentifier(), placeholder);
+        syncPlaceholderArray = syncPlaceholders.values().toArray(new Placeholder[0]);
+    }
+
+    public void addAsyncPlaceholder(Placeholder placeholder) {
+        asyncPlaceholders.put(placeholder.getIdentifier(), placeholder);
+        asyncPlaceholderArray = asyncPlaceholders.values().toArray(new Placeholder[0]);
+    }
+
     public Map<String, Object> parsePlaceholders(BridgePlayer player) {
         Map<String, Object> outputs = new LinkedHashMap<>();
-        List<Placeholder> allPlaceholders = Lists.newArrayList(asyncPlaceholders.values());
+        List<Placeholder> allPlaceholders = Lists.newArrayList(asyncPlaceholderArray);
         allPlaceholders.addAll(syncPlaceholders.values());
         for (Placeholder placeholder : allPlaceholders) {
             if (placeholder instanceof ServerPlaceholder) {
@@ -200,7 +211,7 @@ public class DataBridge {
         return outputs;
     }
 
-    private void updatePlaceholders(Collection<Placeholder> placeholders, int counter) {
+    private void updatePlaceholders(Placeholder[] placeholders, int counter) {
         for (Placeholder placeholder : placeholders) {
             if (counter % placeholder.getRefresh() != 0) continue;
             for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
