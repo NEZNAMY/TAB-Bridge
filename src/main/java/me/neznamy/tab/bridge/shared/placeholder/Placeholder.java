@@ -4,18 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
+@Getter
 @AllArgsConstructor
 public abstract class Placeholder {
 
     protected static final boolean PRINT_WARNS = true;
 
-    @Getter protected final String identifier;
+    protected final String identifier;
     @Setter private int refresh;
-    private final AtomicInteger atomicInteger = new AtomicInteger();
-
-    public boolean isInPeriod() {
-        return atomicInteger.addAndGet(50) % refresh == 0;
-    }
 }

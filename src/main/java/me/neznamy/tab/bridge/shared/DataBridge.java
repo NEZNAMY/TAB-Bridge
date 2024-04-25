@@ -34,6 +34,8 @@ public class DataBridge {
     private final Map<String, Placeholder> syncPlaceholders = new ConcurrentHashMap<>();
     @Getter private Map<String, PlaceholderReplacementPattern> replacements = new HashMap<>();
     private boolean groupForwarding;
+    private int refreshCounterSync;
+    private int refreshCounterAsync;
 
     private final Map<String, Supplier<IncomingMessage>> registeredMessages = new HashMap<String, Supplier<IncomingMessage>>() {{
         put("Permission", PermissionCheck::new);
@@ -48,9 +50,9 @@ public class DataBridge {
 
     public void startTasks() {
         TABBridge.getInstance().getPlatform().scheduleSyncRepeatingTask(() ->
-                updatePlaceholders(syncPlaceholders.values()), 1);
+                updatePlaceholders(syncPlaceholders.values(), refreshCounterSync += 50), 1);
         TABBridge.getInstance().getPlaceholderThread().scheduleAtFixedRate(() ->
-                updatePlaceholders(asyncPlaceholders.values()), 50, 50, TimeUnit.MILLISECONDS);
+                updatePlaceholders(asyncPlaceholders.values(), refreshCounterAsync += 50), 50, 50, TimeUnit.MILLISECONDS);
         TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
             for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
                 player.setVanished(player.checkVanish());
@@ -198,9 +200,9 @@ public class DataBridge {
         return outputs;
     }
 
-    private void updatePlaceholders(Collection<Placeholder> placeholders) {
+    private void updatePlaceholders(Collection<Placeholder> placeholders, int counter) {
         for (Placeholder placeholder : placeholders) {
-            if (!placeholder.isInPeriod()) continue;
+            if (counter % placeholder.getRefresh() != 0) continue;
             for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
                 updatePlaceholder(placeholder, false, player);
             }
