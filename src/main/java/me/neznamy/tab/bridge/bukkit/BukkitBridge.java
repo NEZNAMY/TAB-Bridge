@@ -81,10 +81,12 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        BukkitBridgePlayer p = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
-        if (p == null) return;
-        if (NMSStorage.getInstance() != null) nametagx.onQuit(p);
-        TABBridge.getInstance().removePlayer(p);
+        TABBridge.getInstance().submitTask(() -> {
+            BukkitBridgePlayer p = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
+            if (p == null) return;
+            if (NMSStorage.getInstance() != null) nametagx.onQuit(p);
+            TABBridge.getInstance().removePlayer(p);
+        });
     }
 
     @EventHandler
