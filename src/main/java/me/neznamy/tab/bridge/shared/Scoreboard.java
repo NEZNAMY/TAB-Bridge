@@ -1,42 +1,96 @@
 package me.neznamy.tab.bridge.shared;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
-public interface Scoreboard {
+public abstract class Scoreboard {
 
-    void setDisplaySlot(int slot, @NotNull String objective);
+    /** Player-to-Team map of expected teams of players */
+    private final Map<String, String> expectedTeams = new HashMap<>();
 
-    void setScore(@NotNull String objective, @NotNull String player, int score,
+    public void registerTeam(@NotNull String name, @NotNull String prefix, @NotNull String suffix, @NotNull String visibility,
+                                      @NotNull String collision, @NotNull Collection<String> players, int options, int color) {
+        for (String player : players) {
+            expectedTeams.put(player, name);
+        }
+        registerTeam0(name, prefix, suffix, visibility, collision, players, options, color);
+    }
+
+    public void unregisterTeam(@NotNull String name) {
+        for (Map.Entry<String, String> entry : expectedTeams.entrySet()) {
+            if (entry.getValue().equals(name)) {
+                expectedTeams.remove(entry.getKey());
+                break;
+            }
+        }
+        unregisterTeam0(name);
+    }
+
+    public abstract void setDisplaySlot(int slot, @NotNull String objective);
+
+    public abstract void setScore(@NotNull String objective, @NotNull String player, int score,
                   @Nullable String displayName, @Nullable String numberFormat);
 
-    void removeScore(@NotNull String objective, @NotNull String player);
+    public abstract void removeScore(@NotNull String objective, @NotNull String player);
 
-    void registerObjective(@NotNull String objectiveName, @NotNull String title,
+    public abstract void registerObjective(@NotNull String objectiveName, @NotNull String title,
                            int renderType, @Nullable String numberFormat);
 
-    void unregisterObjective(@NotNull String objectiveName);
+    public abstract void unregisterObjective(@NotNull String objectiveName);
 
-    void updateObjective(@NotNull String objectiveName, @NotNull String title,
+    public abstract void updateObjective(@NotNull String objectiveName, @NotNull String title,
                          int renderType, @Nullable String numberFormat);
 
-    void registerTeam(@NotNull String name, @NotNull String prefix, @NotNull String suffix, @NotNull String visibility,
-                      @NotNull String collision, @NotNull Collection<String> players, int options, int color);
+    public abstract void registerTeam0(@NotNull String name, @NotNull String prefix, @NotNull String suffix, @NotNull String visibility,
+                                       @NotNull String collision, @NotNull Collection<String> players, int options, int color);
 
-    void unregisterTeam(@NotNull String name);
+    public abstract void unregisterTeam0(@NotNull String name);
 
-    void updateTeam(@NotNull String name, @NotNull String prefix, @NotNull String suffix,
+    public abstract void updateTeam(@NotNull String name, @NotNull String prefix, @NotNull String suffix,
                     @NotNull String visibility, @NotNull String collision, int options, int color);
 
+    /**
+     * Checks if team contains a player who should belong to a different team and if override attempt was detected,
+     * sends a warning and removes player from the collection.
+     *
+     * @param   action
+     *          Team packet action
+     * @param   teamName
+     *          Team name in the packet
+     * @param   players
+     *          Players in the packet
+     * @return  Modified collection of players
+     */
+    @NotNull
+    public Collection<String> onTeamPacket(int action, @NonNull String teamName, @NonNull Collection<String> players) {
+        Collection<String> newList = new ArrayList<>();
+        for (String entry : players) {
+            String expectedTeam = expectedTeams.get(entry);
+            if (expectedTeam == null) {
+                newList.add(entry);
+                continue;
+            }
+            if (!teamName.equals(expectedTeam)) {
+                if (action == TeamAction.CREATE || action == TeamAction.ADD_PLAYER) {
+                    String msg = "[TAB-Bridge] Blocked attempt to add player " + entry + " into team " + teamName +
+                            " (expected team: " + expectedTeam + ")";
+                    //Bukkit.getConsoleSender().sendMessage(msg);
+                }
+            } else {
+                newList.add(entry);
+            }
+        }
+        return newList;
+    }
+
     @AllArgsConstructor
-    enum CollisionRule {
+    public enum CollisionRule {
 
         ALWAYS("always"),
         NEVER("never"),
@@ -57,7 +111,7 @@ public interface Scoreboard {
     }
 
     @AllArgsConstructor
-    enum NameVisibility {
+    public enum NameVisibility {
 
         ALWAYS("always"),
         NEVER("never"),
@@ -77,33 +131,33 @@ public interface Scoreboard {
         }
     }
 
-    class ObjectiveAction {
+    public static class ObjectiveAction {
 
         public static final int REGISTER = 0;
         public static final int UNREGISTER = 1;
         public static final int UPDATE = 2;
     }
 
-    class HealthDisplay {
+    public static class HealthDisplay {
 
         public static final int INTEGER = 0;
         public static final int HEARTS = 1;
     }
 
-    class DisplaySlot {
+    public static class DisplaySlot {
 
         public static final int PLAYER_LIST = 0;
         public static final int SIDEBAR = 1;
         public static final int BELOW_NAME = 2;
     }
 
-    class ScoreAction {
+    public static class ScoreAction {
 
         public static final int CHANGE = 0;
         public static final int REMOVE = 1;
     }
 
-    class TeamAction {
+    public static class TeamAction {
 
         public static final int CREATE = 0;
         public static final int REMOVE = 1;

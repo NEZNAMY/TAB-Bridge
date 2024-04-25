@@ -1,6 +1,7 @@
 package me.neznamy.tab.bridge.bukkit;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import me.neznamy.tab.bridge.bukkit.nms.BukkitReflection;
@@ -24,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * and server software without any artificial limits.
  */
 @RequiredArgsConstructor
-public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard {
+public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
 
     @Getter
     private static boolean available;
@@ -144,7 +145,7 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
 
     @Override
     @SneakyThrows
-    public void registerTeam(@NotNull String name, @NotNull String prefix, @NotNull String suffix,
+    public void registerTeam0(@NotNull String name, @NotNull String prefix, @NotNull String suffix,
                               @NotNull String visibility, @NotNull String collision,
                               @NotNull Collection<String> players, int options, int color) {
         if (!available) return;
@@ -155,7 +156,7 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
 
     @Override
     @SneakyThrows
-    public void unregisterTeam(@NotNull String name) {
+    public void unregisterTeam0(@NotNull String name) {
         if (!available) return;
         player.sendPacket(teamPacketData.unregisterTeam(name));
         expectedTeams.keySet().forEach(p -> expectedTeams.remove(p, name));
@@ -251,6 +252,23 @@ public class BukkitScoreboard implements me.neznamy.tab.bridge.shared.Scoreboard
     private Object toFixedFormat(@Nullable String numberFormat) {
         if (numberFormat == null || newFixedFormat == null) return null;
         return newFixedFormat.newInstance(deserialize(numberFormat));
+    }
+
+    /**
+     * Checks if packet is team packet and removes all real players from team
+     * if sent by other plugins and anti-override is fully active on a player.
+     *
+     * @param   packet
+     *          Received packet
+     */
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    public void onPacketSend(@NonNull Object packet) {
+        if (!teamPacketData.TeamPacketClass.isInstance(packet)) return;
+        int action = teamPacketData.TeamPacket_ACTION.getInt(packet);
+        if (action == TeamAction.REMOVE || action == TeamAction.UPDATE) return;
+        teamPacketData.TeamPacket_PLAYERS.set(packet, player.getScoreboard().onTeamPacket(
+                action, (String) teamPacketData.TeamPacket_NAME.get(packet), (Collection<String>) teamPacketData.TeamPacket_PLAYERS.get(packet)));
     }
 
     private static class ScorePacketData {
