@@ -2,9 +2,11 @@ package me.neznamy.tab.bridge.bukkit.nms;
 
 import io.netty.channel.Channel;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.BukkitScoreboard;
+import me.neznamy.tab.bridge.shared.util.ComponentCache;
 import me.neznamy.tab.bridge.shared.util.FunctionWithException;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.bukkit.Bukkit;
@@ -31,7 +33,14 @@ public class NMSStorage {
     public final Field CHANNEL = ReflectionUtils.getFields(NetworkManager, Channel.class).get(0);
     public final Method getHandle = Class.forName("org.bukkit.craftbukkit." + BukkitBridge.getServerPackage() + ".entity.CraftPlayer").getMethod("getHandle");
     public final Method sendPacket = ReflectionUtils.getMethods(PlayerConnection, void.class, Packet).get(0);
-    public final FunctionWithException<String, Object> deserialize = getDeserializeFunction();
+    private final FunctionWithException<String, Object> deserialize = getDeserializeFunction();
+    private final ComponentCache<String, Object> componentCache = new ComponentCache<>(1000, json -> {
+        try {
+            return deserialize.apply(json);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    });
 
     /**
      * Creates new instance, initializes required NMS classes and fields
@@ -60,6 +69,10 @@ public class NMSStorage {
             Method fromJson = first(ReflectionUtils.getMethods(ChatSerializer, Object.class, String.class));
             return string -> fromJson.invoke(null, string);
         }
+    }
+
+    public Object deserialize(@NonNull String json) {
+        return componentCache.get(json);
     }
 
     @NotNull

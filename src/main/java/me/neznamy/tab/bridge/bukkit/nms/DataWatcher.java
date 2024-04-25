@@ -143,7 +143,7 @@ public class DataWatcher {
     public void setCustomName(String customName, String componentText) {
         if (BukkitBridge.getMinorVersion() >= 13) {
             setValue(2, DataWatcherSerializer_OPTIONAL_COMPONENT,
-                    Optional.ofNullable(nms.deserialize.apply(componentText)));
+                    Optional.ofNullable(nms.deserialize(componentText)));
         } else if (BukkitBridge.getMinorVersion() >= 8) {
             setValue(2, DataWatcherSerializer_STRING, customName);
         } else {

@@ -237,7 +237,7 @@ public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
     @SneakyThrows
     private Object deserialize(@Nullable String json) {
         if (json == null) return null;
-        return NMSStorage.getInstance().deserialize.apply(json);
+        return NMSStorage.getInstance().deserialize(json);
     }
 
     @Nullable
