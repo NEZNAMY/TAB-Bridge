@@ -26,8 +26,6 @@ public class VehicleRefresher {
     @Getter
     private final Map<Integer, List<Entity>> vehicles = new ConcurrentHashMap<>();
 
-    private final WeakHashMap<BridgePlayer, String> playerVehicles = new WeakHashMap<>();
-    
     private final BridgeNameTagX feature;
 
     public VehicleRefresher(BridgeNameTagX feature) {
@@ -43,9 +41,8 @@ public class VehicleRefresher {
                     p.unlimitedNametagData.armorStandManager.teleport((BukkitBridgePlayer) p);
                 }
                 Entity e = ((BukkitBridgePlayer)p).getPlayer().getVehicle();
-                String vehicle = e == null ? "" : e.getClass().getName() + "@" + Integer.toHexString(e.hashCode());
-                if (!playerVehicles.getOrDefault(p, "null").equals(vehicle)) {
-                    playerVehicles.put(p, vehicle);
+                if (p.unlimitedNametagData.vehicle != e) {
+                    p.unlimitedNametagData.vehicle = e;
                     refresh((BukkitBridgePlayer) p);
                 }
             }

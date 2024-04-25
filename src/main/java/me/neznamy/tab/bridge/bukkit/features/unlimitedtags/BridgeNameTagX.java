@@ -9,8 +9,10 @@ import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -205,5 +207,9 @@ public class BridgeNameTagX {
 
         /** Whether player has disabled unlimited nametags or not */
         public boolean disabled;
+
+        /** Vehicle this player is riding*/
+        @Nullable
+        public Entity vehicle;
     }
 }
