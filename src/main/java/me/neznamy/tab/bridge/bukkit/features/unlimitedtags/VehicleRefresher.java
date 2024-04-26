@@ -21,6 +21,8 @@ public class VehicleRefresher {
 
     //map of players currently in a vehicle
     private final WeakHashMap<BridgePlayer, Entity> playersInVehicle = new WeakHashMap<>();
+
+    private BridgePlayer[] playersInVehicleArray = new BridgePlayer[0];
     
     //map of vehicles carrying players
     @Getter
@@ -32,7 +34,7 @@ public class VehicleRefresher {
         this.feature = feature;
         TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
             if (!feature.isEnabled()) return;
-            for (BridgePlayer inVehicle : playersInVehicle.keySet()) {
+            for (BridgePlayer inVehicle : playersInVehicleArray) {
                 ArmorStandManager asm = inVehicle.unlimitedNametagData.armorStandManager;
                 if (asm != null) asm.teleport();
             }
@@ -54,6 +56,7 @@ public class VehicleRefresher {
         if (vehicle != null) {
             updateVehicle(vehicle);
             playersInVehicle.put(connectedPlayer, vehicle);
+            playersInVehicleArray = playersInVehicle.keySet().toArray(new BridgePlayer[0]);
             if (feature.isDisableOnBoats() && vehicle.getType().toString().contains("BOAT")) {
                 connectedPlayer.unlimitedNametagData.onBoat = true;
             }
@@ -75,6 +78,7 @@ public class VehicleRefresher {
             vehicles.remove(playersInVehicle.get(p).getEntityId());
             p.unlimitedNametagData.armorStandManager.teleport();
             playersInVehicle.remove(p);
+            playersInVehicleArray = playersInVehicle.keySet().toArray(new BridgePlayer[0]);
             if (feature.isDisableOnBoats() && p.unlimitedNametagData.onBoat) {
                 p.unlimitedNametagData.onBoat = false;
                 p.sendPluginMessage(new SetOnBoat(false));
@@ -85,6 +89,7 @@ public class VehicleRefresher {
             updateVehicle(vehicle);
             p.unlimitedNametagData.armorStandManager.respawn(); //making teleport instant instead of showing teleport animation
             playersInVehicle.put(p, vehicle);
+            playersInVehicleArray = playersInVehicle.keySet().toArray(new BridgePlayer[0]);
             if (feature.isDisableOnBoats() && vehicle.getType().toString().contains("BOAT")) {
                 p.unlimitedNametagData.onBoat = true;
                 p.sendPluginMessage(new SetOnBoat(true));
