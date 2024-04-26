@@ -22,11 +22,13 @@ import java.util.Set;
 public class BukkitBridgePlayer extends BridgePlayer {
 
     private static final boolean vault = Bukkit.getPluginManager().isPluginEnabled("Vault");
+    private static final boolean libsDisguises = Bukkit.getPluginManager().isPluginEnabled("LibsDisguises");
 
     private final Player player;
     private final BukkitScoreboard scoreboard = new BukkitScoreboard(this);
     private final PacketEntityView entityView = new PacketEntityView(this);
     private final Set<String> channels;
+    private Permission permission;
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
@@ -34,6 +36,10 @@ public class BukkitBridgePlayer extends BridgePlayer {
         super(player.getName(), player.getUniqueId(), protocolVersion);
         this.player = player;
         channels = ((Set<String>) ReflectionUtils.getField(player.getClass(), "channels").get(player));
+        if (vault) {
+            RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
+            if (rsp != null) permission = rsp.getProvider();
+        }
     }
 
     @Override
@@ -79,7 +85,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
 
     @Override
     public boolean checkDisguised() {
-        if (Bukkit.getPluginManager().isPluginEnabled("LibsDisguises")) {
+        if (libsDisguises) {
             try {
                 return (boolean) Class.forName("me.libraryaddict.disguise.DisguiseAPI").getMethod("isDisguised", Entity.class).invoke(null, player);
             } catch (Throwable e) {
@@ -95,11 +101,10 @@ public class BukkitBridgePlayer extends BridgePlayer {
             return LuckPermsHook.getInstance().getGroupFunction().apply(this);
         }
         if (vault) {
-            RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
-            if (rsp == null || rsp.getProvider().getName().equals("SuperPerms")) {
+            if (permission == null || permission.getName().equals("SuperPerms")) {
                 return "No permission plugin found";
             } else {
-                return rsp.getProvider().getPrimaryGroup(player);
+                return permission.getPrimaryGroup(player);
             }
         }
         return "Vault not found";
