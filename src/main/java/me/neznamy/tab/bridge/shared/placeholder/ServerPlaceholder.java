@@ -1,6 +1,5 @@
 package me.neznamy.tab.bridge.shared.placeholder;
 
-import com.google.common.collect.Iterables;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.message.outgoing.PlaceholderError;
@@ -31,9 +30,9 @@ public class ServerPlaceholder extends Placeholder {
         try {
             return function.get();
         } catch (Throwable t) {
-            BridgePlayer first = Iterables.getFirst(TABBridge.getInstance().getOnlinePlayers(), null);
-            if (first != null) {
-                first.sendPluginMessage(new PlaceholderError("Server placeholder " + identifier + " generated an error", t));
+            BridgePlayer[] players = TABBridge.getInstance().getOnlinePlayers();
+            if (players.length > 0) {
+                players[0].sendPluginMessage(new PlaceholderError("Server placeholder " + identifier + " generated an error", t));
             }
             return "<PlaceholderAPI Error>";
         } finally {
