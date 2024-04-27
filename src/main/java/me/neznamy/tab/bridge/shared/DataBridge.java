@@ -146,9 +146,8 @@ public class DataBridge {
     }
 
     public void processQueue(Object player) {
-        List<byte[]> list = new ArrayList<>(messageQueue.computeIfAbsent(player, p -> new ArrayList<>()));
-        messageQueue.remove(player);
-        list.forEach(msg -> processPluginMessage(player, msg, true));
+        List<byte[]> list = messageQueue.remove(player);
+        if (list != null) list.forEach(msg -> processPluginMessage(player, msg, true));
     }
 
     public void registerPlaceholder(BridgePlayer player, String identifier, int refresh) {
