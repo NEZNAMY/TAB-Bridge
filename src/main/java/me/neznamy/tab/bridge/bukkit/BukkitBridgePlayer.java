@@ -54,13 +54,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
     @Override
     public void sendPacket(Object packet) {
         if (NMSStorage.getInstance() == null) return;
-        try {
-            Object handle = NMSStorage.getInstance().getHandle.invoke(player);
-            Object playerConnection = NMSStorage.getInstance().PLAYER_CONNECTION.get(handle);
-            NMSStorage.getInstance().sendPacket.invoke(playerConnection, packet);
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
+        NMSStorage.getInstance().getPacketSender().sendPacket(player, packet);
     }
 
     @Override

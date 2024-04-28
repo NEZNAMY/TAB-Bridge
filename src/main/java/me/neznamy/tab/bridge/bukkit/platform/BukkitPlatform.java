@@ -40,14 +40,7 @@ public class BukkitPlatform implements Platform {
     @Override
     public Channel getChannel(Object player) {
         if (NMSStorage.getInstance() == null) return null;
-        try {
-            Object handle = NMSStorage.getInstance().getHandle.invoke(player);
-            Object playerConnection = NMSStorage.getInstance().PLAYER_CONNECTION.get(handle);
-            return (Channel) NMSStorage.getInstance().CHANNEL.get(NMSStorage.getInstance().NETWORK_MANAGER.get(playerConnection));
-        } catch (ReflectiveOperationException ex) {
-            ex.printStackTrace();
-            return null;
-        }
+        return NMSStorage.getInstance().getChannelInjection().getChannel((Player) player);
     }
 
     @Override

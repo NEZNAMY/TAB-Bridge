@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -141,15 +140,15 @@ public class DataWatcher {
 
     @SneakyThrows
     public void setCustomName(String customName, String componentText) {
-        if (BukkitBridge.getMinorVersion() >= 13) {
+        if (BukkitReflection.getMinorVersion() >= 13) {
             setValue(2, DataWatcherSerializer_OPTIONAL_COMPONENT,
                     Optional.ofNullable(nms.deserialize(componentText)));
-        } else if (BukkitBridge.getMinorVersion() >= 8) {
+        } else if (BukkitReflection.getMinorVersion() >= 8) {
             setValue(2, DataWatcherSerializer_STRING, customName);
         } else {
             //name length is limited to 64 characters on <1.8
             String cutName = (customName.length() > 64 ? customName.substring(0, 64) : customName);
-            if (BukkitBridge.getMinorVersion() >= 6) {
+            if (BukkitReflection.getMinorVersion() >= 6) {
                 setValue(10, null, cutName);
             } else {
                 setValue(5, null, cutName);
@@ -158,7 +157,7 @@ public class DataWatcher {
     }
 
     public void setCustomNameVisible(boolean visible) {
-        if (BukkitBridge.getMinorVersion() >= 9) {
+        if (BukkitReflection.getMinorVersion() >= 9) {
             setValue(3, DataWatcherSerializer_BOOLEAN, visible);
         } else {
             setValue(3, null, (byte)(visible?1:0));
@@ -170,16 +169,16 @@ public class DataWatcher {
     }
 
     private static int getArmorStandFlagsPosition() {
-        if (BukkitBridge.getMinorVersion() >= 17) {
+        if (BukkitReflection.getMinorVersion() >= 17) {
             //1.17.x, 1.18.x, 1.19.x, 1.20.x
             return 15;
-        } else if (BukkitBridge.getMinorVersion() >= 15) {
+        } else if (BukkitReflection.getMinorVersion() >= 15) {
             //1.15.x, 1.16.x
             return 14;
-        } else if (BukkitBridge.getMinorVersion() == 14) {
+        } else if (BukkitReflection.getMinorVersion() == 14) {
             //1.14.x
             return 13;
-        } else if (BukkitBridge.getMinorVersion() >= 10) {
+        } else if (BukkitReflection.getMinorVersion() >= 10) {
             //1.10.x - 1.13.x
             return 11;
         } else {
@@ -198,7 +197,7 @@ public class DataWatcher {
 
         @SneakyThrows
         public Object createObject() {
-            if (BukkitBridge.getMinorVersion() >= 9) {
+            if (BukkitReflection.getMinorVersion() >= 9) {
                 return newDataWatcherObject.newInstance(position, serializer);
             } else {
                 return position;

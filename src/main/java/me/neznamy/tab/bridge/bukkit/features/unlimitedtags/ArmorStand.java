@@ -3,6 +3,7 @@ package me.neznamy.tab.bridge.bukkit.features.unlimitedtags;
 import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.neznamy.tab.bridge.bukkit.BukkitBridgePlayer;
+import me.neznamy.tab.bridge.bukkit.nms.BukkitReflection;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.bukkit.BukkitBridge;
 import me.neznamy.tab.bridge.bukkit.nms.DataWatcher;
@@ -187,7 +188,7 @@ public class ArmorStand {
         if (player.getPlayer().isSleeping()) {
             y -= 1.76;
         } else {
-            if (BukkitBridge.getMinorVersion() >= 9) {
+            if (BukkitReflection.getMinorVersion() >= 9) {
                 y -= (player.getPlayer().isSneaking() ? 0.45 : 0.18);
             } else {
                 y -= (player.getPlayer().isSneaking() ? 0.30 : 0.18);
@@ -218,15 +219,15 @@ public class ArmorStand {
             }
         }
         //1.13+ swimming or 1.9+ flying with elytra
-        if (isSwimming() || (BukkitBridge.getMinorVersion() >= 9 && player.getPlayer().isGliding())) {
+        if (isSwimming() || (BukkitReflection.getMinorVersion() >= 9 && player.getPlayer().isGliding())) {
             return player.getPlayer().getLocation().getY()-1.22;
         }
         return player.getPlayer().getLocation().getY();
     }
 
     private boolean isSwimming() {
-        if (BukkitBridge.getMinorVersion() >= 14 && player.getPlayer().getPose() == Pose.SWIMMING) return true;
-        return BukkitBridge.getMinorVersion() == 13 && player.getPlayer().isSwimming();
+        if (BukkitReflection.getMinorVersion() >= 14 && player.getPlayer().getPose() == Pose.SWIMMING) return true;
+        return BukkitReflection.getMinorVersion() == 13 && player.getPlayer().isSwimming();
     }
 
     /**
