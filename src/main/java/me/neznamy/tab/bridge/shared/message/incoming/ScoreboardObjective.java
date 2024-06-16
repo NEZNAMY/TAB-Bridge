@@ -2,6 +2,7 @@ package me.neznamy.tab.bridge.shared.message.incoming;
 
 import com.google.common.io.ByteArrayDataInput;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
+import me.neznamy.tab.bridge.shared.chat.IChatBaseComponent;
 import org.jetbrains.annotations.NotNull;
 
 public class ScoreboardObjective implements IncomingMessage {
@@ -28,11 +29,11 @@ public class ScoreboardObjective implements IncomingMessage {
     @Override
     public void process(@NotNull BridgePlayer player) {
         if (action == 0) {
-            player.getScoreboard().registerObjective(objective, title, renderType, numberFormat);
+            player.getScoreboard().registerObjective(objective, IChatBaseComponent.optimizedComponent(title), renderType, numberFormat);
         } else if (action == 1) {
             player.getScoreboard().unregisterObjective(objective);
         } else if (action == 2) {
-            player.getScoreboard().updateObjective(objective, title, renderType, numberFormat);
+            player.getScoreboard().updateObjective(objective, IChatBaseComponent.optimizedComponent(title), renderType, numberFormat);
         }
     }
 }

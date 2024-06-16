@@ -109,12 +109,12 @@ public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
     @SneakyThrows
     public void setDisplaySlot(int slot, @NotNull String objective) {
         if (!available) return;
-        player.sendPacket(displayPacketData.setDisplaySlot(slot, newObjective(objective, "", 0, null)));
+        player.sendPacket(displayPacketData.setDisplaySlot(slot, newObjective(objective, new IChatBaseComponent(""), 0, null)));
     }
 
     @Override
     @SneakyThrows
-    public void registerObjective(@NotNull String objectiveName, @NotNull String title, int display,
+    public void registerObjective(@NotNull String objectiveName, @NotNull IChatBaseComponent title, int display,
                                    @Nullable String numberFormat) {
         if (!available) return;
         player.sendPacket(newObjectivePacket(ObjectiveAction.REGISTER, objectiveName, title, display, numberFormat));
@@ -123,18 +123,18 @@ public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
     @Override
     public void unregisterObjective(@NotNull String objectiveName) {
         if (!available) return;
-        player.sendPacket(newObjectivePacket(ObjectiveAction.UNREGISTER, objectiveName, "", 0, null));
+        player.sendPacket(newObjectivePacket(ObjectiveAction.UNREGISTER, objectiveName, new IChatBaseComponent(""), 0, null));
     }
 
     @Override
-    public void updateObjective(@NotNull String objectiveName, @NotNull String title, int display,
+    public void updateObjective(@NotNull String objectiveName, @NotNull IChatBaseComponent title, int display,
                                  @Nullable String numberFormat) {
         if (!available) return;
         player.sendPacket(newObjectivePacket(ObjectiveAction.UPDATE, objectiveName, title, display, numberFormat));
     }
 
     @SneakyThrows
-    private Object newObjectivePacket(int action, @NotNull String objectiveName, @NotNull String title, int display,
+    private Object newObjectivePacket(int action, @NotNull String objectiveName, @NotNull IChatBaseComponent title, int display,
                                       @Nullable String numberFormat) {
         Object packet = newObjectivePacket.newInstance(newObjective(objectiveName, title, display, numberFormat), action);
         if (BukkitReflection.getMinorVersion() >= 8 && BukkitReflection.getMinorVersion() < 13) {
@@ -145,12 +145,11 @@ public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
 
     @Override
     @SneakyThrows
-    public void registerTeam0(@NotNull String name, @NotNull String prefix, @NotNull String suffix,
+    public void registerTeam0(@NotNull String name, @NotNull IChatBaseComponent prefix, @NotNull IChatBaseComponent suffix,
                               @NotNull String visibility, @NotNull String collision,
                               @NotNull Collection<String> players, int options, int color) {
         if (!available) return;
-        player.sendPacket(teamPacketData.registerTeam(name, prefix, toComponent(prefix), suffix,
-                toComponent(suffix), visibility, collision, players, options, color));
+        player.sendPacket(teamPacketData.registerTeam(name, prefix, suffix, visibility, collision, players, options, color, player.getProtocolVersion()));
         players.forEach(player -> expectedTeams.put(player, name));
     }
 
@@ -164,11 +163,10 @@ public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
 
     @Override
     @SneakyThrows
-    public void updateTeam(@NotNull String name, @NotNull String prefix, @NotNull String suffix,
+    public void updateTeam(@NotNull String name, @NotNull IChatBaseComponent prefix, @NotNull IChatBaseComponent suffix,
                             @NotNull String visibility, @NotNull String collision, int options, int color) {
         if (!available) return;
-        player.sendPacket(teamPacketData.updateTeam(name, prefix, toComponent(prefix), suffix,
-                toComponent(suffix), visibility, collision, options, color));
+        player.sendPacket(teamPacketData.updateTeam(name, prefix, suffix, visibility, collision, options, color, player.getProtocolVersion()));
     }
 
     @Override
@@ -198,7 +196,7 @@ public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
      * @return  Created objective
      */
     @SneakyThrows
-    public Object newObjective(@NotNull String objectiveName, @NotNull String title, int renderType,
+    public Object newObjective(@NotNull String objectiveName, @NotNull IChatBaseComponent title, int renderType,
                                @Nullable String numberFormat) {
         if (BukkitReflection.is1_20_3Plus()) {
             // 1.20.3+
@@ -224,18 +222,16 @@ public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
         }
         // 1.5 - 1.12.2
         Object objective = newScoreboardObjective.newInstance(emptyScoreboard, objectiveName, IScoreboardCriteria_dummy);
-        ScoreboardObjective_setDisplayName.invoke(objective, title);
+        String text = title.toLegacyText();
+        if (player.getProtocolVersion() <= 340 && text.length() > 32) { // 1.12.2-
+            text = text.substring(0, 32);
+        }
+        ScoreboardObjective_setDisplayName.invoke(objective, text);
         return objective;
     }
 
-    @Nullable
-    private Object toComponent(@Nullable String text) {
-        if (text == null) return null;
-        return toComponent(IChatBaseComponent.optimizedComponent(text));
-    }
-
     @SneakyThrows
-    private Object deserialize(@Nullable String json) {
+    private static Object deserialize(@Nullable String json) {
         if (json == null) return null;
         return NMSStorage.getInstance().deserialize(json);
     }
@@ -458,11 +454,10 @@ public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
 
         @SuppressWarnings("unchecked")
         @SneakyThrows
-        public Object registerTeam(@NotNull String name, @NotNull String prefix, @Nullable Object prefixComponent,
-                                   @NotNull String suffix, @Nullable Object suffixComponent,
+        public Object registerTeam(@NotNull String name, @NotNull IChatBaseComponent prefix, @NotNull IChatBaseComponent suffix,
                                    @NotNull String visibility, @NotNull String collision,
-                                   @NotNull Collection<String> players, int options, int color) {
-            Object team = createTeam(name, prefix, prefixComponent, suffix, suffixComponent, visibility, collision, options, color);
+                                   @NotNull Collection<String> players, int options, int color, int protocolVersion) {
+            Object team = createTeam(name, prefix, suffix, visibility, collision, options, color, protocolVersion);
             ((Collection<String>)ScoreboardTeam_getPlayerNameSet.invoke(team)).addAll(players);
             if (BukkitReflection.getMinorVersion() >= 17) {
                 return TeamPacketConstructor_ofBoolean.invoke(null, team, true);
@@ -482,10 +477,9 @@ public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
         }
 
         @SneakyThrows
-        public Object updateTeam(@NotNull String name, @NotNull String prefix, @Nullable Object prefixComponent,
-                                 @NotNull String suffix, @Nullable Object suffixComponent,
-                                 @NotNull String visibility, @NotNull String collision, int options, int color) {
-            Object team = createTeam(name, prefix, prefixComponent, suffix, suffixComponent, visibility, collision, options, color);
+        public Object updateTeam(@NotNull String name, @NotNull IChatBaseComponent prefix, @NotNull IChatBaseComponent suffix,
+                                 @NotNull String visibility, @NotNull String collision, int options, int color, int protocolVersion) {
+            Object team = createTeam(name, prefix, suffix, visibility, collision, options, color, protocolVersion);
             if (BukkitReflection.getMinorVersion() >= 17) {
                 return TeamPacketConstructor_ofBoolean.invoke(null, team, false);
             } else {
@@ -494,19 +488,24 @@ public class BukkitScoreboard extends me.neznamy.tab.bridge.shared.Scoreboard {
         }
 
         @SneakyThrows
-        private Object createTeam(@NotNull String teamName, @NotNull String prefix, @Nullable Object prefixComponent,
-                                  @NotNull String suffix, @Nullable Object suffixComponent,
-                                  @NotNull String visibility, @NotNull String collision, int options, int color) {
+        private Object createTeam(@NotNull String teamName, @NotNull IChatBaseComponent prefix, @NotNull IChatBaseComponent suffix,
+                                  @NotNull String visibility, @NotNull String collision, int options, int color, int protocolVersion) {
             Object team = newScoreboardTeam.newInstance(emptyScoreboard, teamName);
             ScoreboardTeam_setAllowFriendlyFire.invoke(team, (options & 0x1) > 0);
             ScoreboardTeam_setCanSeeFriendlyInvisibles.invoke(team, (options & 0x2) > 0);
             if (BukkitReflection.getMinorVersion() >= 13) {
-                ScoreboardTeam_setPrefix.invoke(team, prefixComponent);
-                ScoreboardTeam_setSuffix.invoke(team, suffixComponent);
+                ScoreboardTeam_setPrefix.invoke(team, deserialize(prefix.toString(protocolVersion)));
+                ScoreboardTeam_setSuffix.invoke(team, deserialize(suffix.toString(protocolVersion)));
                 ScoreboardTeam_setColor.invoke(team, chatFormats[color]);
             } else {
-                ScoreboardTeam_setPrefix.invoke(team, prefix);
-                ScoreboardTeam_setSuffix.invoke(team, suffix);
+                String prefixText = prefix.toLegacyText();
+                String suffixText = suffix.toLegacyText();
+                if (protocolVersion <= 340) { // 1.12.2-
+                    if (prefixText.length() > 16) prefixText = prefixText.substring(0, 16);
+                    if (suffixText.length() > 16) suffixText = suffixText.substring(0, 16);
+                }
+                ScoreboardTeam_setPrefix.invoke(team, prefixText);
+                ScoreboardTeam_setSuffix.invoke(team, suffixText);
             }
             if (BukkitReflection.getMinorVersion() >= 8)
                 ScoreboardTeam_setNameTagVisibility.invoke(team, nameVisibilities[NameVisibility.getByName(visibility).ordinal()]);

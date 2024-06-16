@@ -2,6 +2,7 @@ package me.neznamy.tab.bridge.shared;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import me.neznamy.tab.bridge.shared.chat.IChatBaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +15,7 @@ public abstract class Scoreboard {
     /** Player-to-Team map of expected teams of players */
     private final Map<String, String> expectedTeams = new HashMap<>();
 
-    public void registerTeam(@NotNull String name, @NotNull String prefix, @NotNull String suffix, @NotNull String visibility,
+    public void registerTeam(@NotNull String name, @NotNull IChatBaseComponent prefix, @NotNull IChatBaseComponent suffix, @NotNull String visibility,
                                       @NotNull String collision, @NotNull Collection<String> players, int options, int color) {
         for (String player : players) {
             expectedTeams.put(player, name);
@@ -39,20 +40,20 @@ public abstract class Scoreboard {
 
     public abstract void removeScore(@NotNull String objective, @NotNull String player);
 
-    public abstract void registerObjective(@NotNull String objectiveName, @NotNull String title,
+    public abstract void registerObjective(@NotNull String objectiveName, @NotNull IChatBaseComponent title,
                            int renderType, @Nullable String numberFormat);
 
     public abstract void unregisterObjective(@NotNull String objectiveName);
 
-    public abstract void updateObjective(@NotNull String objectiveName, @NotNull String title,
+    public abstract void updateObjective(@NotNull String objectiveName, @NotNull IChatBaseComponent title,
                          int renderType, @Nullable String numberFormat);
 
-    public abstract void registerTeam0(@NotNull String name, @NotNull String prefix, @NotNull String suffix, @NotNull String visibility,
+    public abstract void registerTeam0(@NotNull String name, @NotNull IChatBaseComponent prefix, @NotNull IChatBaseComponent suffix, @NotNull String visibility,
                                        @NotNull String collision, @NotNull Collection<String> players, int options, int color);
 
     public abstract void unregisterTeam0(@NotNull String name);
 
-    public abstract void updateTeam(@NotNull String name, @NotNull String prefix, @NotNull String suffix,
+    public abstract void updateTeam(@NotNull String name, @NotNull IChatBaseComponent prefix, @NotNull IChatBaseComponent suffix,
                     @NotNull String visibility, @NotNull String collision, int options, int color);
 
     /**

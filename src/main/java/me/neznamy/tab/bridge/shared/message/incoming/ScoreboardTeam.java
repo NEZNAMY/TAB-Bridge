@@ -2,6 +2,7 @@ package me.neznamy.tab.bridge.shared.message.incoming;
 
 import com.google.common.io.ByteArrayDataInput;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
+import me.neznamy.tab.bridge.shared.chat.IChatBaseComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -43,11 +44,13 @@ public class ScoreboardTeam implements IncomingMessage {
     @Override
     public void process(@NotNull BridgePlayer player) {
         if (action == 0) {
-            player.getScoreboard().registerTeam(name, prefix, suffix, visibility, collision, players, options, color);
+            player.getScoreboard().registerTeam(name, IChatBaseComponent.optimizedComponent(prefix),
+                    IChatBaseComponent.optimizedComponent(suffix), visibility, collision, players, options, color);
         } else if (action == 1) {
             player.getScoreboard().unregisterTeam(name);
         } else if (action == 2) {
-            player.getScoreboard().updateTeam(name, prefix, suffix, visibility, collision, options, color);
+            player.getScoreboard().updateTeam(name, IChatBaseComponent.optimizedComponent(prefix),
+                    IChatBaseComponent.optimizedComponent(suffix), visibility, collision, options, color);
         }
     }
 }
