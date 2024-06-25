@@ -2,8 +2,6 @@ package me.neznamy.tab.bridge.bukkit;
 
 import lombok.Getter;
 import me.neznamy.tab.bridge.bukkit.features.BridgeTabExpansion;
-import me.neznamy.tab.bridge.bukkit.features.unlimitedtags.BridgeNameTagX;
-import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
 import me.neznamy.tab.bridge.bukkit.platform.BukkitPlatform;
 import me.neznamy.tab.bridge.bukkit.platform.FoliaPlatform;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
@@ -29,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 public class BukkitBridge extends JavaPlugin implements PluginMessageListener, Listener {
 
     @Getter private static BukkitBridge instance;
-    public BridgeNameTagX nametagx;
     
     public void onEnable() {
         instance = this;
@@ -38,18 +35,9 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
         BridgeTabExpansion expansion = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") ? new BridgeTabExpansion() : null;
         TABBridge.setInstance(new TABBridge(platform, expansion));
         if (expansion != null) expansion.register();
-        try {
-            NMSStorage.setInstance(new NMSStorage());
-        } catch (ReflectiveOperationException e) {
-            Bukkit.getConsoleSender().sendMessage("\u00a7c[TAB-Bridge] Server version is not compatible, disabling advanced features");
-        }
-        nametagx = new BridgeNameTagX(this);
         Bukkit.getMessenger().registerIncomingPluginChannel(this, TABBridge.CHANNEL_NAME, this);
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, TABBridge.CHANNEL_NAME);
         Bukkit.getPluginManager().registerEvents(this, this);
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            TABBridge.getInstance().getPlatform().inject(p, new BridgeChannelDuplexHandler(p));
-        }
         TABBridge.getInstance().getDataBridge().startTasks();
         new Metrics(this, 20810);
     }
@@ -58,18 +46,13 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
         Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
         HandlerList.unregisterAll((Plugin)this);
         TABBridge.getInstance().getPlatform().cancelTasks();
-        nametagx.unload();
         TABBridge.getInstance().shutdownExecutor();
         TabExpansion expansion = TABBridge.getInstance().getExpansion();
         if (expansion != null) expansion.unregister();
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            TABBridge.getInstance().getPlatform().uninject(p);
-        }
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        TABBridge.getInstance().getPlatform().inject(e.getPlayer(), new BridgeChannelDuplexHandler(e.getPlayer()));
         TABBridge.getInstance().submitTask(() -> TABBridge.getInstance().getDataBridge().processQueue(e.getPlayer()));
     }
 
@@ -78,7 +61,6 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
         TABBridge.getInstance().submitTask(() -> {
             BukkitBridgePlayer p = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
             if (p == null) return;
-            if (NMSStorage.getInstance() != null) nametagx.onQuit(p);
             TABBridge.getInstance().removePlayer(p);
         });
     }

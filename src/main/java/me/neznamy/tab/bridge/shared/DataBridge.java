@@ -42,11 +42,6 @@ public class DataBridge {
         put("Permission", PermissionCheck::new);
         put("Placeholder", PlaceholderRegister::new);
         put("Expansion", ExpansionPlaceholder::new);
-        put("PacketPlayOutScoreboardDisplayObjective", SetDisplayObjective::new);
-        put("PacketPlayOutScoreboardObjective", ScoreboardObjective::new);
-        put("PacketPlayOutScoreboardScore", ScoreboardScore::new);
-        put("PacketPlayOutScoreboardTeam", ScoreboardTeam::new);
-        put("NameTagX", NameTagMessage::new);
     }};
 
     public void startTasks() {
@@ -88,7 +83,6 @@ public class DataBridge {
                 registerPlaceholder(bp, in.readUTF(), in.readInt());
             }
             readReplacements(in);
-            TABBridge.getInstance().getPlatform().readUnlimitedNametagJoin(bp, in);
             TABBridge.getInstance().addPlayer(bp);
 
             // Send response

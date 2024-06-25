@@ -2,7 +2,6 @@ package me.neznamy.tab.bridge.shared;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.neznamy.tab.bridge.bukkit.features.unlimitedtags.BridgeNameTagX;
 import me.neznamy.tab.bridge.shared.message.outgoing.*;
 
 import java.util.UUID;
@@ -19,7 +18,6 @@ public abstract class BridgePlayer {
     private boolean invisible;
     private int gameMode;
     private String group = "NONE";
-    public final BridgeNameTagX.PlayerData unlimitedNametagData = new BridgeNameTagX.PlayerData(); // TODO do not refer bukkit from shared
 
     public void setVanished(boolean vanished) {
         if (this.vanished == vanished) return;
@@ -60,10 +58,6 @@ public abstract class BridgePlayer {
     }
 
     public abstract void sendPluginMessage(byte[] message);
-
-    public abstract void sendPacket(Object packet);
-
-    public abstract Scoreboard getScoreboard();
 
     public abstract String getWorld();
 

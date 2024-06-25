@@ -2,12 +2,9 @@ package me.neznamy.tab.bridge.bukkit;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
-import me.neznamy.tab.bridge.bukkit.nms.NMSStorage;
-import me.neznamy.tab.bridge.bukkit.nms.PacketEntityView;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.hook.LuckPermsHook;
-import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -16,6 +13,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.potion.PotionEffectType;
 
+import java.lang.reflect.Field;
 import java.util.Set;
 
 @Getter
@@ -25,8 +23,6 @@ public class BukkitBridgePlayer extends BridgePlayer {
     private static final boolean libsDisguises = Bukkit.getPluginManager().isPluginEnabled("LibsDisguises");
 
     private final Player player;
-    private final BukkitScoreboard scoreboard = new BukkitScoreboard(this);
-    private final PacketEntityView entityView = new PacketEntityView(this);
     private final Set<String> channels;
     private Permission permission;
 
@@ -35,7 +31,9 @@ public class BukkitBridgePlayer extends BridgePlayer {
     public BukkitBridgePlayer(Player player, int protocolVersion) {
         super(player.getName(), player.getUniqueId(), protocolVersion);
         this.player = player;
-        channels = ((Set<String>) ReflectionUtils.getField(player.getClass(), "channels").get(player));
+        Field channelsField = player.getClass().getDeclaredField("channels");
+        channelsField.setAccessible(true);
+        channels = ((Set<String>) channelsField.get(player));
         if (vault) {
             RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
             if (rsp != null) permission = rsp.getProvider();
@@ -49,12 +47,6 @@ public class BukkitBridgePlayer extends BridgePlayer {
         // apparently it affects those players on older server version as well, so do this always
         channels.add(TABBridge.CHANNEL_NAME);
         player.sendPluginMessage(BukkitBridge.getInstance(), TABBridge.CHANNEL_NAME, message);
-    }
-
-    @Override
-    public void sendPacket(Object packet) {
-        if (NMSStorage.getInstance() == null) return;
-        NMSStorage.getInstance().getPacketSender().sendPacket(player, packet);
     }
 
     @Override
