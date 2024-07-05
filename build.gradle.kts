@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "me.neznamy"
-version = "5.0.6"
+version = "5.0.7"
 
 dependencies {
     compileOnly(libs.annotations)
