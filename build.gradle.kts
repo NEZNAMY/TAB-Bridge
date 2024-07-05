@@ -11,16 +11,12 @@ group = "me.neznamy"
 version = "6.0.0-SNAPSHOT"
 
 dependencies {
-    compileOnly(libs.annotations)
-    compileOnly(libs.bukkit)
-    compileOnly(libs.papi)
-    compileOnly(libs.vault)
-    compileOnly(libs.netty)
+    compileOnly("org.jetbrains:annotations:24.0.0")
+    compileOnly("org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT")
+    compileOnly("me.clip:placeholderapi:2.11.2")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("net.luckperms:api:5.4")
-    compileOnly("net.kyori:adventure-api:4.13.0")
-    compileOnly("net.kyori:adventure-text-serializer-legacy:4.13.0")
-    compileOnly("net.kyori:adventure-text-minimessage:4.13.0")
-    compileOnly(libs.plugin.lombok)
+    compileOnly("io.freefair.gradle:lombok-plugin:6.6.1")
     implementation("org.bstats:bstats-bukkit:3.0.1")
 }
 
