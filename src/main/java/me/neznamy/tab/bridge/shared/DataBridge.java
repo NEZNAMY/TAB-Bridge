@@ -167,9 +167,9 @@ public class DataBridge {
         }
         if (identifier.startsWith("%sync:")) {
             TABBridge.getInstance().getPlatform().runTask(() ->
-                    updatePlaceholder(syncPlaceholders.get(identifier), true, player));
+                    sendInitialValues(syncPlaceholders.get(identifier), player));
         } else {
-            updatePlaceholder(asyncPlaceholders.get(identifier), true, player);
+            sendInitialValues(asyncPlaceholders.get(identifier), player);
         }
     }
 
@@ -207,31 +207,48 @@ public class DataBridge {
     private void updatePlaceholders(Placeholder[] placeholders, int counter) {
         for (Placeholder placeholder : placeholders) {
             if (counter % placeholder.getRefresh() != 0) continue;
+
+            if (placeholder instanceof ServerPlaceholder) {
+                ServerPlaceholder pl = (ServerPlaceholder) placeholder;
+                if (pl.update()) {
+                    UpdatePlaceholder msg = new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue());
+                    for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
+                        player.sendPluginMessage(msg);
+                    }
+                }
+            }
             for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
-                updatePlaceholder(placeholder, false, player);
+                if (placeholder instanceof PlayerPlaceholder) {
+                    PlayerPlaceholder pl = (PlayerPlaceholder) placeholder;
+                    if (pl.update(player)) {
+                        player.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue(player)));
+                    }
+                }
+                if (placeholder instanceof RelationalPlaceholder) {
+                    RelationalPlaceholder pl = (RelationalPlaceholder) placeholder;
+                    for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
+                        if (pl.update(viewer, player)) {
+                            viewer.sendPluginMessage(new UpdateRelationalPlaceholder(pl.getIdentifier(), player.getName(), pl.getLastValue(viewer, player)));
+                        }
+                    }
+                }
             }
         }
     }
 
-    private void updatePlaceholder(Placeholder placeholder, boolean force, BridgePlayer player) {
+    private void sendInitialValues(Placeholder placeholder, BridgePlayer player) {
         if (placeholder instanceof ServerPlaceholder) {
             ServerPlaceholder pl = (ServerPlaceholder) placeholder;
-            if (pl.update() || force) {
-                player.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue()));
-            }
+            player.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue()));
         }
         if (placeholder instanceof PlayerPlaceholder) {
             PlayerPlaceholder pl = (PlayerPlaceholder) placeholder;
-            if (pl.update(player) || force) {
-                player.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue(player)));
-            }
+            player.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue(player)));
         }
         if (placeholder instanceof RelationalPlaceholder) {
             RelationalPlaceholder pl = (RelationalPlaceholder) placeholder;
             for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
-                if (pl.update(viewer, player) || force) {
-                    viewer.sendPluginMessage(new UpdateRelationalPlaceholder(pl.getIdentifier(), player.getName(), pl.getLastValue(viewer, player)));
-                }
+                viewer.sendPluginMessage(new UpdateRelationalPlaceholder(pl.getIdentifier(), player.getName(), pl.getLastValue(viewer, player)));
             }
         }
     }
