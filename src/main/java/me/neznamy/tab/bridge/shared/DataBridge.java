@@ -216,6 +216,7 @@ public class DataBridge {
                         player.sendPluginMessage(msg);
                     }
                 }
+                continue;
             }
             for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
                 if (placeholder instanceof PlayerPlaceholder) {
@@ -223,8 +224,7 @@ public class DataBridge {
                     if (pl.update(player)) {
                         player.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue(player)));
                     }
-                }
-                if (placeholder instanceof RelationalPlaceholder) {
+                } else if (placeholder instanceof RelationalPlaceholder) {
                     RelationalPlaceholder pl = (RelationalPlaceholder) placeholder;
                     for (BridgePlayer viewer : TABBridge.getInstance().getOnlinePlayers()) {
                         if (pl.update(viewer, player)) {
