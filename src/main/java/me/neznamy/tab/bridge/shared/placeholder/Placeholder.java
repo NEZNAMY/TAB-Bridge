@@ -11,9 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public abstract class Placeholder {
 
-    /** Flag deciding whether warns about placeholders taking too long to respond should be printed or not */
-    protected static final boolean PRINT_WARNS = true;
-
     /** Placeholder's identifier starting and ending with % */
     protected final String identifier;
 

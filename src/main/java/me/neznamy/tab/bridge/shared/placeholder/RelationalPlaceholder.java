@@ -1,7 +1,6 @@
 package me.neznamy.tab.bridge.shared.placeholder;
 
 import me.neznamy.tab.bridge.shared.BridgePlayer;
-import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.message.outgoing.PlaceholderError;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,19 +65,12 @@ public class RelationalPlaceholder extends Placeholder {
      */
     @NotNull
     private String request(@NotNull BridgePlayer viewer, @NotNull BridgePlayer target) {
-        long time = System.currentTimeMillis();
         try {
             return function.apply(viewer, target);
         } catch (Throwable t) {
             viewer.sendPluginMessage(new PlaceholderError("Relational placeholder " + identifier +
                     " generated an error when setting for viewer " + viewer.getName() + " and target " + target.getName(), t));
             return "<PlaceholderAPI Error>";
-        } finally {
-            long timeDiff = System.currentTimeMillis() - time;
-            if (PRINT_WARNS && timeDiff > 50) {
-                TABBridge.getInstance().getPlatform().sendConsoleMessage("&c[WARN] Placeholder " + identifier +
-                        " took " + timeDiff + "ms to return value for " + viewer.getName() + " and " + target.getName());
-            }
         }
     }
 
