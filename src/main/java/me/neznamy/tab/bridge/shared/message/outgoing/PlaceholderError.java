@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
-@SuppressWarnings("UnstableApiUsage")
 public class PlaceholderError implements OutgoingMessage {
 
     private String placeholderMessage;

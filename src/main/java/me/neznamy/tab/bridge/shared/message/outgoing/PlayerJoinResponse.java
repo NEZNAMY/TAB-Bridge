@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 @AllArgsConstructor
-@SuppressWarnings("UnstableApiUsage")
 public class PlayerJoinResponse implements OutgoingMessage {
 
     private String world;

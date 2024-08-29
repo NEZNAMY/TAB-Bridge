@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
-@SuppressWarnings("UnstableApiUsage")
 public class UpdatePlaceholder implements OutgoingMessage {
 
     private String identifier;

@@ -19,6 +19,4 @@ public interface Platform {
     Placeholder createPlaceholder(String publicIdentifier, String privateIdentifier, int refresh);
 
     void cancelTasks();
-
-    void sendConsoleMessage(String message);
 }

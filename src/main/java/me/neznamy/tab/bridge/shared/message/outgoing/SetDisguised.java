@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
-@SuppressWarnings("UnstableApiUsage")
 public class SetDisguised implements OutgoingMessage {
 
     private boolean disguised;

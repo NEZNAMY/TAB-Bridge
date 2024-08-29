@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
-@SuppressWarnings("UnstableApiUsage")
 public class PermissionResult implements OutgoingMessage {
 
     private String permission;

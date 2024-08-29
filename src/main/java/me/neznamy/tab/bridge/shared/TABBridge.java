@@ -17,7 +17,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class TABBridge {
 
     public static final String CHANNEL_NAME = "tab:bridge-5";
-    public static final String PLUGIN_VERSION = "5.0.6";
+    public static final String PLUGIN_VERSION = "6.0.0-SNAPSHOT";
     @Getter @Setter private static TABBridge instance;
 
     @Getter private final Platform platform;

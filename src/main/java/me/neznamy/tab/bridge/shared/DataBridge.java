@@ -65,7 +65,7 @@ public class DataBridge {
             }
         }, 100, 100, TimeUnit.MILLISECONDS);
     }
-    @SuppressWarnings("UnstableApiUsage")
+
     public void processPluginMessage(Object player, byte[] bytes, boolean retry) {
         if (!TABBridge.getInstance().getPlatform().isOnline(player)) {
             messageQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(bytes);
