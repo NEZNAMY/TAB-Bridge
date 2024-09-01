@@ -7,7 +7,6 @@ import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.hook.LuckPermsHook;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -20,7 +19,6 @@ import java.util.Set;
 public class BukkitBridgePlayer extends BridgePlayer {
 
     private static final boolean vault = Bukkit.getPluginManager().isPluginEnabled("Vault");
-    private static final boolean libsDisguises = Bukkit.getPluginManager().isPluginEnabled("LibsDisguises");
 
     private final Player player;
     private final Set<String> channels;
@@ -71,14 +69,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
 
     @Override
     public boolean checkDisguised() {
-        if (libsDisguises) {
-            try {
-                return (boolean) Class.forName("me.libraryaddict.disguise.DisguiseAPI").getMethod("isDisguised", Entity.class).invoke(null, player);
-            } catch (Throwable e) {
-                //java.lang.NoClassDefFoundError: Could not initialize class me.libraryaddict.disguise.DisguiseAPI
-            }
-        }
-        return false;
+        return LibsDisguisesHook.isDisguised(player);
     }
 
     @Override

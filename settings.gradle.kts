@@ -1,10 +1,10 @@
 dependencyResolutionManagement {
     repositories {
-        mavenCentral()
-        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-        maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-        maven("https://jitpack.io")
-        maven("https://repo.maven.apache.org/maven2/")
+        mavenCentral() // LuckPerms, bStats
+        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") // Spigot API
+        maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") // PlaceholderAPI
+        maven("https://jitpack.io") // Vault
+        maven("https://repo.md-5.net/content/groups/public/") // LibsDisguises
     }
 }
 

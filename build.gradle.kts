@@ -17,6 +17,13 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("io.freefair.gradle:lombok-plugin:6.6.1")
+    compileOnly("LibsDisguises:LibsDisguises:10.0.21") {
+        exclude("org.spigotmc", "spigot")
+        exclude("org.spigotmc", "spigot-api")
+        exclude("com.github.dmulloy2", "ProtocolLib")
+        exclude("org.ow2.asm", "asm")
+        exclude("net.md-5", "bungeecord-chat")
+    }
     implementation("org.bstats:bstats-bukkit:3.0.1")
 }
 
