@@ -64,7 +64,10 @@ public class BukkitBridgePlayer extends BridgePlayer {
 
     @Override
     public boolean checkVanish() {
-        return player.getMetadata("vanished").stream().anyMatch(MetadataValue::asBoolean);
+        for (MetadataValue v : player.getMetadata("vanished")) {
+            if (v.asBoolean()) return true;
+        }
+        return false;
     }
 
     @Override
