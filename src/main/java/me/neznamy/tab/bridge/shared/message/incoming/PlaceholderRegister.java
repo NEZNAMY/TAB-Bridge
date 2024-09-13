@@ -18,6 +18,6 @@ public class PlaceholderRegister implements IncomingMessage {
 
     @Override
     public void process(@NotNull BridgePlayer player) {
-        TABBridge.getInstance().getDataBridge().registerPlaceholder(player, identifier, refresh);
+        TABBridge.getInstance().getDataBridge().registerPlaceholder(identifier, refresh);
     }
 }
