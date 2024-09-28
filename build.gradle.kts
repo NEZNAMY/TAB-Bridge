@@ -1,58 +1,29 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 plugins {
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("io.freefair.lombok") version "6.6.1"
-    java
-    `maven-publish`
+    id("tab.parent")
 }
 
-group = "me.neznamy"
-version = "6.0.0-SNAPSHOT"
+allprojects {
+    group = "me.neznamy"
+    version = "6.0.0-SNAPSHOT"
+    description = "An all-in-one solution that works"
 
-dependencies {
-    compileOnly("org.jetbrains:annotations:24.0.0")
-    compileOnly("org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT")
-    compileOnly("me.clip:placeholderapi:2.11.2")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("net.luckperms:api:5.4")
-    compileOnly("io.freefair.gradle:lombok-plugin:6.6.1")
-    compileOnly("LibsDisguises:LibsDisguises:10.0.21") {
-        exclude("org.spigotmc", "spigot")
-        exclude("org.spigotmc", "spigot-api")
-        exclude("com.github.dmulloy2", "ProtocolLib")
-        exclude("org.ow2.asm", "asm")
-        exclude("net.md-5", "bungeecord-chat")
-    }
-    implementation("org.bstats:bstats-bukkit:3.0.1")
+    ext.set("id", "tab")
+    ext.set("website", "https://github.com/NEZNAMY/TAB")
+    ext.set("author", "NEZNAMY")
 }
 
-publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
-    }
-}
+val platforms = setOf(
+    projects.bukkit
+).map { it.dependencyProject }
 
-tasks {
-    compileJava {
-        options.encoding = "UTF-8"
-    }
-    shadowJar {
-        archiveFileName.set("TAB-Bridge-${project.version}.jar")
-        relocate("org.bstats", "me.neznamy.tab.bridge.libs.org.bstats")
-    }
-    build {
-        dependsOn(shadowJar)
-    }
-    processResources {
-        filesMatching("plugin.yml") {
-            filter<ReplaceTokens>(mapOf("tokens" to mapOf("version" to project.version)))
-        }
-    }
+val special = setOf(
+    projects.shared
+).map { it.dependencyProject }
 
-    java{
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(8))
-        }
+subprojects {
+    when (this) {
+        in platforms -> plugins.apply("tab.platform-conventions")
+        in special -> plugins.apply("tab.standard-conventions")
+        else -> plugins.apply("tab.base-conventions")
     }
 }
