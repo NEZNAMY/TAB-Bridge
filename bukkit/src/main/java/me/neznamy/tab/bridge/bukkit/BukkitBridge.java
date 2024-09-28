@@ -7,7 +7,6 @@ import me.neznamy.tab.bridge.bukkit.platform.FoliaPlatform;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.Platform;
 import me.neznamy.tab.bridge.shared.TABBridge;
-import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import me.neznamy.tab.bridge.shared.message.outgoing.WorldChange;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.bstats.bukkit.Metrics;
@@ -45,10 +44,7 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
     public void onDisable() {
         Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
         HandlerList.unregisterAll((Plugin)this);
-        TABBridge.getInstance().getPlatform().cancelTasks();
-        TABBridge.getInstance().shutdownExecutor();
-        TabExpansion expansion = TABBridge.getInstance().getExpansion();
-        if (expansion != null) expansion.unregister();
+        TABBridge.getInstance().unload();
     }
 
     @EventHandler

@@ -62,6 +62,12 @@ public class TABBridge {
         });
     }
 
+    public void unload() {
+        platform.cancelTasks();
+        shutdownExecutor();
+        if (expansion != null) expansion.unregister();
+    }
+
     public void shutdownExecutor() {
         scheduler.shutdownNow();
         placeholderThread.shutdownNow();
