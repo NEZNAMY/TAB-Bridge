@@ -1,5 +1,7 @@
 package me.neznamy.tab.bridge.shared;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.bridge.shared.message.outgoing.*;
@@ -54,7 +56,10 @@ public abstract class BridgePlayer {
     }
 
     public void sendPluginMessage(OutgoingMessage message) {
-        sendPluginMessage(message.write().toByteArray());
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeByte(OutgoingMessage.PACKET_IDS.get(message.getClass()));
+        message.write(out);
+        sendPluginMessage(out.toByteArray());
     }
 
     public abstract void sendPluginMessage(byte[] message);

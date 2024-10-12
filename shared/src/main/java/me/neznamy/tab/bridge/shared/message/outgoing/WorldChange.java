@@ -1,7 +1,6 @@
 package me.neznamy.tab.bridge.shared.message.outgoing;
 
 import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,11 +10,7 @@ public class WorldChange implements OutgoingMessage {
     private String world;
 
     @Override
-    @NotNull
-    public ByteArrayDataOutput write() {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("World");
+    public void write(@NotNull ByteArrayDataOutput out) {
         out.writeUTF(world);
-        return out;
     }
 }

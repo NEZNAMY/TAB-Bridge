@@ -2,7 +2,7 @@ package me.neznamy.tab.bridge.shared.message.incoming;
 
 import com.google.common.io.ByteArrayDataInput;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
-import me.neznamy.tab.bridge.shared.message.outgoing.PermissionResult;
+import me.neznamy.tab.bridge.shared.message.outgoing.HasPermission;
 import org.jetbrains.annotations.NotNull;
 
 public class PermissionCheck implements IncomingMessage {
@@ -16,6 +16,6 @@ public class PermissionCheck implements IncomingMessage {
 
     @Override
     public void process(@NotNull BridgePlayer player) {
-        player.sendPluginMessage(new PermissionResult(permission, player.hasPermission(permission)));
+        player.sendPluginMessage(new HasPermission(permission, player.hasPermission(permission)));
     }
 }

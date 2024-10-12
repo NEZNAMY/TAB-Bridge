@@ -1,7 +1,6 @@
 package me.neznamy.tab.bridge.shared.message.outgoing;
 
 import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,13 +13,10 @@ public class PlayerJoinResponse implements OutgoingMessage {
     private String group;
     private Map<String, Object> placeholders;
     private int gameMode;
-    
-    @Override
-    @NotNull
+
     @SuppressWarnings("unchecked")
-    public ByteArrayDataOutput write() {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("PlayerJoinResponse");
+    @Override
+    public void write(@NotNull ByteArrayDataOutput out) {
         out.writeUTF(world);
         if (group != null) out.writeUTF(group);
         out.writeInt(placeholders.size());
@@ -38,6 +34,5 @@ public class PlayerJoinResponse implements OutgoingMessage {
             }
         }
         out.writeInt(gameMode);
-        return out;
     }
 }
