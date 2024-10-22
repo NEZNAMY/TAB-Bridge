@@ -4,12 +4,8 @@ plugins {
 
 allprojects {
     group = "me.neznamy"
-    version = "6.0.0-SNAPSHOT"
-    description = "An all-in-one solution that works"
-
-    ext.set("id", "tab")
-    ext.set("website", "https://github.com/NEZNAMY/TAB")
-    ext.set("author", "NEZNAMY")
+    version = "6.0.0"
+    description = "An addon to extend features with TAB on proxy"
 }
 
 val platforms = setOf(
