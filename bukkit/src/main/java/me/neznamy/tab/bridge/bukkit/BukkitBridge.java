@@ -2,10 +2,7 @@ package me.neznamy.tab.bridge.bukkit;
 
 import lombok.Getter;
 import me.neznamy.tab.bridge.bukkit.hook.BridgeTabExpansion;
-import me.neznamy.tab.bridge.bukkit.platform.BukkitPlatform;
-import me.neznamy.tab.bridge.bukkit.platform.FoliaPlatform;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
-import me.neznamy.tab.bridge.shared.Platform;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.message.outgoing.WorldChange;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
@@ -30,9 +27,8 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
     public void onEnable() {
         instance = this;
         boolean folia = ReflectionUtils.classExists("io.papermc.paper.threadedregions.RegionizedServer");
-        Platform platform = folia ? new FoliaPlatform(this) : new BukkitPlatform(this);
         BridgeTabExpansion expansion = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") ? new BridgeTabExpansion() : null;
-        TABBridge.setInstance(new TABBridge(platform, expansion));
+        TABBridge.setInstance(new TABBridge(new BukkitPlatform(this, folia), expansion));
         if (expansion != null) expansion.register();
         Bukkit.getMessenger().registerIncomingPluginChannel(this, TABBridge.CHANNEL_NAME, this);
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, TABBridge.CHANNEL_NAME);
