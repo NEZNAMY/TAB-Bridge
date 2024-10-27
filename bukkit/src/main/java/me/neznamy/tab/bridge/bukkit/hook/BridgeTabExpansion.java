@@ -1,4 +1,4 @@
-package me.neznamy.tab.bridge.bukkit.features;
+package me.neznamy.tab.bridge.bukkit.hook;
 
 import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;

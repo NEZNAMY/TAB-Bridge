@@ -2,6 +2,7 @@ package me.neznamy.tab.bridge.bukkit;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
+import me.neznamy.tab.bridge.bukkit.hook.LibsDisguisesHook;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.hook.LuckPermsHook;

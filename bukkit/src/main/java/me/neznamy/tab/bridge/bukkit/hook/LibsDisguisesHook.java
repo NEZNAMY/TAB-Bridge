@@ -1,4 +1,4 @@
-package me.neznamy.tab.bridge.bukkit;
+package me.neznamy.tab.bridge.bukkit.hook;
 
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;

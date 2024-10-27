@@ -1,7 +1,7 @@
 package me.neznamy.tab.bridge.bukkit;
 
 import lombok.Getter;
-import me.neznamy.tab.bridge.bukkit.features.BridgeTabExpansion;
+import me.neznamy.tab.bridge.bukkit.hook.BridgeTabExpansion;
 import me.neznamy.tab.bridge.bukkit.platform.BukkitPlatform;
 import me.neznamy.tab.bridge.bukkit.platform.FoliaPlatform;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
