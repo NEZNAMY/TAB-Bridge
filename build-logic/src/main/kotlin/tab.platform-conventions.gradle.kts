@@ -6,6 +6,6 @@ plugins {
 tasks {
     shadowJar {
         archiveFileName.set("TAB-Bridge-${project.name}-${project.version}.jar")
-        relocate("org.bstats", "me.neznamy.tab.libs.org.bstats")
+        relocate("org.bstats", "me.neznamy.tab.bridge.libs.org.bstats")
     }
 }
