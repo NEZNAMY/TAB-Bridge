@@ -75,10 +75,10 @@ public class DataBridge {
         String subChannel = in.readUTF();
         if (subChannel.equals("PlayerJoin")) {
             // Read join input
-            int protocolVersion = in.readInt();
+            in.readInt(); // Unused protocol version, forgot to remove it in v6
             groupForwarding = in.readBoolean();
             int placeholderCount = in.readInt();
-            BridgePlayer bp = TABBridge.getInstance().getPlatform().newPlayer(player, protocolVersion);
+            BridgePlayer bp = TABBridge.getInstance().getPlatform().newPlayer(player);
             for (int i=0; i<placeholderCount; i++) {
                 registerPlaceholder(bp, in.readUTF(), in.readInt());
             }

@@ -27,8 +27,8 @@ public class BukkitBridgePlayer extends BridgePlayer {
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public BukkitBridgePlayer(Player player, int protocolVersion) {
-        super(player.getName(), player.getUniqueId(), protocolVersion);
+    public BukkitBridgePlayer(Player player) {
+        super(player.getName(), player.getUniqueId());
         this.player = player;
         Field channelsField = player.getClass().getDeclaredField("channels");
         channelsField.setAccessible(true);

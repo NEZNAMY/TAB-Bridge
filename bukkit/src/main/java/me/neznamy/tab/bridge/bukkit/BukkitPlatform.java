@@ -50,8 +50,8 @@ public class BukkitPlatform implements Platform {
     }
 
     @Override
-    public BridgePlayer newPlayer(Object player, int protocolVersion) {
-        return new BukkitBridgePlayer((Player) player, protocolVersion);
+    public BridgePlayer newPlayer(Object player) {
+        return new BukkitBridgePlayer((Player) player);
     }
 
     @Override

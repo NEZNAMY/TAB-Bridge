@@ -14,7 +14,7 @@ public interface Platform {
 
     void runTask(Runnable task);
 
-    BridgePlayer newPlayer(Object player, int protocolVersion);
+    BridgePlayer newPlayer(Object player);
 
     Placeholder createPlaceholder(String publicIdentifier, String privateIdentifier, int refresh);
 

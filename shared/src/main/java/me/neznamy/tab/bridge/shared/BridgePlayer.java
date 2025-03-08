@@ -14,7 +14,6 @@ public abstract class BridgePlayer {
 
     private final String name;
     private final UUID uniqueId;
-    private final int protocolVersion;
     private boolean vanished;
     private boolean disguised;
     private boolean invisible;
