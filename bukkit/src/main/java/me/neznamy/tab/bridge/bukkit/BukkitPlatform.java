@@ -56,22 +56,19 @@ public class BukkitPlatform implements Platform {
 
     @Override
     public Placeholder createPlaceholder(String publicIdentifier, String privateIdentifier, int refresh) {
-        if (!placeholderAPI) {
-            if (privateIdentifier.startsWith("%rel_")) {
-                return new RelationalPlaceholder(publicIdentifier, refresh, (viewer, target) -> "<PlaceholderAPI is not installed>");
-            } else {
-                return new ServerPlaceholder(publicIdentifier, refresh, () -> "<PlaceholderAPI is not installed>");
-            }
-        }
-        if (privateIdentifier.startsWith("%rel_")) {
-            return new RelationalPlaceholder(publicIdentifier, refresh, (viewer, target) ->
-                    PlaceholderAPI.setRelationalPlaceholders(((BukkitBridgePlayer)viewer).getPlayer(),
-                            ((BukkitBridgePlayer)target).getPlayer(), privateIdentifier));
-        } else if (privateIdentifier.startsWith("%server_") && !privateIdentifier.contains("{")) {
-            return new ServerPlaceholder(publicIdentifier, refresh, () -> parseWithNestedPlaceholders(null, privateIdentifier));
+        Placeholder placeholder;
+        if (privateIdentifier.startsWith("%server_")) {
+            placeholder = new ServerPlaceholder(publicIdentifier, refresh, () ->
+                    placeholderAPI ? parseWithNestedPlaceholders(null, privateIdentifier) : "<PlaceholderAPI is not installed>");
+        } else if (privateIdentifier.startsWith("%rel_")) {
+            placeholder = new RelationalPlaceholder(publicIdentifier, refresh, (viewer, target) ->
+                    placeholderAPI ? PlaceholderAPI.setRelationalPlaceholders(((BukkitBridgePlayer)viewer).getPlayer(),
+                            ((BukkitBridgePlayer)target).getPlayer(), privateIdentifier) : "<PlaceholderAPI is not installed>");
         } else {
-            return new PlayerPlaceholder(publicIdentifier, refresh, p -> parseWithNestedPlaceholders(((BukkitBridgePlayer)p).getPlayer(), privateIdentifier));
+            placeholder = new PlayerPlaceholder(publicIdentifier, refresh, p ->
+                    placeholderAPI ? parseWithNestedPlaceholders(((BukkitBridgePlayer)p).getPlayer(), privateIdentifier) : "<PlaceholderAPI is not installed>");
         }
+        return placeholder;
     }
 
     private String parseWithNestedPlaceholders(Player player, String identifier) {
@@ -79,7 +76,7 @@ public class BukkitPlatform implements Platform {
         String textBefore;
         do {
             textBefore = text;
-            text = PlaceholderAPI.setPlaceholders(player, PlaceholderAPI.setBracketPlaceholders(player, text));
+            text = PlaceholderAPI.setPlaceholders(player, text);
         } while (!textBefore.equals(text));
         return text;
     }
