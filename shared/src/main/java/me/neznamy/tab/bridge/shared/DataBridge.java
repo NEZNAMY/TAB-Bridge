@@ -206,6 +206,7 @@ public class DataBridge {
 
     private void updatePlaceholders(Placeholder[] placeholders, int counter) {
         for (Placeholder placeholder : placeholders) {
+            if (placeholder.getRefresh() == -1) continue;
             if (counter % placeholder.getRefresh() != 0) continue;
 
             if (placeholder instanceof ServerPlaceholder) {
