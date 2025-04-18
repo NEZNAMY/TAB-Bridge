@@ -20,8 +20,14 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
+/**
+ * The entry point of the plugin.
+ */
 public class BukkitBridge extends JavaPlugin implements PluginMessageListener, Listener {
 
+    /**
+     * Instance of this class.
+     */
     @Getter
     private static BukkitBridge instance;
     
@@ -44,11 +50,23 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
         TABBridge.getInstance().unload();
     }
 
+    /**
+     * Processes player join event by processing all queued plugin messages for that player.
+     *
+     * @param   e
+     *          The event
+     */
     @EventHandler
     public void onJoin(@NonNull PlayerJoinEvent e) {
         TABBridge.getInstance().submitTask(() -> TABBridge.getInstance().getDataBridge().processQueue(e.getPlayer()));
     }
 
+    /**
+     * Processes player quit event by removing the player from list of players.
+     *
+     * @param   e
+     *          The event
+     */
     @EventHandler
     public void onQuit(@NonNull PlayerQuitEvent e) {
         TABBridge.getInstance().submitTask(() -> {
@@ -58,6 +76,12 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
         });
     }
 
+    /**
+     * Processes world change event by sending a world change plugin message to the proxy.
+     *
+     * @param   e
+     *          The event
+     */
     @EventHandler
     public void onWorldChange(@NonNull PlayerChangedWorldEvent e) {
         BridgePlayer p = TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());

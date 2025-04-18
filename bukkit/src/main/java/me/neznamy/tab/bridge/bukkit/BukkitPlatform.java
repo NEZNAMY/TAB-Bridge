@@ -17,6 +17,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+/**
+ * Bukkit implementation of the Platform interface.
+ */
 @RequiredArgsConstructor
 public class BukkitPlatform implements Platform {
 

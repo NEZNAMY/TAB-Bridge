@@ -19,6 +19,9 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.util.Set;
 
+/**
+ * Bukkit implementation of BridgePlayer.
+ */
 @Getter
 public class BukkitBridgePlayer extends BridgePlayer {
 
@@ -33,6 +36,12 @@ public class BukkitBridgePlayer extends BridgePlayer {
     @Nullable
     private Permission permission;
 
+    /**
+     * Constructs new instance for given player.
+     *
+     * @param   player
+     *          Player to create this instance for
+     */
     @SneakyThrows
     @SuppressWarnings("unchecked")
     public BukkitBridgePlayer(@NonNull Player player) {
