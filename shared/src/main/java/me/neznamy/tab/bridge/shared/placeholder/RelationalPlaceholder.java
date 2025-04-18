@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.shared.placeholder;
 
+import lombok.NonNull;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.message.outgoing.PlaceholderError;
 import org.jetbrains.annotations.NotNull;
@@ -14,9 +15,11 @@ import java.util.function.BiFunction;
 public class RelationalPlaceholder extends Placeholder {
 
     /** Last known placeholder values */
+    @NotNull
     private final Map<BridgePlayer, Map<BridgePlayer, String>> lastValues = new WeakHashMap<>();
 
     /** Placeholder apply function */
+    @NotNull
     private final BiFunction<BridgePlayer, BridgePlayer, String> function;
 
     /**
@@ -29,7 +32,7 @@ public class RelationalPlaceholder extends Placeholder {
      * @param   function
      *          Placeholder apply function
      */
-    public RelationalPlaceholder(@NotNull String identifier, int refresh, @NotNull BiFunction<BridgePlayer, BridgePlayer, String> function) {
+    public RelationalPlaceholder(@NonNull String identifier, int refresh, @NonNull BiFunction<BridgePlayer, BridgePlayer, String> function) {
         super(identifier, refresh);
         this.function = function;
     }
@@ -44,7 +47,7 @@ public class RelationalPlaceholder extends Placeholder {
      *          Player the value is displayed on
      * @return  {@code true} if value changed, {@code false} if not
      */
-    public boolean update(@NotNull BridgePlayer viewer, @NotNull BridgePlayer target) {
+    public boolean update(@NonNull BridgePlayer viewer, @NonNull BridgePlayer target) {
         String value = request(viewer, target);
         if (!lastValues.computeIfAbsent(viewer, v -> new WeakHashMap<>()).getOrDefault(target, getIdentifier()).equals(value)) {
             lastValues.get(viewer).put(target, value);
@@ -64,7 +67,7 @@ public class RelationalPlaceholder extends Placeholder {
      * @return  New value for the players
      */
     @NotNull
-    private String request(@NotNull BridgePlayer viewer, @NotNull BridgePlayer target) {
+    private String request(@NonNull BridgePlayer viewer, @NonNull BridgePlayer target) {
         try {
             return function.apply(viewer, target);
         } catch (Throwable t) {
@@ -85,7 +88,7 @@ public class RelationalPlaceholder extends Placeholder {
      * @return  Last known value of the placeholder for players
      */
     @NotNull
-    public String getLastValue(@NotNull BridgePlayer viewer, @NotNull BridgePlayer target) {
+    public String getLastValue(@NonNull BridgePlayer viewer, @NonNull BridgePlayer target) {
         return lastValues.computeIfAbsent(viewer, v -> new WeakHashMap<>()).computeIfAbsent(target, t -> request(viewer, target));
     }
 }

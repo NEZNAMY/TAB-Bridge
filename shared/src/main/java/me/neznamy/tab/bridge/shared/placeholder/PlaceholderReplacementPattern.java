@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.shared.placeholder;
 
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -15,6 +16,7 @@ public class PlaceholderReplacementPattern {
      * Full replacement map with values colored and keys being duplicated,
      * once with and once without colors
      */
+    @NotNull
     private final Map<String, String> replacements = new HashMap<>();
 
     /**
@@ -22,6 +24,7 @@ public class PlaceholderReplacementPattern {
      * with first value being minimum and second value maximum and value
      * being output to replace to.
      */
+    @NotNull
     private final Map<float[], String> numberIntervals = new HashMap<>();
 
     /**
@@ -32,7 +35,7 @@ public class PlaceholderReplacementPattern {
      * @param   map
      *          replacement map from config
      */
-    public PlaceholderReplacementPattern(@NotNull String identifier, @NotNull Map<Object, Object> map) {
+    public PlaceholderReplacementPattern(@NonNull String identifier, @NonNull Map<Object, Object> map) {
         for (Map.Entry<Object, Object> entry : map.entrySet()) {
             String key = String.valueOf(entry.getKey());
             String value = String.valueOf(entry.getValue()).replace(identifier, "%value%");
@@ -67,7 +70,8 @@ public class PlaceholderReplacementPattern {
      *          placeholder's output
      * @return  replacement or {@code output} if no pattern is matching
      */
-    public @NotNull String findReplacement(@NotNull String output) {
+    @NotNull
+    public String findReplacement(@NonNull String output) {
         String replacement = findReplacement0(output);
         if (replacement.contains("%value%")) {
             replacement = replacement.replace("%value%", output);
@@ -83,7 +87,8 @@ public class PlaceholderReplacementPattern {
      *          placeholder's output
      * @return  replacement or {@code output} if no pattern is matching
      */
-    private @NotNull String findReplacement0(@NotNull String output) {
+    @NotNull
+    private String findReplacement0(@NonNull String output) {
         //skipping check if no replacements are defined
         if (replacements.isEmpty()) return output;
 

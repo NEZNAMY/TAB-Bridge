@@ -1,6 +1,7 @@
 package me.neznamy.tab.bridge.bukkit.hook;
 
 import lombok.Getter;
+import lombok.NonNull;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
@@ -10,15 +11,9 @@ import me.neznamy.tab.bridge.shared.message.outgoing.RegisterPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,7 +39,7 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
     }
 
     @Override
-    public String onPlaceholderRequest(Player player, @NotNull String identifier) {
+    public String onPlaceholderRequest(@Nullable Player player, @NotNull String identifier) {
         if (player == null) return "";
         if (identifier.startsWith("replace_")) {
             String text = "%" + identifier.substring(8) + "%";
@@ -73,11 +68,12 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
     }
 
     @Override
-    public void setValue(BridgePlayer player, String identifier, String value) {
+    public void setValue(@NonNull BridgePlayer player, @NonNull String identifier, @NonNull String value) {
         values.computeIfAbsent((Player) player.getPlayer(), p -> new HashMap<>()).put(identifier, value);
     }
 
-    public @NotNull List<String> detectPlaceholders(@NotNull String text) {
+    @NotNull
+    private List<String> detectPlaceholders(@NonNull String text) {
         if (!text.contains("%")) return Collections.emptyList();
         List<String> placeholders = new ArrayList<>();
         Matcher m = placeholderPattern.matcher(text);

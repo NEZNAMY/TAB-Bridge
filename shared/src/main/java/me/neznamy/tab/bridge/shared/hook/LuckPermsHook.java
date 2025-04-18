@@ -5,6 +5,7 @@ import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -15,7 +16,9 @@ import java.util.function.Function;
 public class LuckPermsHook {
 
     /** Instance of the class */
-    @Getter private static final LuckPermsHook instance = new LuckPermsHook();
+    @Getter
+    @NotNull
+    private static final LuckPermsHook instance = new LuckPermsHook();
 
     /** Flag tracking if LuckPerms is installed or not */
     private final boolean installed = ReflectionUtils.classExists("net.luckperms.api.LuckPerms");

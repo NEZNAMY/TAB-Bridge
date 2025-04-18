@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.shared.placeholder;
 
+import lombok.NonNull;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.message.outgoing.PlaceholderError;
 import org.jetbrains.annotations.NotNull;
@@ -14,9 +15,11 @@ import java.util.function.Function;
 public class PlayerPlaceholder extends Placeholder {
 
     /** Last known values for each player */
+    @NotNull
     private final Map<BridgePlayer, String> lastValues = new WeakHashMap<>();
 
     /** Placeholder apply function */
+    @NotNull
     private final Function<BridgePlayer, String> function;
 
     /**
@@ -29,7 +32,7 @@ public class PlayerPlaceholder extends Placeholder {
      * @param   function
      *          Placeholder apply function
      */
-    public PlayerPlaceholder(@NotNull String identifier, int refresh, @NotNull Function<BridgePlayer, String> function) {
+    public PlayerPlaceholder(@NonNull String identifier, int refresh, @NonNull Function<BridgePlayer, String> function) {
         super(identifier, refresh);
         this.function = function;
     }
@@ -42,7 +45,7 @@ public class PlayerPlaceholder extends Placeholder {
      *          Player to update the placeholder for
      * @return  {@code true} if value changed, {@code false} if not
      */
-    public boolean update(@NotNull BridgePlayer player) {
+    public boolean update(@NonNull BridgePlayer player) {
         String value = request(player);
         if (!lastValues.getOrDefault(player, identifier).equals(value)) {
             lastValues.put(player, value);
@@ -60,7 +63,7 @@ public class PlayerPlaceholder extends Placeholder {
      * @return  New value for the player
      */
     @NotNull
-    private String request(@NotNull BridgePlayer player) {
+    private String request(@NonNull BridgePlayer player) {
         try {
             return function.apply(player);
         } catch (Throwable t) {
@@ -78,7 +81,7 @@ public class PlayerPlaceholder extends Placeholder {
      * @return  Last known value of the placeholder for player
      */
     @NotNull
-    public String getLastValue(@NotNull BridgePlayer player) {
+    public String getLastValue(@NonNull BridgePlayer player) {
         return lastValues.computeIfAbsent(player, this::request);
     }
 }

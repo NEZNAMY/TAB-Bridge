@@ -3,8 +3,10 @@ package me.neznamy.tab.bridge.shared;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.bridge.shared.message.outgoing.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -38,7 +40,7 @@ public abstract class BridgePlayer {
         sendPluginMessage(new SetInvisible(invisible));
     }
 
-    public void setGroup(String group) {
+    public void setGroup(@NonNull String group) {
         if (this.group.equals(group)) return;
         this.group = group;
         sendPluginMessage(new GroupChange(group));
@@ -54,7 +56,7 @@ public abstract class BridgePlayer {
         this.gameMode = gameMode;
     }
 
-    public void sendPluginMessage(OutgoingMessage message) {
+    public void sendPluginMessage(@NonNull OutgoingMessage message) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeByte(OutgoingMessage.PACKET_IDS.get(message.getClass()));
         message.write(out);
@@ -63,9 +65,10 @@ public abstract class BridgePlayer {
 
     public abstract void sendPluginMessage(byte[] message);
 
+    @NotNull
     public abstract String getWorld();
 
-    public abstract boolean hasPermission(String permission);
+    public abstract boolean hasPermission(@NonNull String permission);
 
     public abstract boolean checkInvisibility();
 
@@ -73,9 +76,11 @@ public abstract class BridgePlayer {
 
     public abstract boolean checkDisguised();
 
+    @NotNull
     public abstract String checkGroup();
 
     public abstract int checkGameMode();
 
+    @NotNull
     public abstract Object getPlayer();
 }

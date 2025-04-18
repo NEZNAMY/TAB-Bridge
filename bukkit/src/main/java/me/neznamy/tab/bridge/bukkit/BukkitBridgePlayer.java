@@ -1,6 +1,7 @@
 package me.neznamy.tab.bridge.bukkit;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import me.neznamy.tab.bridge.bukkit.hook.LibsDisguisesHook;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
@@ -12,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.Set;
@@ -21,13 +24,18 @@ public class BukkitBridgePlayer extends BridgePlayer {
 
     private static final boolean vault = Bukkit.getPluginManager().isPluginEnabled("Vault");
 
+    @NotNull
     private final Player player;
+
+    @NotNull
     private final Set<String> channels;
+
+    @Nullable
     private Permission permission;
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public BukkitBridgePlayer(Player player) {
+    public BukkitBridgePlayer(@NonNull Player player) {
         super(player.getName(), player.getUniqueId());
         this.player = player;
         Field channelsField = player.getClass().getDeclaredField("channels");
@@ -49,12 +57,13 @@ public class BukkitBridgePlayer extends BridgePlayer {
     }
 
     @Override
+    @NotNull
     public String getWorld() {
         return player.getWorld().getName();
     }
 
     @Override
-    public boolean hasPermission(String permission) {
+    public boolean hasPermission(@NonNull String permission) {
         return player.hasPermission(permission);
     }
 
@@ -77,6 +86,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
     }
 
     @Override
+    @NotNull
     public String checkGroup() {
         if (LuckPermsHook.getInstance().isInstalled()) {
             return LuckPermsHook.getInstance().getGroupFunction().apply(this);

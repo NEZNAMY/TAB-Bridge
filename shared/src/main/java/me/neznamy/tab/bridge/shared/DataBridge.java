@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
+import lombok.NonNull;
 import me.neznamy.tab.bridge.shared.message.incoming.*;
 import me.neznamy.tab.bridge.shared.message.outgoing.PlayerJoinResponse;
 import me.neznamy.tab.bridge.shared.message.outgoing.UpdatePlaceholder;
@@ -13,6 +14,7 @@ import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
 import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,7 +73,7 @@ public class DataBridge {
         }, 100, 100, TimeUnit.MILLISECONDS);
     }
 
-    public void processPluginMessage(Object player, byte[] bytes, boolean retry) {
+    public void processPluginMessage(@NonNull Object player, byte[] bytes, boolean retry) {
         if (!TABBridge.getInstance().getPlatform().isOnline(player)) {
             messageQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(bytes);
             return;
@@ -129,7 +131,7 @@ public class DataBridge {
         }
     }
 
-    private void readReplacements(ByteArrayDataInput in) {
+    private void readReplacements(@NonNull ByteArrayDataInput in) {
         int placeholderCount = in.readInt();
         Map<String, PlaceholderReplacementPattern> replacements = new HashMap<>();
         for (int i=0; i<placeholderCount; i++) {
@@ -144,12 +146,12 @@ public class DataBridge {
         this.replacements = replacements;
     }
 
-    public void processQueue(Object player) {
+    public void processQueue(@NonNull Object player) {
         List<byte[]> list = messageQueue.remove(player);
         if (list != null) list.forEach(msg -> processPluginMessage(player, msg, true));
     }
 
-    public void registerPlaceholder(BridgePlayer player, String identifier, int refresh) {
+    public void registerPlaceholder(@NonNull BridgePlayer player, @NonNull String identifier, int refresh) {
         if (syncPlaceholders.containsKey(identifier)) {
             syncPlaceholders.get(identifier).setRefresh(refresh);
         } else if (asyncPlaceholders.containsKey(identifier)) {
@@ -178,17 +180,18 @@ public class DataBridge {
         }
     }
 
-    public void addSyncPlaceholder(Placeholder placeholder) {
+    public void addSyncPlaceholder(@NonNull Placeholder placeholder) {
         syncPlaceholders.put(placeholder.getIdentifier(), placeholder);
         syncPlaceholderArray = syncPlaceholders.values().toArray(new Placeholder[0]);
     }
 
-    public void addAsyncPlaceholder(Placeholder placeholder) {
+    public void addAsyncPlaceholder(@NonNull Placeholder placeholder) {
         asyncPlaceholders.put(placeholder.getIdentifier(), placeholder);
         asyncPlaceholderArray = asyncPlaceholders.values().toArray(new Placeholder[0]);
     }
 
-    public Map<String, Object> parsePlaceholders(BridgePlayer player) {
+    @NotNull
+    public Map<String, Object> parsePlaceholders(@NonNull BridgePlayer player) {
         Map<String, Object> outputs = new LinkedHashMap<>();
         List<Placeholder> allPlaceholders = Lists.newArrayList(asyncPlaceholderArray);
         allPlaceholders.addAll(syncPlaceholders.values());
@@ -209,7 +212,7 @@ public class DataBridge {
         return outputs;
     }
 
-    private void updatePlaceholders(Placeholder[] placeholders, int counter) {
+    private void updatePlaceholders(@NonNull Placeholder[] placeholders, int counter) {
         for (Placeholder placeholder : placeholders) {
             if (placeholder.getRefresh() == -1) continue;
             if (counter % placeholder.getRefresh() != 0) continue;
@@ -242,7 +245,7 @@ public class DataBridge {
         }
     }
 
-    private void sendInitialValues(Placeholder placeholder, BridgePlayer player) {
+    private void sendInitialValues(@NonNull Placeholder placeholder, @NonNull BridgePlayer player) {
         if (placeholder instanceof ServerPlaceholder) {
             ServerPlaceholder pl = (ServerPlaceholder) placeholder;
             player.sendPluginMessage(new UpdatePlaceholder(pl.getIdentifier(), pl.getLastValue()));

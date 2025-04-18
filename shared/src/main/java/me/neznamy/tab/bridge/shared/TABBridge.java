@@ -2,9 +2,11 @@ package me.neznamy.tab.bridge.shared;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.neznamy.tab.bridge.shared.features.TabExpansion;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -32,26 +34,27 @@ public class TABBridge {
     @Getter private final ScheduledExecutorService placeholderThread = Executors.newSingleThreadScheduledExecutor(
             new ThreadFactoryBuilder().setNameFormat("TAB-Bridge Placeholder Refreshing Thread").build());
 
-    public void addPlayer(BridgePlayer player) {
+    public void addPlayer(@NonNull BridgePlayer player) {
         players.put(player.getUniqueId(), player);
         playerArray = players.values().toArray(new BridgePlayer[0]);
     }
 
-    public void removePlayer(BridgePlayer player) {
+    public void removePlayer(@NonNull BridgePlayer player) {
         players.remove(player.getUniqueId());
         playerArray = players.values().toArray(new BridgePlayer[0]);
     }
 
+    @NotNull
     public BridgePlayer[] getOnlinePlayers() {
         return playerArray;
     }
 
     @Nullable
-    public BridgePlayer getPlayer(UUID uuid) {
+    public BridgePlayer getPlayer(@NonNull UUID uuid) {
         return players.get(uuid);
     }
 
-    public void submitTask(Runnable task) {
+    public void submitTask(@NonNull Runnable task) {
         // Executor service swallows exceptions
         scheduler.submit(() -> {
             try {

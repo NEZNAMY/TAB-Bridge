@@ -1,6 +1,7 @@
 package me.neznamy.tab.bridge.shared.placeholder;
 
 import lombok.Getter;
+import lombok.NonNull;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.message.outgoing.PlaceholderError;
@@ -19,6 +20,7 @@ public class ServerPlaceholder extends Placeholder {
     private String lastValue;
 
     /** Function for retrieving new value */
+    @NotNull
     private final Supplier<String> function;
 
     /**
@@ -31,7 +33,7 @@ public class ServerPlaceholder extends Placeholder {
      * @param   function
      *          Placeholder apply function
      */
-    public ServerPlaceholder(@NotNull String identifier, int refresh, @NotNull Supplier<String> function) {
+    public ServerPlaceholder(@NonNull String identifier, int refresh, @NonNull Supplier<String> function) {
         super(identifier, refresh);
         this.function = function;
         lastValue = request();

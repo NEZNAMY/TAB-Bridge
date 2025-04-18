@@ -1,22 +1,27 @@
 package me.neznamy.tab.bridge.shared;
 
+import lombok.NonNull;
 import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 public interface Platform {
 
-    boolean isOnline(Object player);
+    boolean isOnline(@NonNull Object player);
 
-    UUID getUniqueId(Object player);
+    @NotNull
+    UUID getUniqueId(@NonNull Object player);
 
-    void scheduleSyncRepeatingTask(Runnable task, int intervalTicks);
+    void scheduleSyncRepeatingTask(@NonNull Runnable task, int intervalTicks);
 
-    void runTask(Runnable task);
+    void runTask(@NonNull Runnable task);
 
-    BridgePlayer newPlayer(Object player);
+    @NotNull
+    BridgePlayer newPlayer(@NonNull Object player);
 
-    Placeholder createPlaceholder(String publicIdentifier, String privateIdentifier, int refresh);
+    @NotNull
+    Placeholder createPlaceholder(@NonNull String publicIdentifier, @NonNull String privateIdentifier, int refresh);
 
     void cancelTasks();
 }

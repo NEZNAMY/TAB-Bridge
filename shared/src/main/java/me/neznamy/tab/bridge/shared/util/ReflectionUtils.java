@@ -2,7 +2,7 @@ package me.neznamy.tab.bridge.shared.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Utility class storing methods working with reflection
@@ -18,7 +18,7 @@ public class ReflectionUtils {
      *          Full class path and name
      * @return  {@code true} if exists, {@code false} if not
      */
-    public static boolean classExists(@NotNull String path) {
+    public static boolean classExists(@NonNull String path) {
         try {
             Class.forName(path);
             return true;
