@@ -2,16 +2,19 @@ package me.neznamy.tab.bridge.shared.message.outgoing;
 
 import com.google.common.io.ByteArrayDataOutput;
 import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @AllArgsConstructor
 public class PlaceholderError implements OutgoingMessage {
 
+    @NonNull
     private String placeholderMessage;
+
+    @NonNull
     private Throwable exception;
 
     @Override
-    public void write(@NotNull ByteArrayDataOutput out) {
+    public void write(@NonNull ByteArrayDataOutput out) {
         out.writeUTF(placeholderMessage);
         out.writeInt(exception.getStackTrace().length+1);
         out.writeUTF(exception.getClass().getName() + ": " + exception.getMessage());

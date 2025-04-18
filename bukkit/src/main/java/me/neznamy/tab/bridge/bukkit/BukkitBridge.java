@@ -1,6 +1,7 @@
 package me.neznamy.tab.bridge.bukkit;
 
 import lombok.Getter;
+import lombok.NonNull;
 import me.neznamy.tab.bridge.bukkit.hook.BridgeTabExpansion;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
@@ -18,11 +19,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
-import org.jetbrains.annotations.NotNull;
 
 public class BukkitBridge extends JavaPlugin implements PluginMessageListener, Listener {
 
-    @Getter private static BukkitBridge instance;
+    @Getter
+    private static BukkitBridge instance;
     
     public void onEnable() {
         instance = this;
@@ -44,12 +45,12 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent e) {
+    public void onJoin(@NonNull PlayerJoinEvent e) {
         TABBridge.getInstance().submitTask(() -> TABBridge.getInstance().getDataBridge().processQueue(e.getPlayer()));
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
+    public void onQuit(@NonNull PlayerQuitEvent e) {
         TABBridge.getInstance().submitTask(() -> {
             BukkitBridgePlayer p = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
             if (p == null) return;
@@ -58,14 +59,14 @@ public class BukkitBridge extends JavaPlugin implements PluginMessageListener, L
     }
 
     @EventHandler
-    public void onWorldChange(PlayerChangedWorldEvent e) {
+    public void onWorldChange(@NonNull PlayerChangedWorldEvent e) {
         BridgePlayer p = TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
         if (p == null) return;
         p.sendPluginMessage(new WorldChange(e.getPlayer().getWorld().getName()));
     }
 
     @Override
-    public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] bytes){
+    public void onPluginMessageReceived(@NonNull String channel, @NonNull Player player, byte[] bytes){
         if (!channel.equals(TABBridge.CHANNEL_NAME)) return;
         TABBridge.getInstance().submitTask(
                 () -> TABBridge.getInstance().getDataBridge().processPluginMessage(player, bytes, false));

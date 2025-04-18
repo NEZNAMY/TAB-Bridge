@@ -2,21 +2,28 @@ package me.neznamy.tab.bridge.shared.message.outgoing;
 
 import com.google.common.io.ByteArrayDataOutput;
 import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
 @AllArgsConstructor
 public class PlayerJoinResponse implements OutgoingMessage {
 
+    @NonNull
     private String world;
+
+    @Nullable
     private String group;
+
+    @NonNull
     private Map<String, Object> placeholders;
+
     private int gameMode;
 
     @SuppressWarnings("unchecked")
     @Override
-    public void write(@NotNull ByteArrayDataOutput out) {
+    public void write(@NonNull ByteArrayDataOutput out) {
         out.writeUTF(world);
         if (group != null) out.writeUTF(group);
         out.writeInt(placeholders.size());

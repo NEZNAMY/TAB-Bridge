@@ -2,7 +2,7 @@ package me.neznamy.tab.bridge.shared.message.outgoing;
 
 import com.google.common.io.ByteArrayDataOutput;
 import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @AllArgsConstructor
 public class SetInvisible implements OutgoingMessage {
@@ -10,7 +10,7 @@ public class SetInvisible implements OutgoingMessage {
     private boolean invisible;
 
     @Override
-    public void write(@NotNull ByteArrayDataOutput out) {
+    public void write(@NonNull ByteArrayDataOutput out) {
         out.writeBoolean(invisible);
     }
 }

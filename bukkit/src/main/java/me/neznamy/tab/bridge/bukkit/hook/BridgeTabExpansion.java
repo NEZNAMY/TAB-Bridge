@@ -39,7 +39,7 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
     }
 
     @Override
-    public String onPlaceholderRequest(@Nullable Player player, @NotNull String identifier) {
+    public String onPlaceholderRequest(@Nullable Player player, @NonNull String identifier) {
         if (player == null) return "";
         if (identifier.startsWith("replace_")) {
             String text = "%" + identifier.substring(8) + "%";

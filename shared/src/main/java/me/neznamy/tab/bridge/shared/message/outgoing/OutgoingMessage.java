@@ -1,7 +1,7 @@
 package me.neznamy.tab.bridge.shared.message.outgoing;
 
 import com.google.common.io.ByteArrayDataOutput;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,5 +31,5 @@ public interface OutgoingMessage {
      * @param   out
      *          Output to write into
      */
-    void write(@NotNull ByteArrayDataOutput out);
+    void write(@NonNull ByteArrayDataOutput out);
 }
