@@ -1,12 +1,18 @@
 package me.neznamy.tab.bridge.shared.message.incoming;
 
-import com.google.common.io.ByteArrayDataInput;
 import lombok.NonNull;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 
+/**
+ * Interface representing an incoming message from the proxy.
+ */
 public interface IncomingMessage {
 
-    void read(@NonNull ByteArrayDataInput in);
-
+    /**
+     * Processes the incoming message for the specified player.
+     *
+     * @param   player
+     *          The player to process the message for
+     */
     void process(@NonNull BridgePlayer player);
 }

@@ -5,26 +5,20 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
 import lombok.NonNull;
-import me.neznamy.tab.bridge.shared.message.incoming.*;
+import me.neznamy.tab.bridge.shared.message.incoming.ExpansionPlaceholder;
+import me.neznamy.tab.bridge.shared.message.incoming.IncomingMessage;
+import me.neznamy.tab.bridge.shared.message.incoming.PermissionCheck;
+import me.neznamy.tab.bridge.shared.message.incoming.PlaceholderRegister;
 import me.neznamy.tab.bridge.shared.message.outgoing.PlayerJoinResponse;
 import me.neznamy.tab.bridge.shared.message.outgoing.UpdatePlaceholder;
 import me.neznamy.tab.bridge.shared.message.outgoing.UpdateRelationalPlaceholder;
-import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
-import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
-import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
-import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
-import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
+import me.neznamy.tab.bridge.shared.placeholder.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 @SuppressWarnings("unchecked")
 public class DataBridge {
@@ -40,7 +34,7 @@ public class DataBridge {
     private int refreshCounterSync;
     private int refreshCounterAsync;
 
-    private final Map<String, Supplier<IncomingMessage>> registeredMessages = new HashMap<String, Supplier<IncomingMessage>>() {{
+    private final Map<String, Function<ByteArrayDataInput, IncomingMessage>> registeredMessages = new HashMap<String, Function<ByteArrayDataInput, IncomingMessage>>() {{
         put("Permission", PermissionCheck::new);
         put("Placeholder", PlaceholderRegister::new);
         put("Expansion", ExpansionPlaceholder::new);
@@ -119,11 +113,9 @@ public class DataBridge {
             messageQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(bytes);
             return;
         }
-        Supplier<IncomingMessage> supplier = registeredMessages.get(subChannel);
-        if (supplier != null) {
-            IncomingMessage msg = supplier.get();
-            msg.read(in);
-            msg.process(pl);
+        Function<ByteArrayDataInput, IncomingMessage> function = registeredMessages.get(subChannel);
+        if (function != null) {
+            function.apply(in).process(pl);
         }
 
         if (subChannel.equals("Unload") && !retry) {
