@@ -30,9 +30,6 @@ public class BukkitBridgePlayer extends BridgePlayer {
     @NotNull
     private final Player player;
 
-    @NotNull
-    private final Set<String> channels;
-
     @Nullable
     private Permission permission;
 
@@ -42,26 +39,33 @@ public class BukkitBridgePlayer extends BridgePlayer {
      * @param   player
      *          Player to create this instance for
      */
-    @SneakyThrows
-    @SuppressWarnings("unchecked")
     public BukkitBridgePlayer(@NonNull Player player) {
         super(player.getName(), player.getUniqueId());
         this.player = player;
-        Field channelsField = player.getClass().getDeclaredField("channels");
-        channelsField.setAccessible(true);
-        channels = ((Set<String>) channelsField.get(player));
+        addChannel();
         if (vault) {
             RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
             if (rsp != null) permission = rsp.getProvider();
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private void addChannel() {
+        try {
+            // 1.20.2 bug adding it with a significant delay, add ourselves to make it work
+            // apparently it affects those players on older server version as well, so do this always
+            Field channelsField = player.getClass().getDeclaredField("channels");
+            channelsField.setAccessible(true);
+            Set<String> channels = ((Set<String>) channelsField.get(player));
+            channels.add(TABBridge.CHANNEL_NAME);
+        } catch (Exception e) {
+            // Paper 1.21.7+, hopefully this is not needed anymore
+        }
+    }
+
     @Override
     @SneakyThrows
     public void sendPluginMessage(byte[] message) {
-        // 1.20.2 bug adding it with a significant delay, add ourselves to make it work
-        // apparently it affects those players on older server version as well, so do this always
-        channels.add(TABBridge.CHANNEL_NAME);
         player.sendPluginMessage(BukkitBridge.getInstance(), TABBridge.CHANNEL_NAME, message);
     }
 
