@@ -118,6 +118,7 @@ public class BukkitBridge extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onChannelRegister(@NonNull PlayerRegisterChannelEvent e) {
+        if (!e.getChannel().equals(TABBridge.CHANNEL_NAME)) return;
         BukkitBridgePlayer player = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
         if (player != null) {
             player.sendQueuedMessages();
