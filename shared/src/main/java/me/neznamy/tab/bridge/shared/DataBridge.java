@@ -23,8 +23,7 @@ import java.util.function.Function;
 @SuppressWarnings("unchecked")
 public class DataBridge {
 
-    private final Map<Object, List<byte[]>> messageQueue = new WeakHashMap<>();
-    @Getter private final Map<Object, List<IncomingMessage>> messageQueue2 = new WeakHashMap<>();
+    private final Map<UUID, List<byte[]>> messageQueue = new WeakHashMap<>();
     private final Map<String, Placeholder> asyncPlaceholders = new ConcurrentHashMap<>();
     private final Map<String, Placeholder> syncPlaceholders = new ConcurrentHashMap<>();
     private Placeholder[] syncPlaceholderArray = new Placeholder[0];
@@ -67,9 +66,10 @@ public class DataBridge {
         }, 100, 100, TimeUnit.MILLISECONDS);
     }
 
-    public void processPluginMessage(@NonNull Object player, byte[] bytes, boolean retry) {
-        if (!TABBridge.getInstance().getPlatform().isOnline(player)) {
-            messageQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(bytes);
+    public void processPluginMessage(@NonNull UUID uuid, byte[] bytes, boolean retry) {
+        Object player = TABBridge.getInstance().getPlatform().getPlayer(uuid);
+        if (player == null) {
+            messageQueue.computeIfAbsent(uuid, p -> new ArrayList<>()).add(bytes);
             return;
         }
         ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
@@ -105,12 +105,12 @@ public class DataBridge {
                     }
                 }
             }
-            processQueue(player);
+            processQueue(uuid);
             return;
         }
-        BridgePlayer pl = TABBridge.getInstance().getPlayer(TABBridge.getInstance().getPlatform().getUniqueId(player));
+        BridgePlayer pl = TABBridge.getInstance().getPlayer(uuid);
         if (pl == null) {
-            messageQueue.computeIfAbsent(player, p -> new ArrayList<>()).add(bytes);
+            messageQueue.computeIfAbsent(uuid, p -> new ArrayList<>()).add(bytes);
             return;
         }
         Function<ByteArrayDataInput, IncomingMessage> function = registeredMessages.get(subChannel);
@@ -138,7 +138,7 @@ public class DataBridge {
         this.replacements = replacements;
     }
 
-    public void processQueue(@NonNull Object player) {
+    public void processQueue(@NonNull UUID player) {
         List<byte[]> list = messageQueue.remove(player);
         if (list != null) list.forEach(msg -> processPluginMessage(player, msg, true));
     }

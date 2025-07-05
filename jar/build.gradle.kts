@@ -5,7 +5,8 @@ plugins {
 }
 
 val platforms = setOf(
-    rootProject.projects.bukkit
+    rootProject.projects.bukkit,
+    rootProject.projects.bukkit.paper,
 ).map { it.dependencyProject }
 
 tasks {

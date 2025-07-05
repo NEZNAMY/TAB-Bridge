@@ -3,6 +3,7 @@ package me.neznamy.tab.bridge.shared;
 import lombok.NonNull;
 import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -11,25 +12,6 @@ import java.util.UUID;
  * It provides methods to interact with the platform and manage players.
  */
 public interface Platform {
-
-    /**
-     * Checks if the given player is online or not.
-     *
-     * @param   player
-     *          Player object to check
-     * @return  {@code true} if the player is online, {@code false} otherwise
-     */
-    boolean isOnline(@NonNull Object player);
-
-    /**
-     * Returns UUID of the specified player.
-     *
-     * @param   player
-     *          Player object to get UUID from
-     * @return  UUID of the player
-     */
-    @NotNull
-    UUID getUniqueId(@NonNull Object player);
 
     /**
      * Starts a new repeating task that runs on the main thread.
@@ -77,4 +59,14 @@ public interface Platform {
      * Cancels all sync tasks that were created.
      */
     void cancelTasks();
+
+    /**
+     * Returns the player object for given UUID.
+     *
+     * @param   uniqueId
+     *          UUID of the player to get
+     * @return  Player object for given UUID, or {@code null} if not found
+     */
+    @Nullable
+    Object getPlayer(@NonNull UUID uniqueId);
 }

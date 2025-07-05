@@ -28,17 +28,6 @@ public class BukkitPlatform implements Platform {
     private final boolean folia;
 
     @Override
-    public boolean isOnline(@NonNull Object player) {
-        return ((Player)player).isOnline();
-    }
-
-    @Override
-    @NotNull
-    public UUID getUniqueId(@NonNull Object player) {
-        return ((Player)player).getUniqueId();
-    }
-
-    @Override
     public void scheduleSyncRepeatingTask(@NonNull Runnable task, int intervalTicks) {
         if (folia) return; // Do not refresh sync placeholders on folia
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, task, intervalTicks, intervalTicks);
@@ -54,6 +43,12 @@ public class BukkitPlatform implements Platform {
     public void cancelTasks() {
         if (folia) return; // No tasks to cancel
         Bukkit.getScheduler().cancelTasks(plugin);
+    }
+
+    @Override
+    @Nullable
+    public Object getPlayer(@NonNull UUID uniqueId) {
+        return Bukkit.getPlayer(uniqueId);
     }
 
     @Override
