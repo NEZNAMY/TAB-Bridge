@@ -10,7 +10,6 @@ import me.neznamy.tab.bridge.shared.message.outgoing.WorldChange;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -21,10 +20,6 @@ import org.bukkit.event.player.PlayerRegisterChannelEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
-
-import java.util.Collections;
-import java.util.Set;
-import java.util.WeakHashMap;
 
 /**
  * The entry point of the plugin.
@@ -37,9 +32,6 @@ public class BukkitBridge extends JavaPlugin implements Listener {
      */
     @Getter
     private static BukkitBridge instance;
-
-    /** Players who already got their TAB-Bridge channel registered */
-    private final Set<Player> channelRegisteredPlayers = Collections.newSetFromMap(new WeakHashMap<>());
 
     @SneakyThrows
     public void onEnable() {
@@ -109,8 +101,7 @@ public class BukkitBridge extends JavaPlugin implements Listener {
     }
 
     /**
-     * Processes channel registration event by adding the player to the set of players
-     * who registered the channel. This is used to ensure that plugin messages are not swallowed
+     * Processes queued plugin messages for given player. This is used to ensure that plugin messages are not swallowed
      * if sent too early.
      *
      * @param   e
@@ -122,8 +113,6 @@ public class BukkitBridge extends JavaPlugin implements Listener {
         BukkitBridgePlayer player = (BukkitBridgePlayer) TABBridge.getInstance().getPlayer(e.getPlayer().getUniqueId());
         if (player != null) {
             player.sendQueuedMessages();
-        } else {
-            channelRegisteredPlayers.add(e.getPlayer());
         }
     }
 }

@@ -46,7 +46,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
     public BukkitBridgePlayer(@NonNull Player player) {
         super(player.getName(), player.getUniqueId());
         this.player = player;
-        channelRegistered = BukkitBridge.getInstance().getChannelRegisteredPlayers().contains(player);
+        channelRegistered = player.getListeningPluginChannels().contains(TABBridge.CHANNEL_NAME);
         if (vault) {
             RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
             if (rsp != null) permission = rsp.getProvider();
