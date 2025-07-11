@@ -55,6 +55,8 @@ public class TABBridge {
     }
 
     public void submitTask(@NonNull Runnable task) {
+        if (scheduler.isShutdown()) return;
+
         // Executor service swallows exceptions
         scheduler.submit(() -> {
             try {
