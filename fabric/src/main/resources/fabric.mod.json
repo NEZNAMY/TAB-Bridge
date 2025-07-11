@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "tab-bridge",
+  "version": "6.0.5",
+  "name": "TAB-Bridge",
+  "description": "Extends features when TAB is installed on proxy",
+  "authors": ["NEZNAMY"],
+  "environment": "server",
+  "entrypoints": {
+    "server": ["me.neznamy.tab.bridge.fabric.FabricBridge"]
+  },
+  "depends": {
+    "fabric-api-base": "*",
+    "java": ">=17",
+    "minecraft": [
+      "1.20.5",
+      "1.20.6",
+      "1.21",
+      "1.21.1",
+      "1.21.2",
+      "1.21.3",
+      "1.21.4",
+      "1.21.5",
+      "1.21.6",
+      "1.21.7"
+    ]
+  },
+  "recommends": {
+    "placeholder-api": "*"
+  }
+}

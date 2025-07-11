@@ -69,7 +69,7 @@ public class BukkitBridge extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onJoin(@NonNull PlayerJoinEvent e) {
-        TABBridge.getInstance().submitTask(() -> TABBridge.getInstance().getDataBridge().processQueue(e.getPlayer().getUniqueId()));
+        TABBridge.getInstance().submitTask(() -> TABBridge.getInstance().getDataBridge().processQueue(e.getPlayer(), e.getPlayer().getUniqueId()));
     }
 
     /**

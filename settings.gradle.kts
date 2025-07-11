@@ -15,6 +15,7 @@ pluginManagement {
     includeBuild("build-logic")
     repositories {
         maven("https://repo.spongepowered.org/repository/maven-public/")
+        maven("https://maven.architectury.dev/")
         gradlePluginPortal()
         mavenCentral()
     }
@@ -25,4 +26,5 @@ rootProject.name = "TAB-Bridge"
 include("shared")
 include("bukkit")
 include("bukkit:paper")
+include("fabric")
 include("jar")

@@ -10,12 +10,9 @@ import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import me.neznamy.tab.bridge.shared.message.outgoing.RegisterPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * TAB's expansion for PlaceholderAPI
@@ -26,8 +23,6 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
     private final Map<Player, Map<String, String>> values = new WeakHashMap<>();
 
     private final Map<Player, Set<String>> sentRequests = new WeakHashMap<>();
-
-    private final Pattern placeholderPattern = Pattern.compile("%([^%]*)%");
 
     @Getter private final String author = "NEZNAMY";
     @Getter private final String identifier = "tab";
@@ -70,16 +65,5 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
     @Override
     public void setValue(@NonNull BridgePlayer player, @NonNull String identifier, @NonNull String value) {
         values.computeIfAbsent((Player) player.getPlayer(), p -> new HashMap<>()).put(identifier, value);
-    }
-
-    @NotNull
-    private List<String> detectPlaceholders(@NonNull String text) {
-        if (!text.contains("%")) return Collections.emptyList();
-        List<String> placeholders = new ArrayList<>();
-        Matcher m = placeholderPattern.matcher(text);
-        while (m.find()) {
-            placeholders.add(m.group());
-        }
-        return placeholders;
     }
 }

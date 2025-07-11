@@ -72,6 +72,10 @@ public class DataBridge {
             messageQueue.computeIfAbsent(uuid, p -> new ArrayList<>()).add(bytes);
             return;
         }
+        processPluginMessage(player, uuid, bytes, retry);
+    }
+
+    public void processPluginMessage(@NonNull Object player, @NonNull UUID uuid, byte[] bytes, boolean retry) {
         ByteArrayDataInput in = ByteStreams.newDataInput(bytes);
         String subChannel = in.readUTF();
         if (subChannel.equals("PlayerJoin")) {
@@ -105,7 +109,7 @@ public class DataBridge {
                     }
                 }
             }
-            processQueue(uuid);
+            processQueue(player, uuid);
             return;
         }
         BridgePlayer pl = TABBridge.getInstance().getPlayer(uuid);
@@ -138,9 +142,9 @@ public class DataBridge {
         this.replacements = replacements;
     }
 
-    public void processQueue(@NonNull UUID player) {
-        List<byte[]> list = messageQueue.remove(player);
-        if (list != null) list.forEach(msg -> processPluginMessage(player, msg, true));
+    public void processQueue(@NonNull Object player, @NonNull UUID uuid) {
+        List<byte[]> list = messageQueue.remove(uuid);
+        if (list != null) list.forEach(msg -> processPluginMessage(player, uuid, msg, true));
     }
 
     public void registerPlaceholder(@NonNull BridgePlayer player, @NonNull String identifier, int refresh) {
