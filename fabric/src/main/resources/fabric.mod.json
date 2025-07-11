@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "tab-bridge",
-  "version": "6.0.5",
+  "version": "6.1.0",
   "name": "TAB-Bridge",
   "description": "Extends features when TAB is installed on proxy",
   "authors": ["NEZNAMY"],
