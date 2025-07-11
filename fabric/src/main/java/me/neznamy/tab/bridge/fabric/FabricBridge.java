@@ -7,12 +7,14 @@ import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.message.outgoing.WorldChange;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ServerLevelData;
 import org.jetbrains.annotations.NotNull;
@@ -58,13 +60,26 @@ public class FabricBridge implements DedicatedServerModInitializer {
                     TABBridge.getInstance().removePlayer(p);
                 }));
 
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
-            BridgePlayer p = TABBridge.getInstance().getPlayer(player.getUUID());
-            if (p == null) return;
-            p.sendPluginMessage(new WorldChange(getLevelName(destination)));
-        });
+        ServerPlayerEvents.AFTER_RESPAWN.register(
+                (oldPlayer, newPlayer, alive) -> {
+                    FabricBridgePlayer player = (FabricBridgePlayer) TABBridge.getInstance().getPlayer(oldPlayer.getUUID());
+                    if (player != null) {
+                        player.setPlayer(newPlayer);
+                    }
+                    // respawning from death & taking end portal in the end does not call world change event
+                    worldChange(newPlayer, newPlayer.level());
+                });
+
+        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) ->
+                worldChange(player, destination));
 
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> TABBridge.getInstance().unload());
+    }
+
+    private void worldChange(@NotNull ServerPlayer player, @NotNull Level destination) {
+        BridgePlayer p = TABBridge.getInstance().getPlayer(player.getUUID());
+        if (p == null) return;
+        p.sendPluginMessage(new WorldChange(getLevelName(destination)));
     }
 
     @NotNull

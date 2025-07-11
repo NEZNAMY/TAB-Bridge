@@ -2,6 +2,7 @@ package me.neznamy.tab.bridge.fabric;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import me.neznamy.tab.bridge.fabric.hook.PermissionsAPIHook;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.hook.LuckPermsHook;
@@ -12,11 +13,12 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Bukkit implementation of BridgePlayer.
  */
+@Setter
 @Getter
 public class FabricBridgePlayer extends BridgePlayer {
 
     @NotNull
-    private final ServerPlayer player;
+    private ServerPlayer player;
 
     /**
      * Constructs new instance for given player.
