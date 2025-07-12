@@ -15,7 +15,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * CustomPayloadManager implementation for 1.19.4-.
+ * CustomPayloadManager implementation for 1.19 - 1.19.4.
  */
 @SuppressWarnings("unused") // Used via reflection
 public class VersionLoaderImpl implements VersionLoader {
