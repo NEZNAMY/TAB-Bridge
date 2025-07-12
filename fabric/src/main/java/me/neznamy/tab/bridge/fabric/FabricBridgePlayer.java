@@ -6,7 +6,6 @@ import lombok.Setter;
 import me.neznamy.tab.bridge.fabric.hook.PermissionsAPIHook;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.hook.LuckPermsHook;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,13 +32,13 @@ public class FabricBridgePlayer extends BridgePlayer {
 
     @Override
     public synchronized void sendPluginMessage(byte[] message) {
-        ServerPlayNetworking.send(player, new TabCustomPacketPayload(message));
+        FabricBridge.getInstance().getVersionLoader().sendCustomPayload(player, message);
     }
 
     @Override
     @NotNull
     public String getWorld() {
-        return FabricBridge.getLevelName(player.level());
+        return FabricBridge.getLevelName(FabricBridge.getInstance().getVersionLoader().getLevel(player));
     }
 
     @Override

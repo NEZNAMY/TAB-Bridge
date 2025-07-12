@@ -23,8 +23,11 @@ pluginManagement {
 
 rootProject.name = "TAB-Bridge"
 
-include("shared")
-include("bukkit")
-include("bukkit:paper")
-include("fabric")
-include("jar")
+include(":shared")
+include(":bukkit")
+include(":bukkit:paper")
+include(":fabric")
+include(":fabric:v1_19_4")
+include(":fabric:v1_20_4")
+include(":jar")
+
