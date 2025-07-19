@@ -1,4 +1,4 @@
-package me.neznamy.tab.bridge.fabric.v1_21_7;
+package me.neznamy.tab.bridge.fabric.v1_21_8;
 
 import lombok.NonNull;
 import me.neznamy.tab.bridge.fabric.VersionLoader;
