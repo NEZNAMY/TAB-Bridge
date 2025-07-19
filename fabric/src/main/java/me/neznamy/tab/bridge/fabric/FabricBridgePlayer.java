@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Bukkit implementation of BridgePlayer.
+ * Fabric implementation of BridgePlayer.
  */
 @Setter
 @Getter
