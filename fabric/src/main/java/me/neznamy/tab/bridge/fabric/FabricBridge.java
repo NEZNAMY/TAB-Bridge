@@ -49,9 +49,12 @@ public class FabricBridge implements DedicatedServerModInitializer {
         } else if (serverVersion >= 763) {
             // 1.20 - 1.20.4
             return "v1_20_4";
-        } else {
+        } else if (serverVersion >= 759) {
             // 1.19 - 1.19.4
             return "v1_19_4";
+        } else {
+            // 1.16 - 1.18.2
+            return "v1_18_2";
         }
     }
 
@@ -61,8 +64,8 @@ public class FabricBridge implements DedicatedServerModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             versionLoader.registerListeners();
-            FabricTabExpansion expansion = FabricLoader.getInstance().isModLoaded("placeholder-api") ? new FabricTabExpansion() : null;
-            TABBridge.setInstance(new TABBridge(new FabricPlatform(server), expansion));
+            FabricTabExpansion expansion = FabricLoader.getInstance().isModLoaded("placeholder-api") ? new FabricTabExpansion(versionLoader) : null;
+            TABBridge.setInstance(new TABBridge(new FabricPlatform(versionLoader, server), expansion));
             TABBridge.getInstance().getDataBridge().startTasks();
         });
 

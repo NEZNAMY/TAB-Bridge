@@ -5,12 +5,13 @@ import eu.pb4.placeholders.api.PlaceholderHandler;
 import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
 import lombok.Getter;
+import lombok.NonNull;
+import me.neznamy.tab.bridge.fabric.VersionLoader;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import me.neznamy.tab.bridge.shared.message.outgoing.RegisterPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,8 +30,11 @@ public class FabricTabExpansion implements TabExpansion {
 
     /**
      * Constructs a new instance of this class and registers all placeholders.
+     *
+     * @param   version
+     *          VersionLoader instance to use for creating components
      */
-    public FabricTabExpansion() {
+    public FabricTabExpansion(@NonNull VersionLoader version) {
         List<String> placeholders = Arrays.asList(
                 "tabprefix",
                 "tabsuffix",
@@ -66,7 +70,7 @@ public class FabricTabExpansion implements TabExpansion {
                 for (String placeholder : detectPlaceholders(text)) {
                     PlaceholderReplacementPattern pattern = TABBridge.getInstance().getDataBridge().getReplacements().get(placeholder);
                     if (pattern != null) text = text.replace(placeholder, pattern.findReplacement(Placeholders.parseText(
-                            Component.literal(placeholder),
+                            version.newTextComponent(placeholder),
                             PlaceholderContext.of(ctx.player())
                     ).getString()));
                 }

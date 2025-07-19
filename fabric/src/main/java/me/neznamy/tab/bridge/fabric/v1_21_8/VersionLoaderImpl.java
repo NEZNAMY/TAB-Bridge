@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * CustomPayloadManager implementation for 1.20.5+.
  */
+@SuppressWarnings("unused") // Used via reflection
 public class VersionLoaderImpl implements VersionLoader {
 
     @Override
@@ -41,6 +43,12 @@ public class VersionLoaderImpl implements VersionLoader {
     @NotNull
     public Level getLevel(@NonNull ServerPlayer player) {
         return player.level();
+    }
+
+    @Override
+    @NotNull
+    public Component newTextComponent(@NonNull String text) {
+        return Component.literal(text);
     }
 
     public record TabCustomPacketPayload(byte[] data) implements CustomPacketPayload {

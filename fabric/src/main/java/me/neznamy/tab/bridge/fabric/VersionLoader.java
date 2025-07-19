@@ -2,6 +2,7 @@ package me.neznamy.tab.bridge.fabric;
 
 import lombok.NonNull;
 import me.neznamy.tab.bridge.shared.TABBridge;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -43,4 +44,15 @@ public interface VersionLoader {
      */
     @NotNull
     Level getLevel(@NonNull ServerPlayer player);
+
+    /**
+     * Creates a new text component with the specified text.
+     *
+     * @param text
+     *        The text to create the component with
+     * @return
+     *        A new text component containing the specified text
+     */
+    @NotNull
+    Component newTextComponent(@NonNull String text);
 }

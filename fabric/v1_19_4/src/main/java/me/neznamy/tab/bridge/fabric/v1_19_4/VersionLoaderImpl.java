@@ -8,6 +8,7 @@ import me.neznamy.tab.bridge.shared.TABBridge;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -43,5 +44,11 @@ public class VersionLoaderImpl implements VersionLoader {
     @NotNull
     public Level getLevel(@NonNull ServerPlayer player) {
         return player.level;
+    }
+
+    @Override
+    @NotNull
+    public Component newTextComponent(@NonNull String text) {
+        return Component.literal(text);
     }
 }

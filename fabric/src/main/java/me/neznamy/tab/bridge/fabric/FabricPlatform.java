@@ -11,7 +11,6 @@ import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +25,7 @@ import java.util.UUID;
 public class FabricPlatform implements Platform {
 
     private final boolean placeholderAPI = FabricLoader.getInstance().isModLoaded("placeholder-api");
+    private final VersionLoader version;
     private final MinecraftServer server;
 
     @Override
@@ -79,7 +79,7 @@ public class FabricPlatform implements Platform {
         String textBefore;
         do {
             textBefore = text;
-            text = Placeholders.parseText(Component.literal(text), PlaceholderContext.of(player)).getString();
+            text = Placeholders.parseText(version.newTextComponent(text), PlaceholderContext.of(player)).getString();
         } while (!textBefore.equals(text));
         return text;
     }
