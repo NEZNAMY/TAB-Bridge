@@ -84,11 +84,11 @@ public class DataBridge {
             groupForwarding = in.readBoolean();
             int placeholderCount = in.readInt();
             BridgePlayer bp = TABBridge.getInstance().getPlatform().newPlayer(player);
+            TABBridge.getInstance().addPlayer(bp);
             for (int i=0; i<placeholderCount; i++) {
                 registerPlaceholder(bp, in.readUTF(), in.readInt());
             }
             readReplacements(in);
-            TABBridge.getInstance().addPlayer(bp);
 
             // Send response
             int gamemode = bp.checkGameMode();
