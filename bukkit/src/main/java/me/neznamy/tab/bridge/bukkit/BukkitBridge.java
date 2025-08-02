@@ -7,7 +7,6 @@ import me.neznamy.tab.bridge.bukkit.hook.BridgeTabExpansion;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.message.outgoing.WorldChange;
-import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -36,9 +35,10 @@ public class BukkitBridge extends JavaPlugin implements Listener {
     @SneakyThrows
     public void onEnable() {
         instance = this;
-        boolean folia = ReflectionUtils.classExists("io.papermc.paper.threadedregions.RegionizedServer");
         BridgeTabExpansion expansion = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") ? new BridgeTabExpansion() : null;
-        TABBridge.setInstance(new TABBridge(new BukkitPlatform(this, folia), expansion));
+        BukkitPlatform platform = new BukkitPlatform(this);
+        TABBridge.setInstance(new TABBridge(platform, expansion));
+        platform.startTasks();
         if (expansion != null) expansion.register();
 
         PluginMessageListener pluginMessageListener;

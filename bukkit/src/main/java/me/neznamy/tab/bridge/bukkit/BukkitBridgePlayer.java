@@ -44,7 +44,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
      *          Player to create this instance for
      */
     public BukkitBridgePlayer(@NonNull Player player) {
-        super(player.getName(), player.getUniqueId());
+        super(player.getName(), player.getUniqueId(), player.getWorld().getName());
         this.player = player;
         channelRegistered = player.getListeningPluginChannels().contains(TABBridge.CHANNEL_NAME);
         if (vault) {

@@ -26,7 +26,7 @@ public class FabricBridgePlayer extends BridgePlayer {
      *          Player to create this instance for
      */
     public FabricBridgePlayer(@NonNull ServerPlayer player) {
-        super(player.getGameProfile().getName(), player.getUUID());
+        super(player.getGameProfile().getName(), player.getUUID(), FabricBridge.getLevelName(FabricBridge.getInstance().getVersionLoader().getLevel(player)));
         this.player = player;
     }
 

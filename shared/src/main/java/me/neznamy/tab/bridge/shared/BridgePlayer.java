@@ -4,7 +4,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import me.neznamy.tab.bridge.shared.message.outgoing.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +12,6 @@ import java.util.UUID;
 /**
  * Abstract class representing a player connected to the proxy.
  */
-@RequiredArgsConstructor
 @Getter
 public abstract class BridgePlayer {
 
@@ -23,6 +21,9 @@ public abstract class BridgePlayer {
 
     /** Player's UUID */
     private final UUID uniqueId;
+
+    @NotNull
+    private String world;
 
     /** Flag tracking whether this player is vanished or not */
     private boolean vanished;
@@ -38,6 +39,22 @@ public abstract class BridgePlayer {
 
     /** Player's primary permission group */
     private String group = "NONE";
+
+    /**
+     * Constructs a new instance of BridgePlayer with the given parameters.
+     *
+     * @param   name
+     *          Player's name
+     * @param   uniqueId
+     *          Player's unique ID
+     * @param   world
+     *          Player's world
+     */
+    public BridgePlayer(@NonNull String name, @NonNull UUID uniqueId, @NonNull String world) {
+        this.name = name;
+        this.uniqueId = uniqueId;
+        this.world = world;
+    }
 
     /**
      * Updates vanish status to give value. If it changed, sends plugin message to the proxy.
@@ -122,6 +139,17 @@ public abstract class BridgePlayer {
         out.writeByte(OutgoingMessage.PACKET_IDS.get(message.getClass()));
         message.write(out);
         sendPluginMessage(out.toByteArray());
+    }
+
+    /**
+     * Refreshes the player's world by checking the current world and sending a plugin message
+     * if it has changed since the last check.
+     */
+    public void refreshWorld() {
+        String world = getWorld();
+        if (this.world.equals(world)) return;
+        this.world = world;
+        sendPluginMessage(new WorldChange(world));
     }
 
     /**

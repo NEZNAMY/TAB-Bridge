@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.Platform;
+import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
+import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Bukkit implementation of the Platform interface.
@@ -24,8 +27,22 @@ import java.util.UUID;
 public class BukkitPlatform implements Platform {
 
     private final boolean placeholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
+    private final boolean folia = ReflectionUtils.classExists("io.papermc.paper.threadedregions.RegionizedServer");
     private final JavaPlugin plugin;
-    private final boolean folia;
+
+    /**
+     * Starts the periodic tasks for refreshing player worlds on Folia servers.
+     * On non-Folia servers, this method does nothing.
+     */
+    public void startTasks() {
+        if (folia) {
+            TABBridge.getInstance().getScheduler().scheduleAtFixedRate(() -> {
+                for (BridgePlayer player : TABBridge.getInstance().getOnlinePlayers()) {
+                    player.refreshWorld();
+                }
+            }, 50, 50, TimeUnit.MILLISECONDS);
+        }
+    }
 
     @Override
     public void scheduleSyncRepeatingTask(@NonNull Runnable task, int intervalTicks) {
