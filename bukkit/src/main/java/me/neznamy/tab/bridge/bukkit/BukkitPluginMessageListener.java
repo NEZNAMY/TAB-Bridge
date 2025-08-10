@@ -15,6 +15,6 @@ public class BukkitPluginMessageListener implements PluginMessageListener {
     public void onPluginMessageReceived(@NonNull String channel, @NonNull Player player, byte[] bytes) {
         if (!channel.equals(TABBridge.CHANNEL_NAME)) return;
         TABBridge.getInstance().submitTask(
-                () -> TABBridge.getInstance().getDataBridge().processPluginMessage(player, player.getUniqueId(), bytes, false));
+                () -> TABBridge.getInstance().getDataBridge().processPluginMessage(player.getUniqueId(), bytes, false));
     }
 }
