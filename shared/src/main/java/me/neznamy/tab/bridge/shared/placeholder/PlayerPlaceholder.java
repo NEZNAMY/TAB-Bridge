@@ -6,6 +6,7 @@ import me.neznamy.tab.bridge.shared.message.outgoing.PlaceholderError;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 
@@ -65,7 +66,8 @@ public class PlayerPlaceholder extends Placeholder {
     @NotNull
     private String request(@NonNull BridgePlayer player) {
         try {
-            return function.apply(player);
+            String result = function.apply(player);
+            return Objects.requireNonNull(result, "Placeholder " + identifier + " returned null for player " + player.getName());
         } catch (Throwable t) {
             player.sendPluginMessage(new PlaceholderError("Player placeholder " + identifier + " generated an error when setting for player " + player.getName(), t));
             return "<PlaceholderAPI Error>";
