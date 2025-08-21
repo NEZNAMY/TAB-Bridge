@@ -54,7 +54,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
     }
 
     @Override
-    public synchronized void sendPluginMessage(byte[] message) {
+    public void sendPluginMessage(byte[] message) {
         if (!channelRegistered) {
             queuedMessages.add(message);
             return;
@@ -116,7 +116,7 @@ public class BukkitBridgePlayer extends BridgePlayer {
     /**
      * Sends all queued messages to the player after their channel has been registered.
      */
-    public synchronized void sendQueuedMessages() {
+    public void sendQueuedMessages() {
         channelRegistered = true;
         for (byte[] message : queuedMessages) {
             sendPluginMessage(message);
