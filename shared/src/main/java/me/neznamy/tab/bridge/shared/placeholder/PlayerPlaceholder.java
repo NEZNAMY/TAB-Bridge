@@ -5,6 +5,7 @@ import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.message.outgoing.PlaceholderError;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
@@ -17,7 +18,7 @@ public class PlayerPlaceholder extends Placeholder {
 
     /** Last known values for each player */
     @NotNull
-    private final Map<BridgePlayer, String> lastValues = new WeakHashMap<>();
+    private final Map<BridgePlayer, String> lastValues = Collections.synchronizedMap(new WeakHashMap<>());
 
     /** Placeholder apply function */
     @NotNull
