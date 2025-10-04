@@ -14,6 +14,7 @@ val moddedPlatforms = setOf(
     rootProject.projects.fabric.v1182,
     rootProject.projects.fabric.v1194,
     rootProject.projects.fabric.v1204,
+    rootProject.projects.fabric.v1218
 ).map { it.dependencyProject }
 
 tasks {

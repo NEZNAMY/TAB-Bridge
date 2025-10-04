@@ -43,8 +43,11 @@ public class FabricBridge implements DedicatedServerModInitializer {
     @NotNull
     private String getImplPackage() {
         int serverVersion = SharedConstants.getProtocolVersion();
-        if (serverVersion >= 766) {
-            // 1.20.5+
+        if (serverVersion >= 773) {
+            // 1.21.9+
+            return "v1_21_9";
+        } else if (serverVersion >= 766) {
+            // 1.20.5 - 1.21.8
             return "v1_21_8";
         } else if (serverVersion >= 763) {
             // 1.20 - 1.20.4

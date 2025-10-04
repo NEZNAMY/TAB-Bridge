@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.fabric.v1_18_2;
 
+import com.mojang.authlib.GameProfile;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.NonNull;
@@ -51,5 +52,11 @@ public class VersionLoaderImpl implements VersionLoader {
     @NotNull
     public Component newTextComponent(@NonNull String text) {
         return new TextComponent(text);
+    }
+
+    @Override
+    @NotNull
+    public String getName(@NonNull GameProfile profile) {
+        return profile.getName();
     }
 }

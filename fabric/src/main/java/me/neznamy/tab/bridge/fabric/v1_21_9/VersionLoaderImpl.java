@@ -1,5 +1,6 @@
-package me.neznamy.tab.bridge.fabric.v1_21_8;
+package me.neznamy.tab.bridge.fabric.v1_21_9;
 
+import com.mojang.authlib.GameProfile;
 import lombok.NonNull;
 import me.neznamy.tab.bridge.fabric.VersionLoader;
 import me.neznamy.tab.bridge.shared.TABBridge;
@@ -15,7 +16,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * CustomPayloadManager implementation for 1.20.5+.
+ * CustomPayloadManager implementation for 1.21.9+.
  */
 @SuppressWarnings("unused") // Used via reflection
 public class VersionLoaderImpl implements VersionLoader {
@@ -51,6 +52,12 @@ public class VersionLoaderImpl implements VersionLoader {
         return Component.literal(text);
     }
 
+    @Override
+    @NotNull
+    public String getName(@NonNull GameProfile profile) {
+        return profile.name();
+    }
+
     public record TabCustomPacketPayload(byte[] data) implements CustomPacketPayload {
 
         public static final CustomPacketPayload.Type<TabCustomPacketPayload> TYPE = new CustomPacketPayload.Type<>(ID);
@@ -83,7 +90,7 @@ public class VersionLoaderImpl implements VersionLoader {
 
         public void handle(@NonNull ServerConfigurationNetworking.Context context) {
             TABBridge.getInstance().submitTask(
-                    () -> TABBridge.getInstance().getDataBridge().processPluginMessage(context.networkHandler().getOwner().getId(), data, false));
+                    () -> TABBridge.getInstance().getDataBridge().processPluginMessage(context.networkHandler().getOwner().id(), data, false));
         }
     }
 }

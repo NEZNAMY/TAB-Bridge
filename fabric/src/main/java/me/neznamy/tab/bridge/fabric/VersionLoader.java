@@ -1,5 +1,6 @@
 package me.neznamy.tab.bridge.fabric;
 
+import com.mojang.authlib.GameProfile;
 import lombok.NonNull;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import net.minecraft.network.chat.Component;
@@ -55,4 +56,15 @@ public interface VersionLoader {
      */
     @NotNull
     Component newTextComponent(@NonNull String text);
+
+    /**
+     * Gets the name of the specified game profile.
+     *
+     * @param profile
+     *        The game profile to get the name for
+     * @return
+     *        The name of the game profile
+     */
+    @NotNull
+    String getName(@NonNull GameProfile profile);
 }

@@ -14,7 +14,8 @@ val platforms = setOf(
     projects.fabric,
     projects.fabric.v1182,
     projects.fabric.v1194,
-    projects.fabric.v1204
+    projects.fabric.v1204,
+    projects.fabric.v1218
 ).map { it.dependencyProject }
 
 val special = setOf(

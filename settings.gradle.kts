@@ -30,5 +30,6 @@ include(":fabric")
 include(":fabric:v1_18_2")
 include(":fabric:v1_19_4")
 include(":fabric:v1_20_4")
+include(":fabric:v1_21_8")
 include(":jar")
 
