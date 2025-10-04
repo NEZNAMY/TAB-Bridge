@@ -6,12 +6,12 @@ import me.neznamy.tab.bridge.fabric.hook.FabricTabExpansion;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.message.outgoing.WorldChange;
+import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -64,7 +64,7 @@ public class FabricBridge implements DedicatedServerModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             versionLoader.registerListeners();
-            FabricTabExpansion expansion = FabricLoader.getInstance().isModLoaded("placeholder-api") ? new FabricTabExpansion(versionLoader) : null;
+            FabricTabExpansion expansion = ReflectionUtils.classExists("eu.pb4.placeholders.api.PlaceholderHandler") ? new FabricTabExpansion(versionLoader) : null;
             TABBridge.setInstance(new TABBridge(new FabricPlatform(versionLoader, server), expansion));
             TABBridge.getInstance().getDataBridge().startTasks();
         });
