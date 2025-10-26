@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * TAB's expansion for PlaceholderAPI
@@ -20,9 +21,9 @@ import java.util.*;
 public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpansion {
 
     /** Map holding all placeholder values for all players */
-    private final Map<Player, Map<String, String>> values = new WeakHashMap<>();
+    private final Map<BridgePlayer, Map<String, String>> values = Collections.synchronizedMap(new WeakHashMap<>());
 
-    private final Map<Player, Set<String>> sentRequests = new WeakHashMap<>();
+    private final Map<BridgePlayer, Set<String>> sentRequests = new WeakHashMap<>();
 
     @Getter private final String author = "NEZNAMY";
     @Getter private final String identifier = "tab";
@@ -34,7 +35,7 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
     }
 
     @Override
-    public String onPlaceholderRequest(@Nullable Player player, @NonNull String identifier) {
+    public synchronized String onPlaceholderRequest(@Nullable Player player, @NonNull String identifier) {
         if (player == null) return "";
         if (identifier.startsWith("replace_")) {
             String text = "%" + identifier.substring(8) + "%";
@@ -48,22 +49,23 @@ public class BridgeTabExpansion extends PlaceholderExpansion implements TabExpan
             } while (!textBefore.equals(text));
             return text;
         }
-        String value = values.computeIfAbsent(player, pl -> new HashMap<>()).get(identifier);
+        BridgePlayer bridgePlayer = TABBridge.getInstance().getPlayer(player.getUniqueId());
+        if (bridgePlayer == null) {
+            return "<Player is not loaded yet>";
+        }
+        String value = values.computeIfAbsent(bridgePlayer, pl -> new ConcurrentHashMap<>()).get(identifier);
         if (value == null && identifier.startsWith("placeholder_")) {
             String placeholder = "%" + identifier.substring(12) + "%";
-            if (!sentRequests.computeIfAbsent(player, pl -> new HashSet<>()).contains(placeholder)){
-                BridgePlayer pl = TABBridge.getInstance().getPlayer(player.getUniqueId());
-                if (pl != null) {
-                    sentRequests.get(player).add(placeholder);
-                    pl.sendPluginMessage(new RegisterPlaceholder(placeholder));
-                }
+            if (!sentRequests.computeIfAbsent(bridgePlayer, pl -> new HashSet<>()).contains(placeholder)){
+                sentRequests.get(bridgePlayer).add(placeholder);
+                bridgePlayer.sendPluginMessage(new RegisterPlaceholder(placeholder));
             }
         }
         return value;
     }
 
     @Override
-    public void setValue(@NonNull BridgePlayer player, @NonNull String identifier, @NonNull String value) {
-        values.computeIfAbsent((Player) player.getPlayer(), p -> new HashMap<>()).put(identifier, value);
+    public synchronized void setValue(@NonNull BridgePlayer player, @NonNull String identifier, @NonNull String value) {
+        values.computeIfAbsent(player, p -> new ConcurrentHashMap<>()).put(identifier, value);
     }
 }
