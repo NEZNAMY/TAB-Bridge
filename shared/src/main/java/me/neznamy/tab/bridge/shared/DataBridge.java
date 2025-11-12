@@ -30,8 +30,8 @@ public class DataBridge {
     private Placeholder[] asyncPlaceholderArray = new Placeholder[0];
     @Getter private Map<String, PlaceholderReplacementPattern> replacements = new HashMap<>();
     private boolean groupForwarding;
-    private int refreshCounterSync;
-    private int refreshCounterAsync;
+    private long refreshCounterSync;
+    private long refreshCounterAsync;
 
     private final Map<String, Function<ByteArrayDataInput, IncomingMessage>> registeredMessages = new HashMap<String, Function<ByteArrayDataInput, IncomingMessage>>() {{
         put("Permission", PermissionCheck::new);
@@ -208,7 +208,7 @@ public class DataBridge {
         return outputs;
     }
 
-    private void updatePlaceholders(@NonNull Placeholder[] placeholders, int counter) {
+    private void updatePlaceholders(@NonNull Placeholder[] placeholders, long counter) {
         for (Placeholder placeholder : placeholders) {
             if (placeholder.getRefresh() == -1) continue;
             if (counter % placeholder.getRefresh() != 0) continue;
