@@ -1,9 +1,8 @@
 package me.neznamy.tab.bridge.fabric;
 
-import eu.pb4.placeholders.api.PlaceholderContext;
-import eu.pb4.placeholders.api.Placeholders;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import me.neznamy.tab.bridge.fabric.hook.PlaceholderAPIHook;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.Platform;
 import me.neznamy.tab.bridge.shared.placeholder.Placeholder;
@@ -11,7 +10,6 @@ import me.neznamy.tab.bridge.shared.placeholder.PlayerPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.RelationalPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.ServerPlaceholder;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -79,7 +77,7 @@ public class FabricPlatform implements Platform {
         String textBefore;
         do {
             textBefore = text;
-            text = Placeholders.parseText(Component.literal(text), PlaceholderContext.of(player)).getString();
+            text = PlaceholderAPIHook.parsePlaceholders(text, player);
         } while (!textBefore.equals(text));
         return text;
     }

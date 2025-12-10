@@ -1,6 +1,5 @@
 package me.neznamy.tab.bridge.fabric.hook;
 
-import eu.pb4.placeholders.api.PlaceholderContext;
 import eu.pb4.placeholders.api.PlaceholderHandler;
 import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
@@ -10,7 +9,6 @@ import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import me.neznamy.tab.bridge.shared.message.outgoing.RegisterPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,10 +63,7 @@ public class FabricTabExpansion implements TabExpansion {
                 textBefore = text;
                 for (String placeholder : detectPlaceholders(text)) {
                     PlaceholderReplacementPattern pattern = TABBridge.getInstance().getDataBridge().getReplacements().get(placeholder);
-                    if (pattern != null) text = text.replace(placeholder, pattern.findReplacement(Placeholders.parseText(
-                            Component.literal(placeholder),
-                            PlaceholderContext.of(ctx.player())
-                    ).getString()));
+                    if (pattern != null) text = text.replace(placeholder, pattern.findReplacement(PlaceholderAPIHook.parsePlaceholders(placeholder, ctx.player())));
                 }
             } while (!textBefore.equals(text));
 
