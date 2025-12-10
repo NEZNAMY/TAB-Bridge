@@ -6,6 +6,7 @@ import lombok.Setter;
 import me.neznamy.tab.bridge.fabric.hook.PermissionsAPIHook;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.hook.LuckPermsHook;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,22 +28,27 @@ public class FabricBridgePlayer extends BridgePlayer {
      */
     public FabricBridgePlayer(@NonNull ServerPlayer player) {
         super(
-                FabricBridge.getInstance().getVersionLoader().getName(player.getGameProfile()),
+                player.getGameProfile().name(),
                 player.getUUID(),
-                FabricBridge.getLevelName(FabricBridge.getInstance().getVersionLoader().getLevel(player))
+                FabricBridge.getLevelName(player.level())
         );
         this.player = player;
     }
 
     @Override
     public synchronized void sendPluginMessage(byte[] message) {
-        FabricBridge.getInstance().getVersionLoader().sendCustomPayload(player, message);
+        ServerPlayNetworking.send(player, new TabCustomPacketPayload(message));
+
+        // This is how it was done before 1.20.5, for backporting purposes
+        // ByteBuf buf = Unpooled.buffer();
+        // buf.writeBytes(message);
+        // ServerPlayNetworking.send(player, ID, new FriendlyByteBuf(buf));
     }
 
     @Override
     @NotNull
     public String getWorld() {
-        return FabricBridge.getLevelName(FabricBridge.getInstance().getVersionLoader().getLevel(player));
+        return FabricBridge.getLevelName(player.level());
     }
 
     @Override

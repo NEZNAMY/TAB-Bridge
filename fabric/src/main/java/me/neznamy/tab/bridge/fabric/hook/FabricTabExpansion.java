@@ -5,14 +5,13 @@ import eu.pb4.placeholders.api.PlaceholderHandler;
 import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
 import lombok.Getter;
-import lombok.NonNull;
-import me.neznamy.tab.bridge.fabric.VersionLoader;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import me.neznamy.tab.bridge.shared.message.outgoing.RegisterPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -30,11 +29,8 @@ public class FabricTabExpansion implements TabExpansion {
 
     /**
      * Constructs a new instance of this class and registers all placeholders.
-     *
-     * @param   version
-     *          VersionLoader instance to use for creating components
      */
-    public FabricTabExpansion(@NonNull VersionLoader version) {
+    public FabricTabExpansion() {
         List<String> placeholders = Arrays.asList(
                 "tabprefix",
                 "tabsuffix",
@@ -70,7 +66,7 @@ public class FabricTabExpansion implements TabExpansion {
                 for (String placeholder : detectPlaceholders(text)) {
                     PlaceholderReplacementPattern pattern = TABBridge.getInstance().getDataBridge().getReplacements().get(placeholder);
                     if (pattern != null) text = text.replace(placeholder, pattern.findReplacement(Placeholders.parseText(
-                            version.newTextComponent(placeholder),
+                            Component.literal(placeholder),
                             PlaceholderContext.of(ctx.player())
                     ).getString()));
                 }
@@ -98,7 +94,7 @@ public class FabricTabExpansion implements TabExpansion {
     }
 
     private void registerPlaceholder(String identifier, PlaceholderHandler handler) {
-        Placeholders.register(ResourceLocation.tryParse("tab:" + identifier), handler);
+        Placeholders.register(Identifier.tryParse("tab:" + identifier), handler);
     }
 
     @Override

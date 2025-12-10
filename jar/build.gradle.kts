@@ -10,11 +10,7 @@ val platforms = setOf(
 ).map { it.dependencyProject }
 
 val moddedPlatforms = setOf(
-    rootProject.projects.fabric,
-    rootProject.projects.fabric.v1182,
-    rootProject.projects.fabric.v1194,
-    rootProject.projects.fabric.v1204,
-    rootProject.projects.fabric.v1218
+    rootProject.projects.fabric
 ).map { it.dependencyProject }
 
 tasks {
