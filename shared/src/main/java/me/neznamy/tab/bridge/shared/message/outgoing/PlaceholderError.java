@@ -3,15 +3,23 @@ package me.neznamy.tab.bridge.shared.message.outgoing;
 import com.google.common.io.ByteArrayDataOutput;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 
+/**
+ * Outgoing message for sending placeholder error details when a placeholder
+ * threw an error when parsing.
+ */
 @AllArgsConstructor
+@ToString
 public class PlaceholderError implements OutgoingMessage {
 
+    /** Message containing placeholder's identifier and type */
     @NonNull
-    private String placeholderMessage;
+    private final String placeholderMessage;
 
+    /** Exception thrown by the placeholder */
     @NonNull
-    private Throwable exception;
+    private final Throwable exception;
 
     @Override
     public void write(@NonNull ByteArrayDataOutput out) {

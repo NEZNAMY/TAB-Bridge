@@ -3,23 +3,33 @@ package me.neznamy.tab.bridge.shared.message.outgoing;
 import com.google.common.io.ByteArrayDataOutput;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+/**
+ * Outgoing message sent as a response to PlayerJoinRequest containing
+ * all necessary data to initialize the player on the proxy side.
+ */
 @AllArgsConstructor
+@ToString
 public class PlayerJoinResponse implements OutgoingMessage {
 
+    /** Name of the world the player is in */
     @NonNull
-    private String world;
+    private final String world;
 
+    /** Permission group of the player, null if group forwarding is disabled */
     @Nullable
-    private String group;
+    private final String group;
 
+    /** Values for all currently registered placeholders */
     @NonNull
-    private Map<String, Object> placeholders;
+    private final Map<String, Object> placeholders;
 
-    private int gameMode;
+    /** Player's gamemode */
+    private final int gameMode;
 
     @SuppressWarnings("unchecked")
     @Override
