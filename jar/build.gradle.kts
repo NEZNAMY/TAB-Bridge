@@ -1,35 +1,41 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.jvm.tasks.Jar
 
 plugins {
     id("com.gradleup.shadow")
 }
 
-val platforms = setOf(
-    rootProject.projects.bukkit,
-    rootProject.projects.bukkit.paper,
-).map { it.dependencyProject }
+val platformPaths = setOf(
+    ":bukkit",
+    ":bukkit:paper"
+)
 
-val moddedPlatforms = setOf(
-    rootProject.projects.fabric
-).map { it.dependencyProject }
+val moddedPaths = setOf(
+    ":fabric"
+)
+
+val platforms: List<Project> = platformPaths.map { rootProject.project(it) }
+val moddedPlatforms: List<Project> = moddedPaths.map { rootProject.project(it) }
 
 tasks {
     shadowJar {
         archiveFileName.set("TAB-Bridge-${project.version}.jar")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-        fun registerPlatform(project: Project, shadeTask: org.gradle.jvm.tasks.Jar) {
-            dependsOn(shadeTask)
+        fun registerPlatform(project: Project, jarTask: AbstractArchiveTask) {
+            dependsOn(jarTask)
             dependsOn(project.tasks.withType<Jar>())
-            from(zipTree(shadeTask.archiveFile))
+            from(zipTree(jarTask.archiveFile))
         }
 
-        platforms.forEach {
-            registerPlatform(it, it.tasks.named<ShadowJar>("shadowJar").get())
+        platforms.forEach { p ->
+            val task = p.tasks.named<ShadowJar>("shadowJar").get()
+            registerPlatform(p, task)
         }
 
-        moddedPlatforms.forEach {
-            registerPlatform(it, it.tasks.named<org.gradle.jvm.tasks.Jar>("remapJar").get())
+        moddedPlatforms.forEach { p ->
+            val task = p.tasks.named<Jar>("remapJar").get()
+            registerPlatform(p, task)
         }
     }
     build {

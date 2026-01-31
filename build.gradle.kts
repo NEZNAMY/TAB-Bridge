@@ -9,17 +9,16 @@ allprojects {
 }
 
 val platforms = setOf(
-    projects.bukkit,
-    projects.bukkit.paper,
-    projects.fabric
-).map { it.dependencyProject }
-
+    ":bukkit",
+    ":bukkit:paper",
+    ":fabric"
+)
 val special = setOf(
-    projects.shared
-).map { it.dependencyProject }
+    ":shared"
+)
 
 subprojects {
-    when (this) {
+    when (path) {
         in platforms -> plugins.apply("tab.platform-conventions")
         in special -> plugins.apply("tab.standard-conventions")
         else -> plugins.apply("tab.base-conventions")
