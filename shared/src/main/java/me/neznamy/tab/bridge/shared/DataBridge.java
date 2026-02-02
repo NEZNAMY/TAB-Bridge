@@ -5,10 +5,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
 import lombok.NonNull;
-import me.neznamy.tab.bridge.shared.message.incoming.ExpansionPlaceholder;
-import me.neznamy.tab.bridge.shared.message.incoming.IncomingMessage;
-import me.neznamy.tab.bridge.shared.message.incoming.PermissionCheck;
-import me.neznamy.tab.bridge.shared.message.incoming.PlaceholderRegister;
+import me.neznamy.tab.bridge.shared.message.incoming.*;
 import me.neznamy.tab.bridge.shared.message.outgoing.PlayerJoinResponse;
 import me.neznamy.tab.bridge.shared.message.outgoing.UpdatePlaceholder;
 import me.neznamy.tab.bridge.shared.message.outgoing.UpdateRelationalPlaceholder;
@@ -80,15 +77,13 @@ public class DataBridge {
         String subChannel = in.readUTF();
         if (subChannel.equals("PlayerJoin")) {
             // Read join input
-            in.readInt(); // Unused protocol version, forgot to remove it in v6
-            groupForwarding = in.readBoolean();
-            int placeholderCount = in.readInt();
+            PlayerJoin join = new PlayerJoin(in);
             BridgePlayer bp = TABBridge.getInstance().getPlatform().newPlayer(player);
             TABBridge.getInstance().addPlayer(bp);
-            for (int i=0; i<placeholderCount; i++) {
-                registerPlaceholder(bp, in.readUTF(), in.readInt());
+            for (Map.Entry<String, Integer> entry : join.getPlaceholders().entrySet()) {
+                registerPlaceholder(bp, entry.getKey(), entry.getValue());
             }
-            readReplacements(in);
+            this.replacements = join.getReplacements();
 
             // Send response
             int gamemode = bp.checkGameMode();
@@ -125,21 +120,6 @@ public class DataBridge {
         if (subChannel.equals("Unload") && !retry) {
             TABBridge.getInstance().removePlayer(pl);
         }
-    }
-
-    private void readReplacements(@NonNull ByteArrayDataInput in) {
-        int placeholderCount = in.readInt();
-        Map<String, PlaceholderReplacementPattern> replacements = new HashMap<>();
-        for (int i=0; i<placeholderCount; i++) {
-            String placeholder = in.readUTF();
-            Map<Object, Object> rules = new HashMap<>();
-            int ruleCount = in.readInt();
-            for (int j=0; j<ruleCount; j++) {
-                rules.put(in.readUTF(), in.readUTF());
-            }
-            replacements.put(placeholder, new PlaceholderReplacementPattern(placeholder, rules));
-        }
-        this.replacements = replacements;
     }
 
     public void processQueue(@NonNull Object player, @NonNull UUID uuid) {
