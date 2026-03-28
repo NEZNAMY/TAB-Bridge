@@ -83,6 +83,7 @@ public class DataBridge {
             for (Map.Entry<String, Integer> entry : join.getPlaceholders().entrySet()) {
                 registerPlaceholder(bp, entry.getKey(), entry.getValue());
             }
+            this.groupForwarding = join.isGroupForwarding();
             this.replacements = join.getReplacements();
 
             // Send response
