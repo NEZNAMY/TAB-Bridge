@@ -6,7 +6,7 @@ dependencyResolutionManagement {
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") // Spigot API
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") // PlaceholderAPI
         maven("https://jitpack.io") // Vault
-        maven("https://repo.md-5.net/content/groups/public/") // LibsDisguises
+        maven("https://mvn.lib.co.nz/public") // LibsDisguises
         maven("https://repo.papermc.io/repository/maven-public/") // paperweight
     }
 }
