@@ -80,9 +80,6 @@ public class DataBridge {
             PlayerJoin join = new PlayerJoin(in);
             BridgePlayer bp = TABBridge.getInstance().getPlatform().newPlayer(player);
             TABBridge.getInstance().addPlayer(bp);
-            for (Map.Entry<String, Integer> entry : join.getPlaceholders().entrySet()) {
-                registerPlaceholder(bp, entry.getKey(), entry.getValue());
-            }
             this.groupForwarding = join.isGroupForwarding();
             this.replacements = join.getReplacements();
 
@@ -95,6 +92,9 @@ public class DataBridge {
                     parsePlaceholders(bp),
                     gamemode
             ));
+            for (Map.Entry<String, Integer> entry : join.getPlaceholders().entrySet()) {
+                registerPlaceholder(bp, entry.getKey(), entry.getValue());
+            }
             for (Placeholder placeholder : asyncPlaceholderArray) {
                 if (placeholder instanceof RelationalPlaceholder) {
                     RelationalPlaceholder pl = (RelationalPlaceholder) placeholder;
@@ -148,12 +148,12 @@ public class DataBridge {
             } else {
                 addAsyncPlaceholder(placeholder);
             }
-        }
-        if (identifier.startsWith("%sync:")) {
-            TABBridge.getInstance().getPlatform().runTask(() ->
-                    sendInitialValues(syncPlaceholders.get(identifier), player));
-        } else {
-            sendInitialValues(asyncPlaceholders.get(identifier), player);
+            if (identifier.startsWith("%sync:")) {
+                TABBridge.getInstance().getPlatform().runTask(() ->
+                        sendInitialValues(syncPlaceholders.get(identifier), player));
+            } else {
+                sendInitialValues(asyncPlaceholders.get(identifier), player);
+            }
         }
     }
 
