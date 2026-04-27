@@ -8,6 +8,7 @@ import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.hook.LuckPermsHook;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -133,7 +134,9 @@ public class BukkitBridgePlayer extends BridgePlayer {
     @Override
     @SuppressWarnings("deprecation")
     public int checkGameMode() {
-        return player.getGameMode().getValue();
+        GameMode gameMode = player.getGameMode();
+        // Yes it can be null
+        return gameMode == null ? 0 : gameMode.getValue();
     }
 
     /**
