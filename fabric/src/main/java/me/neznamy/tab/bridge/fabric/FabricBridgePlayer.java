@@ -38,11 +38,6 @@ public class FabricBridgePlayer extends BridgePlayer {
     @Override
     public synchronized void sendPluginMessage(byte[] message) {
         ServerPlayNetworking.send(player, new TabCustomPacketPayload(message));
-
-        // This is how it was done before 1.20.5, for backporting purposes
-        // ByteBuf buf = Unpooled.buffer();
-        // buf.writeBytes(message);
-        // ServerPlayNetworking.send(player, ID, new FriendlyByteBuf(buf));
     }
 
     @Override

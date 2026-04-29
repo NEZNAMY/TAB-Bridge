@@ -7,7 +7,7 @@ import me.neznamy.tab.bridge.shared.TABBridge;
 import me.neznamy.tab.bridge.shared.message.outgoing.WorldChange;
 import me.neznamy.tab.bridge.shared.util.ReflectionUtils;
 import net.fabricmc.api.DedicatedServerModInitializer;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityLevelChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -53,7 +53,7 @@ public class FabricBridge implements DedicatedServerModInitializer {
                     worldChange(newPlayer, newPlayer.level());
                 });
 
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) ->
+        ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_LEVEL.register((player, origin, destination) ->
                 worldChange(player, destination));
 
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> TABBridge.getInstance().unload());
@@ -66,34 +66,15 @@ public class FabricBridge implements DedicatedServerModInitializer {
     }
 
     private void registerChannelHandlers() {
-        // Client to server, makes perfect sense to me registering this on server side
-        PayloadTypeRegistry.playC2S().register(TabCustomPacketPayload.TYPE, TabCustomPacketPayload.codec(Integer.MAX_VALUE));
-        PayloadTypeRegistry.configurationC2S().register(TabCustomPacketPayload.TYPE, TabCustomPacketPayload.codec(Integer.MAX_VALUE));
-
-        // This is needed, otherwise sending packet will cause ClassCastException
-        PayloadTypeRegistry.playS2C().register(TabCustomPacketPayload.TYPE, TabCustomPacketPayload.codec(Integer.MAX_VALUE));
-        PayloadTypeRegistry.configurationS2C().register(TabCustomPacketPayload.TYPE, TabCustomPacketPayload.codec(Integer.MAX_VALUE));
+        PayloadTypeRegistry.serverboundPlay().register(TabCustomPacketPayload.TYPE, TabCustomPacketPayload.codec(Integer.MAX_VALUE));
+        PayloadTypeRegistry.serverboundConfiguration().register(TabCustomPacketPayload.TYPE, TabCustomPacketPayload.codec(Integer.MAX_VALUE));
+        PayloadTypeRegistry.clientboundPlay().register(TabCustomPacketPayload.TYPE, TabCustomPacketPayload.codec(Integer.MAX_VALUE));
+        PayloadTypeRegistry.clientboundConfiguration().register(TabCustomPacketPayload.TYPE, TabCustomPacketPayload.codec(Integer.MAX_VALUE));
 
         ServerPlayNetworking.registerGlobalReceiver(TabCustomPacketPayload.TYPE,
                 (payload, context) -> handlePlayMessage(context.player(), payload.data()));
         ServerConfigurationNetworking.registerGlobalReceiver(TabCustomPacketPayload.TYPE,
-                (payload, context) -> handleConfigurationMessage(context.networkHandler().getOwner(), payload.data()));
-
-        /*
-        // This is how it was done before 1.20.5, for backporting purposes
-        ResourceLocation ID = Objects.requireNonNull(ResourceLocation.tryParse(TABBridge.CHANNEL_NAME));
-        ServerPlayNetworking.registerGlobalReceiver(ID, (var1, var2, var3, var4, var5) -> {
-            byte[] data = new byte[var4.readableBytes()];
-            var4.duplicate().readBytes(data);
-            handlePlayMessage(var2, data);
-        });
-        // 1.20.2 - 1.20.4
-        ServerConfigurationNetworking.registerGlobalReceiver(ID, (var1, var2, var3, var4) -> {
-            byte[] data = new byte[var3.readableBytes()];
-            var3.duplicate().readBytes(data);
-            handleConfigurationMessage(var2.getOwner(), data);
-        });
-        */
+                (payload, context) -> handleConfigurationMessage(context.packetListener().getOwner(), payload.data()));
     }
 
     private void handlePlayMessage(@NotNull ServerPlayer player, byte @NotNull [] data) {

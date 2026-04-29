@@ -1,5 +1,5 @@
 plugins {
-    id("dev.architectury.loom")
+    id("dev.architectury.loom-no-remap")
 }
 
 repositories {
@@ -9,69 +9,27 @@ repositories {
     maven("https://maven.nucleoid.xyz/")
 }
 
-val minecraftVersion = "1.21.11"
+val minecraftVersion = "26.1.2"
 
 // Fabric API versions for each Minecraft version for easier backporting
+// Official website (for updating in the future): https://fabricmc.net/develop/
 val fabricApiVersions = mapOf(
-    "1.21.11" to "0.139.4+1.21.11",
-    "1.21.10" to "0.136.0+1.21.10",
-    "1.21.9" to "0.134.0+1.21.9",
-    "1.21.8" to "0.136.0+1.21.8",
-    "1.21.7" to "0.129.0+1.21.7",
-    "1.21.6" to "0.128.2+1.21.6",
-    "1.21.5" to "0.128.2+1.21.5",
-    "1.21.4" to "0.119.4+1.21.4",
-    "1.21.3" to "0.114.1+1.21.3",
-    "1.21.2" to "0.106.1+1.21.2",
-    "1.21.1" to "0.116.6+1.21.1",
-    "1.21" to "0.102.0+1.21",
-    "1.20.6" to "0.100.8+1.20.6",
-    "1.20.5" to "0.97.8+1.20.5",
-    "1.20.4" to "0.97.2+1.20.4",
-    "1.20.3" to "0.91.1+1.20.3",
-    "1.20.2" to "0.91.6+1.20.2",
-    "1.20.1" to "0.92.5+1.20.1",
-    "1.20" to "0.83.0+1.20",
-    "1.19.4" to "0.87.2+1.19.4",
-    "1.19.3" to "0.76.1+1.19.3",
-    "1.19.2" to "0.77.0+1.19.2",
-    "1.19.1" to "0.58.5+1.19.1",
-    "1.19" to "0.58.0+1.19",
-    "1.18.2" to "0.77.0+1.18.2",
-    "1.18.1" to "0.46.6+1.18",
-    "1.18" to "0.44.0+1.18",
-    "1.17.1" to "0.46.1+1.17",
-    "1.17" to "0.46.1+1.17",
-    "1.16.5" to "0.42.0+1.16",
-    "1.16.4" to "0.42.0+1.16",
-    "1.16.3" to "0.42.0+1.16",
-    "1.16.2" to "0.42.0+1.16",
-    "1.16.1" to "0.42.0+1.16",
-    "1.16" to "0.42.0+1.16",
-    "1.15.2" to "0.28.5+1.15",
-    "1.15.1" to "0.28.5+1.15",
-    "1.15" to "0.28.5+1.15",
-    "1.14.4" to "0.28.5+1.14",
-    "1.14.3" to "0.28.5+1.14",
-    "1.14.2" to "0.28.5+1.14",
-    "1.14.1" to "0.28.5+1.14",
-    "1.14" to "0.28.5+1.14"
+    "26.1.2" to "0.146.1+26.1.2"
 )
 
 dependencies {
     minecraft("com.mojang:minecraft:${minecraftVersion}")
-    mappings(loom.officialMojangMappings())
     api(projects.shared)
-    modImplementation("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")
-    modImplementation("eu.pb4:placeholder-api:2.5.0+1.21.2")
-    modImplementation("net.fabricmc:fabric-loader:0.15.10")
-    modImplementation(fabricApi.module("fabric-lifecycle-events-v1", fabricApiVersions[minecraftVersion]))
-    modImplementation(fabricApi.module("fabric-networking-api-v1", fabricApiVersions[minecraftVersion]))
-    modImplementation(fabricApi.module("fabric-entity-events-v1", fabricApiVersions[minecraftVersion]))
+    implementation("me.lucko:fabric-permissions-api:0.7.0")
+    implementation("eu.pb4:placeholder-api:3.0.0+26.1")
+    implementation("net.fabricmc:fabric-loader:0.19.2")
+    implementation(fabricApi.module("fabric-lifecycle-events-v1", fabricApiVersions.getValue(minecraftVersion)))
+    implementation(fabricApi.module("fabric-networking-api-v1", fabricApiVersions.getValue(minecraftVersion)))
+    implementation(fabricApi.module("fabric-entity-events-v1", fabricApiVersions.getValue(minecraftVersion)))
 }
 
 tasks {
     compileJava {
-        options.release.set(17)
+        options.release.set(25)
     }
 }

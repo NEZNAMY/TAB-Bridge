@@ -11,9 +11,11 @@
   },
   "depends": {
     "fabric-api-base": "*",
-    "java": ">=17",
+    "java": ">=25",
     "minecraft": [
-      "1.21.11"
+      "26.1.2",
+      "26.1.1",
+      "26.1"
     ]
   },
   "recommends": {

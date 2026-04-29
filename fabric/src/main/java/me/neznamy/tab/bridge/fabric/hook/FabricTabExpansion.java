@@ -1,8 +1,9 @@
 package me.neznamy.tab.bridge.fabric.hook;
 
-import eu.pb4.placeholders.api.PlaceholderHandler;
+import eu.pb4.placeholders.api.Placeholder;
 import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
+import eu.pb4.placeholders.api.ServerPlaceholderContext;
 import lombok.Getter;
 import me.neznamy.tab.bridge.shared.BridgePlayer;
 import me.neznamy.tab.bridge.shared.TABBridge;
@@ -10,6 +11,7 @@ import me.neznamy.tab.bridge.shared.features.TabExpansion;
 import me.neznamy.tab.bridge.shared.message.outgoing.RegisterPlaceholder;
 import me.neznamy.tab.bridge.shared.placeholder.PlaceholderReplacementPattern;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -63,7 +65,7 @@ public class FabricTabExpansion implements TabExpansion {
                 textBefore = text;
                 for (String placeholder : detectPlaceholders(text)) {
                     PlaceholderReplacementPattern pattern = TABBridge.getInstance().getDataBridge().getReplacements().get(placeholder);
-                    if (pattern != null) text = text.replace(placeholder, pattern.findReplacement(PlaceholderAPIHook.parsePlaceholders(placeholder, ctx.player())));
+                    if (pattern != null) text = text.replace(placeholder, pattern.findReplacement(PlaceholderAPIHook.parsePlaceholders(placeholder, (ServerPlayer) ctx.player())));
                 }
             } while (!textBefore.equals(text));
 
@@ -88,8 +90,8 @@ public class FabricTabExpansion implements TabExpansion {
         });
     }
 
-    private void registerPlaceholder(String identifier, PlaceholderHandler handler) {
-        Placeholders.register(Identifier.tryParse("tab:" + identifier), handler);
+    private void registerPlaceholder(@NotNull String identifier, @NotNull Placeholder.Handler<ServerPlaceholderContext, String> handler) {
+        Placeholders.registerServer(Identifier.tryParse("tab:" + identifier), handler);
     }
 
     @Override

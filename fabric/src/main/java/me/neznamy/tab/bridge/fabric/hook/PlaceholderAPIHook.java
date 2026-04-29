@@ -2,6 +2,7 @@ package me.neznamy.tab.bridge.fabric.hook;
 
 import eu.pb4.placeholders.api.PlaceholderContext;
 import eu.pb4.placeholders.api.Placeholders;
+import eu.pb4.placeholders.api.node.TextNode;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.PlainTextContents;
@@ -28,7 +29,10 @@ public class PlaceholderAPIHook {
     @NotNull
     public static String parsePlaceholders(@NotNull String text, @NotNull ServerPlayer player) {
         if (!available) return "<placeholder-api is not installed>";
-        return toTabString(Placeholders.parseText(Component.literal(text), PlaceholderContext.of(player)));
+        return toTabString(Placeholders.SERVER_PLACEHOLDER_PARSER.parseComponent(
+                TextNode.convert(Component.literal(text)),
+                PlaceholderContext.of(player).asParserContext()
+        ));
     }
 
     /**
