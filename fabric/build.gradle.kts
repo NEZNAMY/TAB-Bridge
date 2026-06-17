@@ -9,11 +9,12 @@ repositories {
     maven("https://maven.nucleoid.xyz/")
 }
 
-val minecraftVersion = "26.1.2"
+val minecraftVersion = "26.2"
 
 // Fabric API versions for each Minecraft version for easier backporting
 // Official website (for updating in the future): https://fabricmc.net/develop/
 val fabricApiVersions = mapOf(
+    "26.2" to "0.152.1+26.2",
     "26.1.2" to "0.146.1+26.1.2"
 )
 
