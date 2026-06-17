@@ -2,7 +2,7 @@ plugins {
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
 }
 
-val version = "1.21.7-R0.1-SNAPSHOT"
+val version = "1.21.9-R0.1-SNAPSHOT"
 
 dependencies {
     implementation(projects.shared) // This should not be needed explicitly but somehow it is
