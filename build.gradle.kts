@@ -4,7 +4,7 @@ plugins {
 
 allprojects {
     group = "me.neznamy"
-    version = "6.2.1"
+    version = "6.2.2"
     description = "An addon to extend features with TAB on proxy"
 }
 
