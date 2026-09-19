@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id("dev.architectury.loom-no-remap")
 }
@@ -9,13 +11,14 @@ repositories {
     maven("https://maven.nucleoid.xyz/")
 }
 
-val minecraftVersion = "26.2"
+val minecraftVersion = "26.3"
 
 // Fabric API versions for each Minecraft version for easier backporting
 // Official website (for updating in the future): https://fabricmc.net/develop/
 val fabricApiVersions = mapOf(
-    "26.2" to "0.152.1+26.2",
-    "26.1.2" to "0.146.1+26.1.2"
+    "26.3" to "0.161.0+26.3",
+    "26.2" to "0.161.0+26.2",
+    "26.1.2" to "0.155.3+26.1.2"
 )
 
 dependencies {
@@ -32,5 +35,8 @@ dependencies {
 tasks {
     compileJava {
         options.release.set(25)
+    }
+    withType<ShadowJar>().configureEach {
+        enabled = false
     }
 }
